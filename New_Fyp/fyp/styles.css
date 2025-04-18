@@ -1,0 +1,116 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(black, #e0f7fa, black);
+    color: #333;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px; 
+  }
+  
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 0 20px; 
+  }
+  
+  .header h1 {
+    font-size: 2.5rem;
+    color: #00796b;
+    margin-bottom: 10px;
+  }
+  
+  .header p {
+    font-size: 1.2rem;
+    color: #004d40;
+    margin: 0;
+  }
+  
+  /* Product Grid */
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 0 20px; 
+  }
+  
+  .product-card {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    margin: 10px; 
+  }
+  
+  .product-card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .product-image {
+    background: white;
+    padding: 20px;
+    text-align: center;
+    max-width: 300px;
+    margin: 0 auto;
+  }
+  
+  .product-image img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    object-fit: cover;
+  }
+  
+  .product-details {
+    padding: 20px;
+  }
+  
+  .free-shipping {
+    background: #00796b;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 0.8rem;
+    display: inline-block;
+    margin-bottom: 10px;
+  }
+  
+  .price {
+    margin: 10px 0;
+  }
+  
+  .discounted-price {
+    color: #00796b;
+    font-weight: bold;
+  }
+  
+  .original-price {
+    color: #999;
+    text-decoration: line-through;
+    margin-left: 10px;
+  }
+  
+  .installment {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+  }
+  
+  .rating {
+    color: #ffa000;
+    font-size: 1rem;
+    margin-bottom: 10px;
+  }
+  
+  .review-count {
+    color: #666;
+    margin-left: 5px;
+  }
