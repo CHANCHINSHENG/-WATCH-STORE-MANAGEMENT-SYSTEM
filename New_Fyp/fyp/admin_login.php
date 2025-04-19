@@ -7,7 +7,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST['Admin_Password'];
 
     // Fetch admin details from database
-    $stmt = $conn->prepare("SELECT AdminID, Admin_Password FROM ADMIN WHERE Admin_Username = ?");
+    $stmt = $conn->prepare("SELECT AdminID, Admin_Password FROM 01_admin WHERE Admin_Username = ?");
     $stmt->bind_param("s", $username);
     $stmt->execute();
     $stmt->store_result();

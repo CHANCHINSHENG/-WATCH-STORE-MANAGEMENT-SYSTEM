@@ -12,7 +12,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $product_id = $_GET['id'];
 
     // Delete the product
-    $stmt = $conn->prepare("DELETE FROM PRODUCT WHERE ProductID = ?");
+    $stmt = $conn->prepare("DELETE FROM 05_PRODUCT WHERE ProductID = ?");
     $stmt->bind_param("i", $product_id);
 
     if ($stmt->execute()) {

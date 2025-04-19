@@ -10,9 +10,9 @@ if (!isset($_SESSION['admin_id'])) {
 // Fetch products with category and brand names
 $query = "SELECT p.ProductID, p.ProductName, p.Product_Price, p.Product_Status, 
                  c.CategoryName, b.BrandName
-          FROM PRODUCT p
-          LEFT JOIN CATEGORY c ON p.CategoryID = c.CategoryID
-          LEFT JOIN BRAND b ON p.BrandID = b.BrandID";
+          FROM 05_PRODUCT p
+          LEFT JOIN 04_CATEGORY c ON p.CategoryID = c.CategoryID
+          LEFT JOIN 03_BRAND b ON p.BrandID = b.BrandID";
 
 $result = $conn->query($query);
 ?>

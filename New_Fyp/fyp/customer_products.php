@@ -1,8 +1,8 @@
 <?php
+session_start();
 include 'db.php';
 
-// Fetch only available products
-$result = $conn->query("SELECT * FROM PRODUCT WHERE Product_Status = 'Available'");
+$result = $conn->query("SELECT * FROM 05_product WHERE Product_Status = 'Available'");
 ?>
 
 <!DOCTYPE html>
@@ -17,19 +17,18 @@ $result = $conn->query("SELECT * FROM PRODUCT WHERE Product_Status = 'Available'
         <div class="product-page-container">
             <div class="product-page-header">
                 <h1>TOP PICKS</h1>
+                <li class="nav-item px-2"><a class="nav-link fw-bold" href="cart.php"><img src="img/Cart icon.png" alt="Cart" style="width:24px; height:24px;"></a></li>
                 <h3>Discover our latest collection of premium watches</h3>
             </div>
 
             <div class="product-grid">
                 <?php while ($row = $result->fetch_assoc()) { ?>
                     <div class="product-card">
-                        <!-- ✅ PRODUCT LINK TO DETAILS PAGE -->
                         <a href="product_details.php?id=<?= $row['ProductID']; ?>" class="product-link">
-                            <!-- ✅ DISPLAY PRODUCT IMAGE -->
                             <?php if (!empty($row['Product_Image']) && file_exists($row['Product_Image'])) { ?>
                                 <img src="<?= htmlspecialchars($row['Product_Image']); ?>" 
-                                    alt="<?= htmlspecialchars($row['ProductName']); ?>" 
-                                    style="width: 100%; height: auto; max-height: 200px; border-radius: 12px; object-fit: cover; margin-bottom: 1rem;">
+                                     alt="<?= htmlspecialchars($row['ProductName']); ?>" 
+                                     style="width: 100%; height: auto; max-height: 200px; border-radius: 12px; object-fit: cover; margin-bottom: 1rem;">
                             <?php } else { ?>
                                 <div style="width: 100%; height: 200px; background: #f0f0f0; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #888; margin-bottom: 1rem;">
                                     No Image
@@ -42,7 +41,10 @@ $result = $conn->query("SELECT * FROM PRODUCT WHERE Product_Status = 'Available'
                             <p>Stock: <?= $row['Product_Stock_Quantity']; ?></p>
                         </a>
 
-                        <button class="add-to-cart-btn">Add to Cart</button>
+                        <form action="add_to_cart.php" method="post">
+                            <input type="hidden" name="product_id" value="<?= $row['ProductID']; ?>">
+                            <button type="submit" class="add-to-cart-btn">Add to Cart</button>
+                        </form>
                     </div>
                 <?php } ?>
             </div>

@@ -47,8 +47,9 @@
               <li class="nav-item px-2"><a class="nav-link fw-bold active" aria-current="page" href="#collections">WATCHES</a></li>
               <li class="nav-item px-2"><a class="nav-link fw-bold" href="customer_products.php">STORE</a></li>
               <li class="nav-item px-2"><a class="nav-link fw-bold" href="#contact">CONTACT</a></li>
+              <li class="nav-item px-2"><a class="nav-link fw-bold" href="cart.php"><img src="img/Cart icon.png" alt="Cart" style="width:24px; height:24px;"></a></li>
+              <li class="nav-item px-2"><a class="nav-link fw-bold" href="customer_login.php"><img src="img/user_icon.png" alt="login" style="width:24px; height:24px;"></a></li>
             </ul>
-          
           </div>
         </div>
       </nav>

@@ -7,7 +7,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST['Cust_Password'];
 
     // Fetch customer details from database
-    $stmt = $conn->prepare("SELECT CustomerID, Cust_Password FROM CUSTOMER WHERE Cust_Username = ?");
+    $stmt = $conn->prepare("SELECT CustomerID, Cust_Password FROM 02_CUSTOMER WHERE Cust_Username = ?");
     $stmt->bind_param("s", $username);
     $stmt->execute();
     $stmt->store_result();
@@ -16,6 +16,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($stmt->num_rows > 0) {
         $stmt->bind_result($CustomerID, $hashed_password);
         $stmt->fetch();
+
 
         // Verify password
         if (password_verify($password, $hashed_password)) {

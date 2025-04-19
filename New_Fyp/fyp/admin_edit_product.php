@@ -16,7 +16,7 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 $product_id = $_GET['id'];
 
 // Fetch existing product details
-$stmt = $conn->prepare("SELECT * FROM PRODUCT WHERE ProductID = ?");
+$stmt = $conn->prepare("SELECT * FROM 05_PRODUCT WHERE ProductID = ?");
 $stmt->bind_param("i", $product_id);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -44,13 +44,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stock != $product['Product_Stock_Quantity'] ||
         $status !== $product['Product_Status']
     ) {
-        $stmt = $conn->prepare("UPDATE PRODUCT SET ProductName=?, Product_Price=?, Product_Description=?, Product_Stock_Quantity=?, Product_Status=? WHERE ProductID=?");
+        $stmt = $conn->prepare("UPDATE 05_PRODUCT SET ProductName=?, Product_Price=?, Product_Description=?, Product_Stock_Quantity=?, Product_Status=? WHERE ProductID=?");
         $stmt->bind_param("sdsisi", $name, $price, $description, $stock, $status, $product_id);
 
         if ($stmt->execute()) {
             $success_message = "✅ Product updated successfully!";
             // Refresh the product data after update
-            $stmt = $conn->prepare("SELECT * FROM PRODUCT WHERE ProductID = ?");
+            $stmt = $conn->prepare("SELECT * FROM 05_PRODUCT WHERE ProductID = ?");
             $stmt->bind_param("i", $product_id);
             $stmt->execute();
             $result = $stmt->get_result();

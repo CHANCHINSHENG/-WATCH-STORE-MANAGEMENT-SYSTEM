@@ -14,7 +14,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = password_hash($_POST['Cust_Password'], PASSWORD_DEFAULT);
 
     // Check if the username or email already exists
-    $stmt = $conn->prepare("SELECT CustomerID FROM CUSTOMER WHERE Cust_Email = ? OR Cust_Username = ?");
+    $stmt = $conn->prepare("SELECT CustomerID FROM 02_CUSTOMER WHERE Cust_Email = ? OR Cust_Username = ?");
     $stmt->bind_param("ss", $email, $username);
     $stmt->execute();
     $stmt->store_result();
@@ -23,7 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $error = "❌ Email or Username already exists!";
     } else {
         // Insert new customer into the database
-        $stmt = $conn->prepare("INSERT INTO CUSTOMER (Cust_First_Name, Cust_Last_Name, Cust_Address, Cust_City, Cust_Postcode, Cust_State, Cust_Email, Cust_Password, Cust_Username, Cust_PhoneNumber) 
+        $stmt = $conn->prepare("INSERT INTO 02_CUSTOMER (Cust_First_Name, Cust_Last_Name, Cust_Address, Cust_City, Cust_Postcode, Cust_State, Cust_Email, Cust_Password, Cust_Username, Cust_PhoneNumber) 
                                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->bind_param("ssssssssss", $first_name, $last_name, $address, $city, $postcode, $state, $email, $password, $username, $phone);
         

@@ -2,7 +2,7 @@
 $servername = "localhost";
 $username = "root"; 
 $password = ""; 
-$database = "watchshop_db"; 
+$database = "e-fashion"; 
 
 $conn = new mysqli($servername, $username, $password, $database);
 if ($conn->connect_error) {

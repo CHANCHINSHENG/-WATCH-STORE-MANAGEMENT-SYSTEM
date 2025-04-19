@@ -58,7 +58,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $error = "❌ $upload_error";
     } else {
         // Prepare SQL statement
-        $sql = "INSERT INTO PRODUCT (ProductName, Product_Price, Product_Description, Product_Stock_Quantity, Product_Status, CategoryID, BrandID, Product_Image) 
+        $sql = "INSERT INTO 05_PRODUCT (ProductName, Product_Price, Product_Description, Product_Stock_Quantity, Product_Status, CategoryID, BrandID, Product_Image) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
 
@@ -80,8 +80,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 
 // Fetch categories and brands
-$categories = $conn->query("SELECT * FROM CATEGORY");
-$brands = $conn->query("SELECT * FROM BRAND");
+$categories = $conn->query("SELECT * FROM 04_category");
+$brands = $conn->query("SELECT * FROM 03_brand");
 ?>
 
 <!DOCTYPE html>

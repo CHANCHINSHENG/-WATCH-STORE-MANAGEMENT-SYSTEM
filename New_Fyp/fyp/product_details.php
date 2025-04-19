@@ -9,7 +9,7 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 $product_id = intval($_GET['id']); // Convert ID to integer for security
 
 // Fetch product details
-$stmt = $conn->prepare("SELECT * FROM PRODUCT WHERE ProductID = ?");
+$stmt = $conn->prepare("SELECT * FROM 05_product WHERE ProductID = ?");
 $stmt->bind_param("i", $product_id);
 $stmt->execute();
 $result = $stmt->get_result();
