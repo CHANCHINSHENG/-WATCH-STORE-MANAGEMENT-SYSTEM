@@ -1,0 +1,154 @@
+/* General page settings */
+body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background-color: #f4f4f4; /* Light grey background for sophistication */
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.container {
+    width: 80%;
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #fff; /* White background for contrast */
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Header */
+h1 {
+    font-size: 36px;
+    color: #333;
+    text-align: center;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+/* Error and success messages */
+.error, .success {
+    color: red;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.success {
+    color: green;
+}
+
+/* Form elements */
+form input[type="text"],
+form select {
+    width: 100%;
+    padding: 14px;
+    margin: 12px 0;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s ease;
+}
+
+form input[type="text"]:focus,
+form select:focus {
+    border-color: #444; /* Dark grey border on focus */
+    outline: none;
+}
+
+h3 {
+    font-size: 24px;
+    color: #444;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+/* Cart summary */
+table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+    font-size: 16px;
+}
+
+table th, table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+table th {
+    background-color: #f0f0f0;
+    color: #333;
+    font-weight: 600;
+}
+
+table td {
+    color: #666;
+}
+
+table td:last-child {
+    text-align: right;
+}
+
+/* Subtotal, shipping fee, and total */
+p {
+    font-size: 18px;
+    color: #333;
+    font-weight: 600;
+}
+
+p strong {
+    color: #222;
+}
+
+/* Submit button */
+button[type="submit"] {
+    width: 100%;
+    padding: 16px;
+    background-color: #444; /* Dark grey for a luxurious feel */
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover {
+    background-color: #222; /* Darker grey when hovering */
+}
+
+button[type="submit"]:active {
+    background-color: #111; /* Even darker when clicked */
+}
+
+/* Mobile responsiveness */
+@media screen and (max-width: 768px) {
+    .container {
+        width: 90%;
+    }
+
+    h1 {
+        font-size: 28px;
+    }
+
+    h3 {
+        font-size: 20px;
+    }
+
+    table th, table td {
+        font-size: 14px;
+    }
+
+    p {
+        font-size: 16px;
+    }
+
+    button[type="submit"] {
+        font-size: 16px;
+    }
+}
