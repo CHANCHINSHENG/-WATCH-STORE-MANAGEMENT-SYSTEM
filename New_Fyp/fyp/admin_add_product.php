@@ -1,88 +1,21 @@
 <?php
-session_start();
-include 'db.php';
+ require_once 'admin_login_include/db.php';
+ require_once 'admin_login_include/config_session.php';
+ require_once 'admin_addproduct_include/admin_addproduct_model.php';
+ require_once 'admin_addproduct_include/admin_addproduct_view.php';
+
 
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
 
 // Redirect if not logged in
 if (!isset($_SESSION['admin_id'])) {
     header("Location: admin_login.php");
     exit();
 }
+$categories = getAllCategories($pdo);
+$brands = getAllBrands($pdo);
+?>  
 
-// Handle form submission
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $name = trim($_POST['ProductName']);
-    $description = trim($_POST['Product_Description']);
-    $price = floatval($_POST['Product_Price']);
-    $stock = intval($_POST['Product_Stock_Quantity']);
-    $status = $_POST['Product_Status'];
-    $category = $_POST['CategoryID'] ?? null;
-    $brand = $_POST['BrandID'] ?? null;
-
-    $image_path = '';
-    $upload_error = '';
-
-    // Handle file upload
-    if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] === UPLOAD_ERR_OK) {
-        $file_tmp = $_FILES['product_image']['tmp_name'];
-        $file_name = $_FILES['product_image']['name'];
-        $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
-        $allowed_ext = ['jpg', 'jpeg', 'png', 'webp'];
-
-        if (in_array($file_ext, $allowed_ext)) {
-            $new_file_name = uniqid('product_', true) . '.' . $file_ext;
-            $upload_dir = 'uploads/products/';
-            if (!file_exists($upload_dir)) {
-                mkdir($upload_dir, 0777, true);
-            }
-            $image_path = $upload_dir . $new_file_name;
-
-            if (!move_uploaded_file($file_tmp, $image_path)) {
-                $upload_error = "Failed to upload image.";
-            }
-        } else {
-            $upload_error = "Invalid file type. Allowed: JPG, JPEG, PNG, WEBP";
-        }
-    }
-
-    // Validate and insert
-    if ($price < 0) {
-        $error = "❌ Price cannot be negative!";
-    } elseif ($stock < 0) {
-        $error = "❌ Stock quantity cannot be negative!";
-    } elseif (!$category || !$brand) {
-        $error = "❌ Category and Brand must be selected!";
-    } elseif ($upload_error) {
-        $error = "❌ $upload_error";
-    } else {
-        // Prepare SQL statement
-        $sql = "INSERT INTO 05_PRODUCT (ProductName, Product_Price, Product_Description, Product_Stock_Quantity, Product_Status, CategoryID, BrandID, Product_Image) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-        $stmt = $conn->prepare($sql);
-
-        // Debugging: Check if statement was prepared successfully
-        if (!$stmt) {
-            die("❌ SQL Error: " . $conn->error); // Show exact SQL error
-        }
-
-        // Bind parameters
-        $stmt->bind_param("sdsissis", $name, $price, $description, $stock, $status, $category, $brand, $image_path);
-
-        // Execute and check for errors
-        if ($stmt->execute()) {
-            $success = "✅ Product added successfully!";
-        } else {
-            $error = "❌ Error adding product: " . $stmt->error;
-        }
-    }
-}
-
-// Fetch categories and brands
-$categories = $conn->query("SELECT * FROM 04_category");
-$brands = $conn->query("SELECT * FROM 03_brand");
-?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -99,48 +32,50 @@ $brands = $conn->query("SELECT * FROM 03_brand");
                 <div class="watch-icon">⌚</div>
             </div>
 
-            <?php if (isset($error)) { ?>
-                <div class="message error"><?= $error ?></div>
-            <?php } elseif (isset($success)) { ?>
-                <div class="message success"><?= $success ?></div>
-            <?php } ?>
+            <?php displayFormMessages(); ?>
 
-            <form method="POST" enctype="multipart/form-data" class="product-form">
+            
+            <form method="POST" action="admin_addproduct_include/admin_addproduct_inc.php" enctype="multipart/form-data" class="product-form">
                 <div class="form-grid">
                     <div class="input-group">
                         <label for="productName">Product Name</label>
-                        <input type="text" name="ProductName" id="productName" required>
+                        <input type="text" name="ProductName" id="productName" >
                     </div>
                     <div class="input-group">
                         <label for="price">Price (RM)</label>
-                        <input type="number" name="Product_Price" id="price" step="0.01" min="0.01" required>
+                        <input type="number" name="Product_Price" id="price" min=1 >
                     </div>
                     <div class="input-group">
                         <label for="stock">Stock Quantity</label>
-                        <input type="number" name="Product_Stock_Quantity" id="stock" min="0" required>
+                        <input type="number" name="Product_Stock_Quantity" min=1>
                     </div>
                     <div class="input-group">
                         <label for="category">Category</label>
-                        <select name="CategoryID" id="category" required>
+                        <select name="CategoryID" id="category" >
                             <option value="">Select Category</option>
-                            <?php while ($row = $categories->fetch_assoc()) { ?>
-                                <option value="<?= $row['CategoryID'] ?>"><?= $row['CategoryName'] ?></option>
-                            <?php } ?>
+                            <?php foreach ($categories as $row): ?>
+                                <option value="<?= htmlspecialchars($row['CategoryID']) ?>">
+                                    <?= htmlspecialchars($row['CategoryName']) ?>
+                                </option>
+                            <?php endforeach; ?>
                         </select>
                     </div>
                     <div class="input-group">
                         <label for="brand">Brand</label>
-                        <select name="BrandID" id="brand" required>
+                        <select name="BrandID" id="brand" >
                             <option value="">Select Brand</option>
-                            <?php while ($row = $brands->fetch_assoc()) { ?>
-                                <option value="<?= $row['BrandID'] ?>"><?= $row['BrandName'] ?></option>
-                            <?php } ?>
+                            <?php foreach ($brands as $row): ?>
+                                <option value="<?= htmlspecialchars($row['BrandID']) ?>">
+                                    <?= htmlspecialchars($row['BrandName']) ?>
+                                </option>
+                            <?php endforeach; ?>
                         </select>
                     </div>
                     <div class="input-group">
                         <label for="status">Status</label>
-                        <select name="Product_Status" id="status" required>
-                            <option value="Available">Available</option>
+                        <select name="Product_Status" id="status" >
+                            <option value="">Select Status</option>
+                            <option value="Available">In stock</option>
                             <option value="Out of Stock">Out of Stock</option>
                         </select>
                     </div>
@@ -154,7 +89,19 @@ $brands = $conn->query("SELECT * FROM 03_brand");
                 <div class="input-group full-width">
                     <label for="product_image">Product Image</label>
                     <input type="file" name="product_image" id="product_image" accept=".jpg,.jpeg,.png,.webp" class="file-upload-input">
-                    <div class="file-upload-preview"></div>
+                    <div class="file-upload-preview" id="preview1"></div>
+                </div>
+
+                <div class="input-group full-width">
+                    <label for="product_image2">Product Image 2</label>
+                    <input type="file" name="product_image2" id="product_image2" accept=".jpg,.jpeg,.png,.webp" class="file-upload-input">
+                    <div class="file-upload-preview" id="preview2"></div>
+                </div>
+
+                <div class="input-group full-width">
+                    <label for="product_image3">Product Image 3</label>
+                    <input type="file" name="product_image3" id="product_image3" accept=".jpg,.jpeg,.png,.webp" class="file-upload-input">
+                    <div class="file-upload-preview" id="preview3"></div>
                 </div>
 
                 <div class="button-group">
@@ -166,19 +113,28 @@ $brands = $conn->query("SELECT * FROM 03_brand");
     </div>
 
     <script>
-        document.getElementById('product_image').addEventListener('change', function (e) {
-            const file = e.target.files[0];
-            const preview = document.querySelector('.file-upload-preview');
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    preview.innerHTML = `<img src="${e.target.result}" class="upload-preview-image" alt="Preview">`;
-                }
-                reader.readAsDataURL(file);
-            } else {
-                preview.innerHTML = '';
+function previewImage(inputId, previewId) {
+    const input = document.getElementById(inputId);
+    const preview = document.getElementById(previewId);
+
+    input.addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                preview.innerHTML = `<img src="${e.target.result}" class="upload-preview-image" alt="Preview">`;
             }
-        });
-    </script>
+            reader.readAsDataURL(file);
+        } else {
+            preview.innerHTML = '';
+        }
+    });
+}
+
+previewImage('product_image', 'preview1');
+previewImage('product_image2', 'preview2');
+previewImage('product_image3', 'preview3');
+</script>
+
 </body>
 </html>
