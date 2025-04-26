@@ -1,34 +1,5 @@
 <?php
-session_start();
-include 'db.php'; // Connect to database
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = $_POST['Admin_Username'];
-    $password = $_POST['Admin_Password'];
-
-    // Fetch admin details from database
-    $stmt = $conn->prepare("SELECT AdminID, Admin_Password FROM 01_admin WHERE Admin_Username = ?");
-    $stmt->bind_param("s", $username);
-    $stmt->execute();
-    $stmt->store_result();
-
-    // Bind result variables
-    if ($stmt->num_rows > 0) {
-        $stmt->bind_result($AdminID, $hashed_password);
-        $stmt->fetch();
-
-        // Verify password
-        if (password_verify($password, $hashed_password)) {
-            $_SESSION['admin_id'] = $AdminID;
-            header("Location: admin_dashboard.php"); // Redirect to dashboard
-            exit();
-        } else {
-            $error = "❌ Invalid password.";
-        }
-    } else {
-        $error = "❌ Invalid username.";
-    }
-}
+require_once 'admin_login_include/admin_login_view.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -46,33 +17,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <div class="watch-icon">⌚</div>
             </div>
             
-            <?php if (isset($error)) { ?>
-                <div class="error-message">
-                    <?php echo $error; ?>
-                </div>
-            <?php } ?>
+            <?php
+            require_once 'admin_login_include/config_session.php';
+            viewerror();
+            ?>
 
-            <form method="POST" action="admin_login.php" class="login-form">
+            <form method="POST" action="admin_login_include/admin_login.inc.php" class="login-form">
                 <div class="input-group">
                     <label for="username">Username</label>
-                    <input 
-                        type="text" 
-                        id="username"
-                        name="Admin_Username" 
-                        placeholder="Enter your username"
-                        required
-                    >
+                    <input type="text" id="username" name="Admin_Username" placeholder="Enter your username">
                 </div>
                 
                 <div class="input-group">
                     <label for="password">Password</label>
-                    <input 
-                        type="password" 
-                        id="password"
-                        name="Admin_Password" 
-                        placeholder="Enter your password"
-                        required
-                    >
+                    <input type="password"  id="password" name="Admin_Password" placeholder="Enter your password">
                 </div>
 
                 <button type="submit" class="login-btn">
