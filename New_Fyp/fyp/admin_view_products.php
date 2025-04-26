@@ -1,20 +1,20 @@
 <?php
-session_start();
-include 'db.php';
+ require_once 'admin_login_include/config_session.php';
+require_once 'admin_login_include/db.php';
 
 if (!isset($_SESSION['admin_id'])) {
     header("Location: admin_login.php");
     exit();
 }
 
-// Fetch products with category and brand names
 $query = "SELECT p.ProductID, p.ProductName, p.Product_Price, p.Product_Status, 
                  c.CategoryName, b.BrandName
-          FROM 05_PRODUCT p
-          LEFT JOIN 04_CATEGORY c ON p.CategoryID = c.CategoryID
-          LEFT JOIN 03_BRAND b ON p.BrandID = b.BrandID";
+          FROM `05_PRODUCT` p
+          LEFT JOIN `04_CATEGORY` c ON p.CategoryID = c.CategoryID
+          LEFT JOIN `03_BRAND` b ON p.BrandID = b.BrandID";
 
-$result = $conn->query($query);
+$result = $pdo->query($query);
+
 ?>
 
 <!DOCTYPE html>
@@ -37,7 +37,7 @@ $result = $conn->query($query);
                 <div class="watch-icon">⌚</div>
             </div>
 
-            <?php if ($result->num_rows > 0) { ?>
+            <?php if ($result->rowCount() > 0) { ?>
                 <table class="products-table">
                     <thead>
                         <tr>
@@ -50,7 +50,7 @@ $result = $conn->query($query);
                         </tr>
                     </thead>
                     <tbody>
-                        <?php while ($row = $result->fetch_assoc()) { ?>
+                        <?php while ($row = $result->fetch(PDO::FETCH_ASSOC)) { ?>
                             <tr>
                                 <td><?php echo htmlspecialchars($row['ProductName']); ?></td>
                                 <td>$<?php echo number_format($row['Product_Price'], 2); ?></td>

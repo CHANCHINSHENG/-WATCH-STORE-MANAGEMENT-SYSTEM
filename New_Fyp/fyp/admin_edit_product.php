@@ -1,6 +1,6 @@
 <?php
-session_start();
-include 'db.php';
+require_once 'admin_login_include/config_session.php';
+require_once 'admin_login_include/db.php';
 
 if (!isset($_SESSION['admin_id'])) {
     header("Location: admin_login.php");
@@ -13,20 +13,18 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     exit();
 }
 
-$product_id = $_GET['id'];
+$product_id = intval($_GET['id']); // safer (convert to int)
 
 // Fetch existing product details
-$stmt = $conn->prepare("SELECT * FROM 05_PRODUCT WHERE ProductID = ?");
-$stmt->bind_param("i", $product_id);
-$stmt->execute();
-$result = $stmt->get_result();
+$stmt = $pdo->prepare("SELECT * FROM `05_PRODUCT` WHERE ProductID = ?");
+$stmt->execute([$product_id]);
+$product = $stmt->fetch(PDO::FETCH_ASSOC);
 
-if ($result->num_rows == 0) {
+if (!$product) {
     echo "❌ Product not found.";
     exit();
 }
 
-$product = $result->fetch_assoc();
 $success_message = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -36,7 +34,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stock = $_POST['Product_Stock_Quantity'];
     $status = $_POST['Product_Status'];
 
-    // Check if changes were made
     if (
         $name !== $product['ProductName'] ||
         $description !== $product['Product_Description'] ||
@@ -44,24 +41,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stock != $product['Product_Stock_Quantity'] ||
         $status !== $product['Product_Status']
     ) {
-        $stmt = $conn->prepare("UPDATE 05_PRODUCT SET ProductName=?, Product_Price=?, Product_Description=?, Product_Stock_Quantity=?, Product_Status=? WHERE ProductID=?");
-        $stmt->bind_param("sdsisi", $name, $price, $description, $stock, $status, $product_id);
-
-        if ($stmt->execute()) {
+        $update_stmt = $pdo->prepare("UPDATE `05_PRODUCT` 
+                                      SET ProductName = ?, 
+                                          Product_Price = ?, 
+                                          Product_Description = ?, 
+                                          Product_Stock_Quantity = ?, 
+                                          Product_Status = ? 
+                                      WHERE ProductID = ?");
+        if ($update_stmt->execute([$name, $price, $description, $stock, $status, $product_id])) {
             $success_message = "✅ Product updated successfully!";
+
             // Refresh the product data after update
-            $stmt = $conn->prepare("SELECT * FROM 05_PRODUCT WHERE ProductID = ?");
-            $stmt->bind_param("i", $product_id);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $product = $result->fetch_assoc();
+            $stmt = $pdo->prepare("SELECT * FROM `05_PRODUCT` WHERE ProductID = ?");
+            $stmt->execute([$product_id]);
+            $product = $stmt->fetch(PDO::FETCH_ASSOC);
         } else {
             echo "❌ Error updating product.";
         }
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
