@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'db.php'; // 确保数据库连接正常
+include 'db.php';
 
 $cart_items = [];
 $total_amount = 0;
@@ -50,10 +50,6 @@ if ($customerID) {
         }
     }
 }
-
-// 运费计算（满100免邮）
-$shipping_fee = ($total_amount >= 100) ? 0 : 10;
-$grand_total = $total_amount + $shipping_fee;
 ?>
 
 <!DOCTYPE html>
@@ -61,61 +57,136 @@ $grand_total = $total_amount + $shipping_fee;
 <head>
     <meta charset="UTF-8">
     <title>Shopping Cart</title>
-    <link rel="stylesheet" href="Cart.css"> 
+    <link rel="stylesheet" href="CART.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> 
 </head>
 <body>
-    <div class="cart-container">
-        <h1>Your Shopping Cart</h1>
 
-        <?php if (empty($cart_items)): ?>
-            <div class="empty-cart">
-                <h2>Your cart is empty</h2>
-                <a href="customer_products.php">Continue Shopping</a>
-            </div>
-        <?php else: ?>
-            <div class="cart-items">
-                <?php foreach ($cart_items as $item): ?>
-                    <div class="cart-item">
-                        <img src="<?= htmlspecialchars($item['Product_Image']) ?>" 
-                             alt="<?= htmlspecialchars($item['ProductName']) ?>" 
-                             class="cart-item-image">
-                        
-                        <div class="cart-item-details">
-                            <h3><?= htmlspecialchars($item['ProductName']) ?></h3>
-                            <p>Price: RM <?= number_format($item['Product_Price'], 2) ?></p>
+<div class="cart-container">
+    <h1>Your Shopping Cart (<span id="cart-item-count"><?= $item_count ?></span>)</h1>
 
-                            <!-- User can update quantity -->
-                            <form action="update_cart.php" method="post" style="display:inline;">
-                                <input type="hidden" name="product_id" value="<?= $item['ProductID'] ?>">
-                                <input type="number" name="quantity" value="<?= $item['Order_Quantity'] ?>" min="1" style="width: 50px;">
-                                <button type="submit">Update Quantity</button>
-                            </form>
+    <?php if (empty($cart_items)): ?>
+        <div class="empty-cart">
+            <h2>Your cart is empty.</h2>
+            <a href="customer_products.php" class="continue-shopping-btn">Continue Shopping</a>
+        </div>
+    <?php else: ?>
+        <div class="cart-items">
+            <?php foreach ($cart_items as $item): ?>
+                <div class="cart-item" data-product-id="<?= $item['ProductID'] ?>">
+                    <img src="<?= htmlspecialchars($item['Product_Image']) ?>" class="cart-item-image" alt="<?= htmlspecialchars($item['ProductName']) ?>">
 
-                            <!-- Remove item from cart -->
-                            <form action="update_cart.php" method="post" style="display:inline;">
-                                <input type="hidden" name="product_id" value="<?= $item['ProductID'] ?>">
-                                <input type="hidden" name="action" value="remove">
-                                <button type="submit" class="remove-btn">Remove</button>
-                            </form>
+                    <div class="cart-item-details">
+                        <h3><?= htmlspecialchars($item['ProductName']) ?></h3>
+                        <p>Price: RM <?= number_format($item['Product_Price'], 2) ?></p>
+
+                        <div class="quantity-control">
+                            <button class="decrease-btn">-</button>
+                            <input type="text" class="quantity-input" value="<?= $item['Order_Quantity'] ?>">
+                            <button class="increase-btn">+</button>
                         </div>
-                        
-                        <div class="item-subtotal">
-                            RM <?= number_format($item['Order_Subtotal'], 2) ?>
-                        </div>
+
+                        <button class="remove-btn">Remove</button> <!-- Remove按钮 -->
                     </div>
-                <?php endforeach; ?>
-            </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
 
-            <div class="order-summary">
-                <h2>Order Summary</h2>
-                <p>Subtotal (<?= $item_count ?> items): RM <?= number_format($total_amount, 2) ?></p>
-                <p>Shipping: <?= $shipping_fee == 0 ? 'FREE' : 'RM ' . number_format($shipping_fee, 2) ?></p>
-                <p><strong>Total: RM <?= number_format($grand_total, 2) ?></strong></p>
-                <form action="Checkout.php" method="post">
-                    <button type="submit" class="checkout-btn">Proceed to Checkout</button>
-                </form>
-            </div>
-        <?php endif; ?>
-    </div>
+        <div class="order-summary">
+            <h2>Order Summary</h2>
+            <p>Items Total: RM <span id="total-amount"><?= number_format($total_amount, 2) ?></span></p>
+            <form action="Checkout.php" method="post">
+                <button type="submit" class="checkout-btn">Proceed to Checkout</button>
+            </form>
+        </div>
+    <?php endif; ?>
+</div>
+
+<!-- Ajax脚本 -->
+<script>
+$(document).ready(function() {
+
+    function updateQuantity(parent, newQuantity) {
+        var productId = parent.data('product-id');
+
+        $.ajax({
+            url: 'update_cart.php',
+            method: 'POST',
+            data: {
+                product_id: productId,
+                quantity: newQuantity
+            },
+            success: function(response) {
+                var data = JSON.parse(response);
+                if (data.success) {
+                    parent.find('.quantity-input').val(data.new_quantity);
+                    $('#total-amount').text(data.total_amount.toFixed(2));
+                    $('#cart-item-count').text(data.total_items);
+
+                    var feedback = parent.find('.update-feedback');
+                    feedback.fadeIn(200).delay(500).fadeOut(200);
+                }
+            }
+        });
+    }
+
+    $('.increase-btn').click(function() {
+        var parent = $(this).closest('.cart-item');
+        var quantityInput = parent.find('.quantity-input');
+        var quantity = parseInt(quantityInput.val()) + 1;
+        updateQuantity(parent, quantity);
+    });
+
+    $('.decrease-btn').click(function() {
+        var parent = $(this).closest('.cart-item');
+        var quantityInput = parent.find('.quantity-input');
+        var quantity = parseInt(quantityInput.val());
+        if (quantity > 1) {
+            quantity -= 1;
+            updateQuantity(parent, quantity);
+        }
+    });
+
+    $('.quantity-input').on('change', function() {
+        var parent = $(this).closest('.cart-item');
+        var quantity = parseInt($(this).val());
+        if (isNaN(quantity) || quantity < 1) {
+            quantity = 1;
+        }
+        updateQuantity(parent, quantity);
+    });
+
+    // Remove 单个商品
+    $('.remove-btn').click(function() {
+        var parent = $(this).closest('.cart-item');
+        var productId = parent.data('product-id');
+
+        $.ajax({
+            url: 'update_cart.php',
+            method: 'POST',
+            data: {
+                product_id: productId,
+                quantity: 0
+            },
+            success: function(response) {
+                var data = JSON.parse(response);
+                if (data.success) {
+                    parent.fadeOut(300, function() {
+                        $(this).remove();
+                    });
+                    $('#total-amount').text(data.total_amount.toFixed(2));
+                    $('#cart-item-count').text(data.total_items);
+                    // 如果购物车空了，显示空购物车
+                    if (data.total_items === 0) {
+                        $('.cart-items').html('<div class="empty-cart"><h2>Your cart is empty.</h2><a href="customer_products.php" class="continue-shopping-btn">Continue Shopping</a></div>');
+                    }
+                }
+            }
+        });
+    });
+
+});
+</script>
+
 </body>
 </html>
