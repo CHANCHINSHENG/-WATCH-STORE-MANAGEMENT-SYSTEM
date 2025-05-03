@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
     if (empty($error)) {
         // Calculate shipping fee based on postcode
         $customer_postcode = (int)$postcode;
-        $shipping_fee = 15; // Default shipping fee
+        $shipping_fee = 00; // Default shipping fee
 
         foreach ($shipping_rules as $rule) {
             if ($customer_postcode >= $rule['start'] && $customer_postcode <= $rule['end']) {
@@ -182,7 +182,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
                 <input type="text" name="name" placeholder="Full Name" required>
                 <input type="text" name="address" placeholder="Address" required>
                 <input type="text" name="city" placeholder="City" required>
-                <input type="text" name="postcode" placeholder="Postcode" required>
+                <input type="text" name="postcode" placeholder="Postcode" required oninput="updateShippingFee()">
                 <input type="text" name="state" placeholder="State" required>
                 <input type="text" name="phone" placeholder="Phone Number" required>
 
@@ -217,11 +217,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
                 <?php endforeach; ?>
             </div>
             <div class="cart-summary">
-                <p><strong>Subtotal:</strong> RM <?= number_format($subtotal, 2) ?></p>
-                <p><strong>Shipping Fee:</strong> RM <?= number_format($shipping_fee, 2) ?></p>
-                <p><strong>Total:</strong> <span class="total-price">RM <?= number_format($subtotal + $shipping_fee, 2) ?></span></p>
+                <p><strong>Subtotal     :</strong> RM <span class="subtotal"><?= number_format($subtotal, 2) ?></span></p>
+                <p><strong>Shipping Fee :</strong> RM <span class="shipping-fee"> 00.00</span></p>
+                <p><strong>Total        :</strong> <span class="total-price">RM <?= number_format($subtotal + 00 , 2) ?></span></p>
             </div>
         </div>
     </div>
+
+    <script>
+        const shippingRules = <?php echo json_encode($shipping_rules); ?>;
+
+        function updateShippingFee() 
+        {
+            const postcode = document.querySelector("input[name='postcode']").value;
+            const shippingFeeDisplay = document.querySelector(".shipping-fee");
+
+            if (postcode) {
+                const customerPostcode = parseInt(postcode, 10);
+                let shippingFee = 00;
+
+                for (let rule of shippingRules) {
+                    if (customerPostcode >= rule.start && customerPostcode <= rule.end) 
+                    {
+                        shippingFee = rule.fee;
+                        break;
+                    }
+                }
+
+                shippingFeeDisplay.textContent = shippingFee.toFixed(2);
+
+                const subtotal = parseFloat(document.querySelector(".subtotal").textContent.replace("RM ", ""));
+                const total = subtotal + shippingFee;
+                document.querySelector(".total-price").textContent = "RM " + total.toFixed(2);
+            }
+        }
+    </script>
 </body>
 </html>
