@@ -1,32 +1,71 @@
 <?php
 session_start();
-include 'db.php'; // Connect to database
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+include 'db.php'; 
+if ($_SERVER["REQUEST_METHOD"] == "POST") 
+{
     $username = $_POST['Cust_Username'];
     $password = $_POST['Cust_Password'];
 
-    // Fetch customer details from database
-    $stmt = $conn->prepare("SELECT CustomerID, Cust_Password FROM 02_CUSTOMER WHERE Cust_Username = ?");
+    $stmt = $conn->prepare("SELECT CustomerID, Cust_Password FROM 02_customer WHERE Cust_Username = ?");
     $stmt->bind_param("s", $username);
     $stmt->execute();
     $stmt->store_result();
 
-    // Check if user exists
-    if ($stmt->num_rows > 0) {
+    if ($stmt->num_rows > 0) 
+    {
         $stmt->bind_result($CustomerID, $hashed_password);
         $stmt->fetch();
 
-
-        // Verify password
-        if (password_verify($password, $hashed_password)) {
+        if (password_verify($password, $hashed_password)) 
+        {
             $_SESSION['customer_id'] = $CustomerID;
-            header("Location: customermainpage.php"); // Redirect to main page
+
+            $sql_cart = "SELECT CartID FROM `11_cart` WHERE CustomerID = ?";
+            $stmt_cart = $conn->prepare($sql_cart);
+            $stmt_cart->bind_param("i", $CustomerID);
+            $stmt_cart->execute();
+            $result_cart = $stmt_cart->get_result();
+
+            if ($result_cart->num_rows > 0) 
+            {
+                $cart_row = $result_cart->fetch_assoc();
+                $cartID = $cart_row['CartID'];
+
+                $sql_items = "
+                    SELECT p.ProductID, p.ProductName, ci.Quantity, p.Product_Price, p.Product_Image
+                    FROM `12_cart_item` ci
+                    JOIN `05_product` p ON ci.ProductID = p.ProductID
+                    WHERE ci.CartID = ?
+                ";
+                $stmt_items = $conn->prepare($sql_items);
+                $stmt_items->bind_param("i", $cartID);
+                $stmt_items->execute();
+                $result_items = $stmt_items->get_result();
+
+                $cart_items = [];
+                while ($row = $result_items->fetch_assoc()) 
+                {
+                    $cart_items[] = $row;  
+                }
+
+                $_SESSION['cart_items'] = $cart_items;
+            } 
+            else 
+            {
+                $_SESSION['cart_items'] = [];
+            }
+
+            // Redirect to main page
+            header("Location: customermainpage.php");
             exit();
-        } else {
+        } 
+        else 
+        {
             $error = "❌ Incorrect password. Please try again.";
         }
-    } else {
+    } 
+    else 
+    {
         $error = "❌ Username not found.";
     }
     $stmt->close();
@@ -47,9 +86,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="login-container">
         <h2 class="login-title">Customer Login</h2>
 
-        <?php if (isset($error)) { ?>
+        <?php if (isset($error)) 
+        { ?>
             <div class="error-message"><?php echo $error; ?></div>
-        <?php } ?>
+        <?php 
+        } ?>
 
         <form action="customer_login.php" method="POST">
             <div class="input-group">
@@ -74,7 +115,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 
     <script>
-        function togglePassword() {
+        function togglePassword() 
+        {
             let passwordField = document.getElementById("password");
             passwordField.type = passwordField.type === "password" ? "text" : "password";
         }

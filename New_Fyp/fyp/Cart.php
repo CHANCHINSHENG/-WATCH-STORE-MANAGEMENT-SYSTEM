@@ -5,6 +5,7 @@ include 'db.php';
 $cart_items = [];
 $total_amount = 0;
 $item_count = 0;
+$error_message = "";  // 用于保存错误消息
 
 $customerID = $_SESSION['customer_id'] ?? null;
 
@@ -36,6 +37,10 @@ if ($customerID) {
         $result_items = $stmt_items->get_result();
 
         while ($row = $result_items->fetch_assoc()) {
+            if ($row['Quantity'] > 10) {
+                $error_message = "Quantity exceeds 10 for one or more products. Please adjust your cart."; // Error message if quantity > 10
+                break; // Exit if any item exceeds the limit
+            }
             $subtotal = $row['Product_Price'] * $row['Quantity'];
             $cart_items[] = [
                 'ProductID'      => $row['ProductID'],
@@ -62,8 +67,19 @@ if ($customerID) {
 </head>
 <body>
 
+<div class="Title main page">
+<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item px-2"><a class="nav-link fw-bold active" aria-current="page" href="#collections">WATCHES</a></li>
+              <li class="nav-item px-2"><a class="nav-link fw-bold" href="customer_products.php">STORE</a></li>
+              <li class="nav-item px-2"><a class="nav-link fw-bold" href="#contact">CONTACT</a></li>
+              <li class="nav-item px-2"><a class="nav-link fw-bold" href="cart.php"><img src="img/Cart icon.png" alt="Cart" style="width:24px; height:24px;"></a></li>
+              <li class="nav-item px-2"><a class="nav-link fw-bold" href="customer_login.php"><img src="img/user_icon.png" alt="login" style="width:24px; height:24px;"></a></li>
+            </ul>
+</div>
+
 <div class="cart-container">
     <h1>Your Shopping Cart (<span id="cart-item-count"><?= $item_count ?></span>)</h1>
+    <a href="customer_products.php" class="continue-shopping-btn">back</a>
 
     <?php if (empty($cart_items)): ?>
         <div class="empty-cart">
@@ -96,7 +112,7 @@ if ($customerID) {
             <h2>Order Summary</h2>
             <p>Items Total: RM <span id="total-amount"><?= number_format($total_amount, 2) ?></span></p>
             <form action="Checkout.php" method="post">
-                <button type="submit" class="checkout-btn">Proceed to Checkout</button>
+                <button type="submit" class="checkout-btn" id="checkout-btn">Proceed to Checkout</button>
             </form>
         </div>
     <?php endif; ?>
@@ -106,11 +122,17 @@ if ($customerID) {
 <script>
 $(document).ready(function() {
 
+    // If there is an error message, display it using JavaScript
+    <?php if (!empty($error_message)): ?>
+        $("#error-message").fadeIn(500);  // 显示错误信息框
+        $("#checkout-btn").prop("disabled", true);  // 禁用结账按钮
+    <?php endif; ?>
+
     function updateQuantity(parent, newQuantity) {
         var productId = parent.data('product-id');
 
         $.ajax({
-            url: 'update_cart.php',
+            url: 'update_cart.php',  // 处理请求的 PHP 文件
             method: 'POST',
             data: {
                 product_id: productId,
@@ -130,13 +152,21 @@ $(document).ready(function() {
         });
     }
 
+    // 增加商品数量
     $('.increase-btn').click(function() {
         var parent = $(this).closest('.cart-item');
         var quantityInput = parent.find('.quantity-input');
         var quantity = parseInt(quantityInput.val()) + 1;
+
+        if (quantity > 10) {
+            alert("You cannot add more than 10 of this product.");
+            return;  // Prevent increment if quantity exceeds 10
+        }
+        
         updateQuantity(parent, quantity);
     });
 
+    // 减少商品数量
     $('.decrease-btn').click(function() {
         var parent = $(this).closest('.cart-item');
         var quantityInput = parent.find('.quantity-input');
@@ -147,26 +177,32 @@ $(document).ready(function() {
         }
     });
 
+    // 修改商品数量
     $('.quantity-input').on('change', function() {
         var parent = $(this).closest('.cart-item');
         var quantity = parseInt($(this).val());
         if (isNaN(quantity) || quantity < 1) {
             quantity = 1;
         }
+        if (quantity > 10) {
+            alert("You cannot buy more than 10 of this product.");
+            $(this).val(10);
+            quantity = 10;
+        }
         updateQuantity(parent, quantity);
     });
 
-    // Remove 单个商品
+    // 删除商品
     $('.remove-btn').click(function() {
         var parent = $(this).closest('.cart-item');
         var productId = parent.data('product-id');
 
         $.ajax({
-            url: 'update_cart.php',
+            url: 'update_cart.php',  // 处理请求的 PHP 文件
             method: 'POST',
             data: {
                 product_id: productId,
-                quantity: 0
+                quantity: 0  // 删除商品
             },
             success: function(response) {
                 var data = JSON.parse(response);
@@ -184,7 +220,6 @@ $(document).ready(function() {
             }
         });
     });
-
 });
 </script>
 

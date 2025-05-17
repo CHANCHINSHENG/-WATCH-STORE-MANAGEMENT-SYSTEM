@@ -2,11 +2,25 @@
 session_start();
 include 'db.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id'])) 
+{
     $product_id = (int)$_POST['product_id'];
     $quantity = (int)($_POST['quantity'] ?? 1);
-    if ($quantity < 0) {
+
+    // 确保数量合法
+    if ($quantity < 0) 
+    {
         $quantity = 0;
+    }
+
+    if ($quantity > 10) 
+    {
+        // 如果数量超过 10，返回错误消息
+        echo json_encode([
+            'success' => false,
+            'message' => 'Each product can only be bought up to 10.'
+        ]);
+        exit();
     }
 
     $customerID = $_SESSION['customer_id'] ?? null;
@@ -22,19 +36,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id'])) {
         if ($cart) {
             $cartID = $cart['CartID'];
 
-            // 如果quantity是0，表示要删除
+            // 如果quantity是0，表示要删除商品
             if ($quantity === 0) {
+                // 删除购物车中的商品
                 $stmt = $conn->prepare("DELETE FROM 12_cart_item WHERE CartID = ? AND ProductID = ?");
                 $stmt->bind_param("ii", $cartID, $product_id);
                 $stmt->execute();
             } else {
-                // 更新数量
-                $stmt = $conn->prepare("UPDATE 12_cart_item SET Quantity = ? WHERE CartID = ? AND ProductID = ?");
-                $stmt->bind_param("iii", $quantity, $cartID, $product_id);
+                // 更新购物车商品的数量
+                $stmt = $conn->prepare("SELECT Quantity FROM 12_cart_item WHERE CartID = ? AND ProductID = ?");
+                $stmt->bind_param("ii", $cartID, $product_id);
                 $stmt->execute();
+                $result = $stmt->get_result();
+
+                if ($result->num_rows > 0) {
+                    // 如果商品已经存在，更新数量
+                    $stmt = $conn->prepare("UPDATE 12_cart_item SET Quantity = ? WHERE CartID = ? AND ProductID = ?");
+                    $stmt->bind_param("iii", $quantity, $cartID, $product_id);
+                    $stmt->execute();
+                } else {
+                    // 如果商品不存在，添加到购物车
+                    $stmt = $conn->prepare("INSERT INTO 12_cart_item (CartID, ProductID, Quantity) VALUES (?, ?, ?)");
+                    $stmt->bind_param("iii", $cartID, $product_id, $quantity);
+                    $stmt->execute();
+                }
             }
 
-            // 查询单件商品小计（如果商品还在）
+            // 查询单件商品的小计（如果商品还在购物车中）
             $item_subtotal = 0;
             if ($quantity > 0) {
                 $stmt = $conn->prepare("
@@ -50,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id'])) {
                 $item_subtotal = $itemSubtotalRow['item_subtotal'] ?? 0;
             }
 
-            // 查询整个购物车总价
+            // 查询整个购物车的总金额
             $stmt = $conn->prepare("
                 SELECT SUM(ci.Quantity * p.Product_Price) AS total
                 FROM 12_cart_item ci
@@ -75,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id'])) {
             $totalItemsRow = $result->fetch_assoc();
             $total_items = $totalItemsRow['total_items'] ?? 0;
 
-            // 返回数据
+            // 返回响应数据
             echo json_encode([
                 'success' => true,
                 'new_quantity' => $quantity,
@@ -88,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id'])) {
     }
 }
 
-// 如果失败
+// 如果出现错误，返回失败响应
 echo json_encode([
     'success' => false
 ]);

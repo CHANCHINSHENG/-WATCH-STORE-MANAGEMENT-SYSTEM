@@ -1,5 +1,5 @@
 <?php
-    $dsn="mysql:host=localhost;dbname=watch_store_db";
+    $dsn="mysql:host=localhost;dbname=e-fashion";
     $dbusername="root";
     $dbpassword="";
 

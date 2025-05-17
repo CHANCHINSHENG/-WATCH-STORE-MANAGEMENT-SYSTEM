@@ -41,7 +41,7 @@ if ($row = $result->fetch_assoc()) {
     $error = "Cart not found.";
 }
 
-// Get Cart Items
+// Get Cart Items and check if any quantity exceeds 10
 if ($cartID) {
     $stmt = $conn->prepare("
         SELECT p.ProductID, p.ProductName, p.Product_Image, p.Product_Price, ci.Quantity
@@ -54,6 +54,10 @@ if ($cartID) {
     $result = $stmt->get_result();
 
     while ($row = $result->fetch_assoc()) {
+        if ($row['Quantity'] > 10) {
+            $echo = "Each product can only be bought up to 10! Please adjust your cart."; // Error message if quantity > 10
+            break; 
+        }
         $row['Subtotal'] = $row['Product_Price'] * $row['Quantity'];
         $subtotal += $row['Subtotal'];
         $cart_items[] = $row;
@@ -61,7 +65,7 @@ if ($cartID) {
 }
 
 // Handle order submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']) && empty($error)) {
     $name     = trim($_POST['name']);
     $address  = trim($_POST['address']);
     $city     = trim($_POST['city']);
@@ -171,6 +175,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
     <div class="checkout-container">
         <div class="checkout-left">
             <h1>Checkout</h1>
+            <a href="customer_products.php" class="continue-shopping-btn">back</a>
 
             <?php if (!empty($error)): ?>
                 <p class="error"><?= htmlspecialchars($error) ?></p>
