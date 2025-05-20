@@ -87,7 +87,6 @@ if ($customerID) {
 
     <div class="cart-container">
         <h1>Your Shopping Cart (<span id="cart-item-count"><?= $item_count ?></span>)</h1>
-        <a href="customer_products.php" class="continue-shopping-btn">back</a>
 
         <?php if (empty($cart_items)): ?>
             <div class="empty-cart">
