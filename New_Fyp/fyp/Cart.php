@@ -62,19 +62,34 @@ if ($customerID) {
 <head>
     <meta charset="UTF-8">
     <title>Shopping Cart</title>
-    <link rel="stylesheet" href="CART.css">
+    <link rel="stylesheet" href="Cart.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> 
 </head>
 <body>
 
+<?php
+$current_page = basename($_SERVER['PHP_SELF']);
+?>
+
 <div class="Title main page">
+<div class="container"><a class="navbar-brand d-inline-flex" href="customermainpage.php"><img src="assets/img/Screenshot 2025-03-20 113245.png"></a>
 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-              <li class="nav-item px-2"><a class="nav-link fw-bold active" aria-current="page" href="#collections">WATCHES</a></li>
-              <li class="nav-item px-2"><a class="nav-link fw-bold" href="customer_products.php">STORE</a></li>
-              <li class="nav-item px-2"><a class="nav-link fw-bold" href="#contact">CONTACT</a></li>
-              <li class="nav-item px-2"><a class="nav-link fw-bold" href="cart.php"><img src="img/Cart icon.png" alt="Cart" style="width:24px; height:24px;"></a></li>
-              <li class="nav-item px-2"><a class="nav-link fw-bold" href="customer_login.php"><img src="img/user_icon.png" alt="login" style="width:24px; height:24px;"></a></li>
-            </ul>
+    <li class="nav-item px-2">
+        <a class="nav-link fw-bold <?= $current_page == 'customer_products.php' ? 'active' : '' ?>" href="customer_products.php">WATCHES</a>
+    </li>
+    <li class="nav-item px-2">
+        <a class="nav-link fw-bold <?= $current_page == 'customer_products.php' ? 'active' : '' ?>" href="customer_products.php">STORE</a>
+    </li>
+    <li class="nav-item px-2">
+        <a class="nav-link fw-bold <?= $current_page == 'contact.php' ? 'active' : '' ?>" href="#contact">CONTACT</a>
+    </li>
+    <li class="nav-item px-2">
+        <a class="nav-link fw-bold <?= $current_page == 'cart.php' ? 'active' : '' ?>" href="cart.php"><img src="img/Cart_icon.png" alt="Cart" style="width:24px; height:24px;"></a>
+    </li>
+    <li class="nav-item px-2">
+        <a class="nav-link fw-bold <?= $current_page == 'customer_login.php' ? 'active' : '' ?>" href="customer_login.php"><img src="img/user_icon.png" alt="login" style="width:24px; height:24px;"></a>
+    </li>
+</ul>
 </div>
 
 <div class="cart-container">

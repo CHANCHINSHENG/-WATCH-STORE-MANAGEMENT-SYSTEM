@@ -224,7 +224,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']) && emp
             <div class="cart-summary">
                 <p><strong>Subtotal     :</strong> RM <span class="subtotal"><?= number_format($subtotal, 2) ?></span></p>
                 <p><strong>Shipping Fee :</strong> RM <span class="shipping-fee"> 00.00</span></p>
-                <p><strong>Total        :</strong> <span class="total-price">RM <?= number_format($subtotal + 00 , 2) ?></span></p>
+                <p><strong>Total        :</strong> <span class="total-price">RM <?= number_format($subtotal + $shipping_fee , 2) ?></span></p>
             </div>
         </div>
     </div>

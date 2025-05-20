@@ -107,11 +107,37 @@ $result = $conn->query("SELECT * FROM 05_product WHERE Product_Status = 'Availab
     <link rel="stylesheet" href="add_to_cart.css"> 
 </head>
 <body>
+
+<?php
+$current_page = basename($_SERVER['PHP_SELF']);
+?>
+
+<div class="Title main page">
+<div class="container"><a class="navbar-brand d-inline-flex" href="customermainpage.php"><img src="assets/img/Screenshot 2025-03-20 113245.png"></a>
+
+<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+    <li class="nav-item px-2">
+        <a class="nav-link fw-bold <?= $current_page == 'customer_products.php' ? 'active' : '' ?>" href="customer_products.php">WATCHES</a>
+    </li>
+    <li class="nav-item px-2">
+        <a class="nav-link fw-bold <?= $current_page == 'customer_products.php' ? 'active' : '' ?>" href="customer_products.php">STORE</a>
+    </li>
+    <li class="nav-item px-2">
+        <a class="nav-link fw-bold <?= $current_page == 'contact.php' ? 'active' : '' ?>" href="#contact">CONTACT</a>
+    </li>
+    <li class="nav-item px-2">
+        <a class="nav-link fw-bold <?= $current_page == 'cart.php' ? 'active' : '' ?>" href="cart.php"><img src="img/Cart_icon.png" alt="Cart" style="width:24px; height:24px;"></a>
+    </li>
+    <li class="nav-item px-2">
+        <a class="nav-link fw-bold <?= $current_page == 'customer_login.php' ? 'active' : '' ?>" href="customer_login.php"><img src="img/user_icon.png" alt="login" style="width:24px; height:24px;"></a>
+    </li>
+</ul>
+</div>
+
     <div class="page-wrapper">
         <div class="product-page-container">
             <div class="product-page-header">
                 <h1>TOP PICKS</h1>
-                <li class="nav-item px-2"><a class="nav-link fw-bold" href="cart.php"><img src="img/Cart icon.png" alt="Cart" style="width:24px; height:24px;"></a></li>
                 <h3>Discover our latest collection of premium watches</h3>
             </div>
 
@@ -145,12 +171,11 @@ $result = $conn->query("SELECT * FROM 05_product WHERE Product_Status = 'Availab
         </div>
     </div>
 
-    <!-- The Modal -->
     <?php if (isset($product_added)): ?>
         <div id="myModal" class="modal">
             <div class="modal-content">
                 <span class="close">&times;</span>
-                <h2>🎉 Product Added to Cart! 🎉</h2>
+                <h2> Product Added to Cart! </h2>
                 <div class="product-info">
                     <img src="<?= htmlspecialchars($product_added['Product_Image']); ?>" alt="Product Image">
                     <p><strong>Product Name:</strong> <?= htmlspecialchars($product_added['ProductName']); ?></p>
@@ -160,8 +185,8 @@ $result = $conn->query("SELECT * FROM 05_product WHERE Product_Status = 'Availab
                     </div>
                 </div>
                 <div class="button-container">
-                    <button onclick="window.location.href='customer_products.php'">Continue Shopping 🛍️</button>
-                    <button onclick="window.location.href='cart.php'">View Cart 🛒</button>
+                    <button onclick="window.location.href='customer_products.php'">Continue Shopping</button>
+                    <button onclick="window.location.href='cart.php'">View Cart</button>
                 </div>
             </div>
         </div>

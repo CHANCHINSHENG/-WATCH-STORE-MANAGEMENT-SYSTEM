@@ -20,7 +20,7 @@ a {
     transition: color 0.3s ease;
 }
 
-/* -------------------- 导航栏 -------------------- */
+/* -------------------- navbar -------------------- */
 
 .navbar {
     background-color: #111;
@@ -42,7 +42,7 @@ a {
     color: #c29b52;
 }
 
-/* -------------------- Cart容器 -------------------- */
+/* -------------------- Cart -------------------- */
 
 .cart-container {
     max-width: 1000px;
@@ -62,7 +62,7 @@ a {
     margin-bottom: 40px;
 }
 
-/* -------------------- 空购物车 -------------------- */
+/* -------------------- emtpy cart -------------------- */
 
 .empty-cart {
     text-align: center;
@@ -92,7 +92,7 @@ a {
     transform: scale(1.05);
 }
 
-/* -------------------- 购物车内商品 -------------------- */
+/* -------------------- cart products -------------------- */
 
 .cart-items {
     margin-bottom: 50px;
@@ -141,7 +141,7 @@ a {
     font-size: 14px;
 }
 
-/* -------------------- Quantity加减按钮和输入框 -------------------- */
+/* -------------------- Quantity add / minus -------------------- */
 
 .quantity-control {
     display: flex;
@@ -179,7 +179,7 @@ a {
     border-radius: 8px;
 }
 
-/* -------------------- 单个小计 -------------------- */
+/* -------------------- subtotal -------------------- */
 
 .item-subtotal {
     font-size: 16px;
@@ -217,7 +217,7 @@ a {
     padding-top: 15px;
 }
 
-/* -------------------- Checkout按钮 -------------------- */
+/* -------------------- Checkout -------------------- */
 
 .checkout-btn {
     margin-top: 30px;
@@ -238,7 +238,7 @@ a {
     transform: scale(1.03);
 }
 
-/* -------------------- 自定义导航栏 (Title main page) -------------------- */
+/* -------------------- (Title main page) -------------------- */
 
 .Title.main.page {
     background-color: #111;
@@ -269,7 +269,6 @@ a {
 .Title.main.page .nav-link:hover,
 .Title.main.page .nav-link.active {
     color: #000;
-    background-color: #c29b52;
     transform: scale(1.05);
 }
 
@@ -281,3 +280,12 @@ a {
 .Title.main.page a:hover img {
     transform: scale(1.1);
 }
+
+.nav-link.active {
+    background-color: #d4af37; 
+    color: black !important;   
+    border-radius: 5px;
+}
+
+
+
