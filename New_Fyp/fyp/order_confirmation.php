@@ -56,7 +56,7 @@ $estimatedDelivery = date('d M Y', strtotime("+$deliveryDays days"));
         <p><strong>Your Tracking Number:</strong> <span class="highlight"><?php echo htmlspecialchars($row['Tracking_Number']); ?></span></p>
         <p><strong>Estimated Delivery:</strong> <span class="highlight">📅 <?php echo $estimatedDelivery; ?></span></p>
         <p>Status: Your order is being prepared. You'll receive updates soon. 🛍️📦</p>
-        <a href="index.php" class="back-button">🏠 Back to Home</a>
+        <a href="customermainpage.php" class="back-button">🏠 Back to Home</a>
     </div>
 </body>
 </html>

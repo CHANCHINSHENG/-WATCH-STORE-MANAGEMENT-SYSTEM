@@ -66,6 +66,7 @@
     color: #4a148c;
 }
 
+
 .add-to-cart-btn {
     margin-top: 1rem;
     background: linear-gradient(135deg, #4a148c, #311b92);
@@ -84,7 +85,6 @@
     box-shadow: 0 4px 10px rgba(74, 20, 140, 0.3);
 }
 
-/* -------------------- (Title main page) -------------------- */
 
 .Title.main.page {
     background-color: #111;
@@ -133,9 +133,7 @@
     border-radius: 5px;
 }
 
-/* Modal styles (for product added to cart) */
 
-/* 弹窗背景样式 */
 .modal {
     display: flex;
     justify-content: center;
@@ -149,7 +147,6 @@
     z-index: 1000;
 }
 
-/* 弹窗内容 */
 .modal-content {
     background: white;
     padding: 20px;
@@ -160,7 +157,6 @@
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
-/* 关闭按钮样式 */
 .close-btn {
     position: absolute;
     top: 10px;
@@ -173,13 +169,11 @@
     transition: color 0.3s ease, transform 0.3s ease;
 }
 
-/* 鼠标悬停时按钮放大并变红 */
 .close-btn:hover {
     color: red;
     transform: scale(1.2);
 }
 
-/* 图片放大效果 */
 .product-info img {
     width: 100%;
     max-width: 300px;
@@ -188,10 +182,9 @@
 }
 
 .product-info img:hover {
-    transform: scale(1.1); /* 鼠标悬停时放大图片 */
+    transform: scale(1.1); 
 }
 
-/* 其他样式 */
 .product-info p {
     font-size: 1rem;
     margin: 5px 0;

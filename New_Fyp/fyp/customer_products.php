@@ -53,6 +53,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id'])) {
                     $stmt_insert->bind_param("iii", $cartID, $product_id, $quantity);
                     $stmt_insert->execute();
                 }
+
+                // 减少库存
+                $sql_product = "SELECT Product_Stock_Quantity FROM `05_product` WHERE ProductID = ?";
+                $stmt_product = $conn->prepare($sql_product);
+                $stmt_product->bind_param("i", $product_id);
+                $stmt_product->execute();
+                $result_product = $stmt_product->get_result();
+
+                if ($result_product->num_rows > 0) {
+                    $product = $result_product->fetch_assoc();
+                    $new_stock_quantity = $product['Product_Stock_Quantity'] - 1;  // 库存减去 1
+
+                    // 更新库存数量
+                    $sql_update_stock = "UPDATE `05_product` SET Product_Stock_Quantity = ? WHERE ProductID = ?";
+                    $stmt_update_stock = $conn->prepare($sql_update_stock);
+                    $stmt_update_stock->bind_param("ii", $new_stock_quantity, $product_id);
+                    $stmt_update_stock->execute();
+                }
             } else {
                 // 如果购物车不存在，为该用户创建一个新的购物车
                 $sql_create_cart = "INSERT INTO `11_cart` (CustomerID) VALUES (?)";
@@ -67,6 +85,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id'])) {
                 $quantity = 1;  // 初始数量为 1
                 $stmt_insert->bind_param("iii", $cartID, $product_id, $quantity);
                 $stmt_insert->execute();
+
+                // 减少库存
+                $sql_product = "SELECT Product_Stock_Quantity FROM `05_product` WHERE ProductID = ?";
+                $stmt_product = $conn->prepare($sql_product);
+                $stmt_product->bind_param("i", $product_id);
+                $stmt_product->execute();
+                $result_product = $stmt_product->get_result();
+
+                if ($result_product->num_rows > 0) {
+                    $product = $result_product->fetch_assoc();
+                    $new_stock_quantity = $product['Product_Stock_Quantity'] - 1;  // 库存减去 1
+
+                    // 更新库存数量
+                    $sql_update_stock = "UPDATE `05_product` SET Product_Stock_Quantity = ? WHERE ProductID = ?";
+                    $stmt_update_stock = $conn->prepare($sql_update_stock);
+                    $stmt_update_stock->bind_param("ii", $new_stock_quantity, $product_id);
+                    $stmt_update_stock->execute();
+                }
             }
 
             // 获取商品详细信息以显示在购物车确认页面
@@ -96,6 +132,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id'])) {
 
 // 获取所有可用的商品
 $result = $conn->query("SELECT * FROM 05_product WHERE Product_Status = 'Available'");
+
+// 计算总价
+$total_price = 0;
+if (isset($product_added)) {
+    $total_price = $product_added['Product_Price']; // 单个商品的价格
+}
 ?>
 
 <!DOCTYPE html>
@@ -103,7 +145,7 @@ $result = $conn->query("SELECT * FROM 05_product WHERE Product_Status = 'Availab
 <head>
     <meta charset="UTF-8">
     <title>Shop - Available Products</title>
-    <link rel="stylesheet" href="customer_products.css">
+    <link rel="stylesheet" href="Customer_products.css">
     <link rel="stylesheet" href="add_to_cart.css"> 
 </head>
 <body>
@@ -113,25 +155,25 @@ $current_page = basename($_SERVER['PHP_SELF']);
 ?>
 
 <div class="Title main page">
-<div class="container"><a class="navbar-brand d-inline-flex" href="customermainpage.php"><img src="assets/img/Screenshot 2025-03-20 113245.png"></a>
+    <div class="container"><a class="navbar-brand d-inline-flex" href="customermainpage.php"><img src="assets/img/Screenshot 2025-03-20 113245.png"></a>
 
-<ul class="navbar-nav me-auto mb-2 mb-lg-0">
-    <li class="nav-item px-2">
-        <a class="nav-link fw-bold <?= $current_page == 'customer_products.php' ? 'active' : '' ?>" href="customer_products.php">WATCHES</a>
-    </li>
-    <li class="nav-item px-2">
-        <a class="nav-link fw-bold <?= $current_page == 'customer_products.php' ? 'active' : '' ?>" href="customer_products.php">STORE</a>
-    </li>
-    <li class="nav-item px-2">
-        <a class="nav-link fw-bold <?= $current_page == 'contact.php' ? 'active' : '' ?>" href="#contact">CONTACT</a>
-    </li>
-    <li class="nav-item px-2">
-        <a class="nav-link fw-bold <?= $current_page == 'cart.php' ? 'active' : '' ?>" href="cart.php"><img src="img/Cart_icon.png" alt="Cart" style="width:24px; height:24px;"></a>
-    </li>
-    <li class="nav-item px-2">
-        <a class="nav-link fw-bold <?= $current_page == 'customer_login.php' ? 'active' : '' ?>" href="customer_login.php"><img src="img/user_icon.png" alt="login" style="width:24px; height:24px;"></a>
-    </li>
-</ul>
+    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item px-2">
+            <a class="nav-link fw-bold <?= $current_page == 'customer_products.php' ? 'active' : '' ?>" href="customer_products.php">WATCHES</a>
+        </li>
+        <li class="nav-item px-2">
+            <a class="nav-link fw-bold <?= $current_page == 'customer_products.php' ? 'active' : '' ?>" href="customer_products.php">STORE</a>
+        </li>
+        <li class="nav-item px-2">
+            <a class="nav-link fw-bold <?= $current_page == 'contact.php' ? 'active' : '' ?>" href="#contact">CONTACT</a>
+        </li>
+        <li class="nav-item px-2">
+            <a class="nav-link fw-bold <?= $current_page == 'cart.php' ? 'active' : '' ?>" href="cart.php"><img src="img/Cart_icon.png" alt="Cart" style="width:24px; height:24px;"></a>
+        </li>
+        <li class="nav-item px-2">
+            <a class="nav-link fw-bold <?= $current_page == 'customer_login.php' ? 'active' : '' ?>" href="customer_login.php"><img src="img/user_icon.png" alt="login" style="width:24px; height:24px;"></a>
+        </li>
+    </ul>
 </div>
 
     <div class="page-wrapper">
@@ -145,16 +187,9 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <?php while ($row = $result->fetch_assoc()) { ?>
                     <div class="product-card">
                         <a href="product_details.php?id=<?= $row['ProductID']; ?>" class="product-link">
-                            <?php if (!empty($row['Product_Image']) && file_exists($row['Product_Image'])) { ?>
-                                <img src="<?= htmlspecialchars($row['Product_Image']); ?>" 
-                                     alt="<?= htmlspecialchars($row['ProductName']); ?>" 
-                                     style="width: 100%; height: auto; max-height: 200px; border-radius: 12px; object-fit: cover; margin-bottom: 1rem;">
-                            <?php } else { ?>
-                                <div style="width: 100%; height: 200px; background: #f0f0f0; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #888; margin-bottom: 1rem;">
-                                    No Image
-                                </div>
-                            <?php } ?>
-
+                            <img src="<?= htmlspecialchars($row['Product_Image']); ?>" 
+                                 alt="<?= htmlspecialchars($row['ProductName']); ?>" 
+                                 style="width: 100%; height: auto; max-height: 200px; border-radius: 12px; object-fit: cover; margin-bottom: 1rem;">
                             <h3><?= htmlspecialchars($row['ProductName']); ?></h3>
                             <p><?= htmlspecialchars($row['Product_Description']); ?></p>
                             <p class="product-price">Price: RM <?= number_format($row['Product_Price'], 2); ?></p>
@@ -181,7 +216,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                     <p><strong>Product Name:</strong> <?= htmlspecialchars($product_added['ProductName']); ?></p>
                     <p><strong>Price:</strong> MYR <?= number_format($product_added['Product_Price'], 2); ?></p>
                     <div class="total-section">
-                        <span>Total: RM <?= number_format($product_added['Product_Price'] - 43.57, 2); ?></span>
+                        <span>Total: RM <?= number_format($total_price, 2); ?></span> <!-- 显示总价 -->
                     </div>
                 </div>
                 <div class="button-container">
