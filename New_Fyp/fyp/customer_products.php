@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id'])) {
         $result_check_customer = $stmt_check_customer->get_result();
 
         if ($result_check_customer->num_rows > 0) {
-            // 获取 CartID
+            // 获取或创建购物车
             $sql_cart = "SELECT CartID FROM `11_cart` WHERE CustomerID = ?";
             $stmt_cart = $conn->prepare($sql_cart);
             $stmt_cart->bind_param("i", $customerID);
@@ -25,87 +25,66 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id'])) {
             $result_cart = $stmt_cart->get_result();
 
             if ($result_cart->num_rows > 0) {
+                // 如果购物车存在
                 $cart_row = $result_cart->fetch_assoc();
                 $cartID = $cart_row['CartID'];
-
-                // 检查商品是否在购物车中
-                $sql_check = "SELECT Quantity FROM `12_cart_item` WHERE CartID = ? AND ProductID = ?";
-                $stmt_check = $conn->prepare($sql_check);
-                $stmt_check->bind_param("ii", $cartID, $product_id);
-                $stmt_check->execute();
-                $result_check = $stmt_check->get_result();
-
-                if ($result_check->num_rows > 0) {
-                    // 商品已存在，更新数量
-                    $row = $result_check->fetch_assoc();
-                    $quantity = $row['Quantity'] + 1;  // 增加数量
-
-                    // 更新数量
-                    $sql_update = "UPDATE `12_cart_item` SET Quantity = ? WHERE CartID = ? AND ProductID = ?";
-                    $stmt_update = $conn->prepare($sql_update);
-                    $stmt_update->bind_param("iii", $quantity, $cartID, $product_id);
-                    $stmt_update->execute();
-                } else {
-                    // 商品不存在，插入新记录
-                    $sql_insert = "INSERT INTO `12_cart_item` (CartID, ProductID, Quantity) VALUES (?, ?, ?)";
-                    $stmt_insert = $conn->prepare($sql_insert);
-                    $quantity = 1;  // 初始数量为 1
-                    $stmt_insert->bind_param("iii", $cartID, $product_id, $quantity);
-                    $stmt_insert->execute();
-                }
-
-                // 减少库存
-                $sql_product = "SELECT Product_Stock_Quantity FROM `05_product` WHERE ProductID = ?";
-                $stmt_product = $conn->prepare($sql_product);
-                $stmt_product->bind_param("i", $product_id);
-                $stmt_product->execute();
-                $result_product = $stmt_product->get_result();
-
-                if ($result_product->num_rows > 0) {
-                    $product = $result_product->fetch_assoc();
-                    $new_stock_quantity = $product['Product_Stock_Quantity'] - 1;  // 库存减去 1
-
-                    // 更新库存数量
-                    $sql_update_stock = "UPDATE `05_product` SET Product_Stock_Quantity = ? WHERE ProductID = ?";
-                    $stmt_update_stock = $conn->prepare($sql_update_stock);
-                    $stmt_update_stock->bind_param("ii", $new_stock_quantity, $product_id);
-                    $stmt_update_stock->execute();
-                }
             } else {
-                // 如果购物车不存在，为该用户创建一个新的购物车
+                // 如果购物车不存在，创建新购物车
                 $sql_create_cart = "INSERT INTO `11_cart` (CustomerID) VALUES (?)";
                 $stmt_create_cart = $conn->prepare($sql_create_cart);
                 $stmt_create_cart->bind_param("i", $customerID);
                 $stmt_create_cart->execute();
                 $cartID = $stmt_create_cart->insert_id;
+            }
 
-                // 插入商品到新购物车
+            // 检查商品是否在购物车中
+            $sql_check = "SELECT Quantity FROM `12_cart_item` WHERE CartID = ? AND ProductID = ?";
+            $stmt_check = $conn->prepare($sql_check);
+            $stmt_check->bind_param("ii", $cartID, $product_id);
+            $stmt_check->execute();
+            $result_check = $stmt_check->get_result();
+
+            // 商品已存在则更新数量，否则插入新记录
+            if ($result_check->num_rows > 0) {
+                $row = $result_check->fetch_assoc();
+                $quantity = $row['Quantity'] + 1; // 增加数量
+                $sql_update = "UPDATE `12_cart_item` SET Quantity = ? WHERE CartID = ? AND ProductID = ?";
+                $stmt_update = $conn->prepare($sql_update);
+                $stmt_update->bind_param("iii", $quantity, $cartID, $product_id);
+                $stmt_update->execute();
+            } else {
+                $quantity = 1; // 初始数量为 1
                 $sql_insert = "INSERT INTO `12_cart_item` (CartID, ProductID, Quantity) VALUES (?, ?, ?)";
                 $stmt_insert = $conn->prepare($sql_insert);
-                $quantity = 1;  // 初始数量为 1
                 $stmt_insert->bind_param("iii", $cartID, $product_id, $quantity);
                 $stmt_insert->execute();
+            }
 
-                // 减少库存
-                $sql_product = "SELECT Product_Stock_Quantity FROM `05_product` WHERE ProductID = ?";
-                $stmt_product = $conn->prepare($sql_product);
-                $stmt_product->bind_param("i", $product_id);
-                $stmt_product->execute();
-                $result_product = $stmt_product->get_result();
+            // 减少库存
+            $sql_product = "SELECT Product_Stock_Quantity FROM `05_product` WHERE ProductID = ?";
+            $stmt_product = $conn->prepare($sql_product);
+            $stmt_product->bind_param("i", $product_id);
+            $stmt_product->execute();
+            $result_product = $stmt_product->get_result();
 
-                if ($result_product->num_rows > 0) {
-                    $product = $result_product->fetch_assoc();
-                    $new_stock_quantity = $product['Product_Stock_Quantity'] - 1;  // 库存减去 1
+            if ($result_product->num_rows > 0) {
+                $product = $result_product->fetch_assoc();
+                $new_stock_quantity = $product['Product_Stock_Quantity'] - 1;
 
+                if ($new_stock_quantity >= 0) {
                     // 更新库存数量
                     $sql_update_stock = "UPDATE `05_product` SET Product_Stock_Quantity = ? WHERE ProductID = ?";
                     $stmt_update_stock = $conn->prepare($sql_update_stock);
                     $stmt_update_stock->bind_param("ii", $new_stock_quantity, $product_id);
                     $stmt_update_stock->execute();
+                } else {
+                    // 库存不足，提示用户
+                    echo "Out of stock, Please choose another product.";
+                    exit();
                 }
             }
 
-            // 获取商品详细信息以显示在购物车确认页面
+            // 获取商品详细信息并存储到会话中
             $sql_product = "SELECT ProductName, Product_Price, Product_Image FROM `05_product` WHERE ProductID = ?";
             $stmt_product = $conn->prepare($sql_product);
             $stmt_product->bind_param("i", $product_id);
@@ -114,7 +93,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id'])) {
 
             if ($result_product->num_rows > 0) {
                 $product = $result_product->fetch_assoc();
-                // 将商品信息存储到会话中，以便在页面中使用
                 $_SESSION['product_added'] = $product;
                 $product_added = $product;
             }
@@ -139,6 +117,7 @@ if (isset($product_added)) {
     $total_price = $product_added['Product_Price']; // 单个商品的价格
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
