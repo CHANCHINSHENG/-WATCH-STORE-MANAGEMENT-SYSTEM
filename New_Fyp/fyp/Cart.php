@@ -87,7 +87,7 @@ if ($customerID) {
                         <div class="cart-item-details">
                             <h3><?= htmlspecialchars($item['ProductName']) ?></h3>
                             <p>Price: RM <?= number_format($item['Product_Price'], 2) ?></p>
-
+                        
                             <div class="quantity-control">
                                 <button class="decrease-btn">-</button>
                                 <input type="text" class="quantity-input" value="<?= $item['Order_Quantity'] ?>">
@@ -111,7 +111,6 @@ if ($customerID) {
 <script>
 $(document).ready(function() {
 
-    // 处理增加商品数量的按钮点击
     $('.increase-btn').click(function() {
         var parent = $(this).closest('.cart-item');
         var quantityInput = parent.find('.quantity-input');
@@ -125,7 +124,6 @@ $(document).ready(function() {
         updateQuantity(parent, quantity, 'increase');
     });
 
-    // 处理减少商品数量的按钮点击
     $('.decrease-btn').click(function() {
         var parent = $(this).closest('.cart-item');
         var quantityInput = parent.find('.quantity-input');
@@ -136,23 +134,24 @@ $(document).ready(function() {
         }
     });
 
-    // 处理数量输入框的变化
     $('.quantity-input').on('change', function() {
-        var parent = $(this).closest('.cart-item');
-        var quantity = parseInt($(this).val());
+    var parent = $(this).closest('.cart-item');
+    var quantity = parseInt($(this).val());  // 获取输入框中的数量
+    var productId = parent.data('product-id'); // 获取商品ID
 
-        if (isNaN(quantity) || quantity < 1) {
-            quantity = 1;
-        }
-        if (quantity > 10) {
-            alert("You cannot buy more than 10 of this product.");
-            $(this).val(10);
-            quantity = 10;
-        }
-        updateQuantity(parent, quantity, 'increase');
-    });
+    // 验证输入的数量
+    if (isNaN(quantity) || quantity < 1) {
+        quantity = 1;
+    }
+    if (quantity > 10) {
+        alert("You cannot buy more than 10 of this product.");
+        $(this).val(10);
+        quantity = 10;
+    }
+});
 
-    // 处理移除商品按钮点击
+
+
     $('.remove-btn').click(function() {
         var parent = $(this).closest('.cart-item');
         var productId = parent.data('product-id');
@@ -174,7 +173,6 @@ $(document).ready(function() {
         });
     });
 
-    // 更新商品数量
     function updateQuantity(parent, newQuantity, action) {
         var productId = parent.data('product-id');
 
