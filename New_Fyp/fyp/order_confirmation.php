@@ -46,7 +46,7 @@ $estimatedDelivery = date('d M Y', strtotime("+$deliveryDays days"));
 <html>
 <head>
     <title>Order Confirmation</title>
-    <link rel="stylesheet" href="style/order_confirmation.css">
+    <link rel="stylesheet" href="style/Order_confirmation.css">
 </head>
 <body>
     <div class="order-container">

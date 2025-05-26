@@ -1,52 +1,101 @@
+/* 统一背景和字体 */
 body {
     font-family: 'Poppins', sans-serif;
-    background-color: #0d0d0d; /* Dark background */
+    background-color: #0d0d0d; /* 深黑背景 */
     margin: 0;
     padding: 40px;
-    color: #eee; /* Light grey font color */
+    color: #eee; /* 浅灰色字体 */
 }
 
+/* 主容器样式 */
 .order-container {
-    background: #1a1a1a; /* Dark grey card background */
-    padding: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px;
+    background-color: #1a1a1a; /* 深灰色背景 */
     border-radius: 12px;
     box-shadow: 0 8px 20px rgba(0,0,0,0.6);
-    max-width: 600px;
-    margin: auto;
 }
 
-h1 {
-    color: #d4af37; /* Gold text for header */
-    text-align: center;
+/* 标题和文本样式 */
+h1, h2 {
     font-size: 28px;
+    color: #d4af37; /* 金色 */
+    margin-bottom: 20px;
 }
 
-p {
+/* 确认订单细节区域 */
+.order-container p {
     font-size: 16px;
-    line-height: 1.5;
-    color: #bbb; /* Light grey text */
+    color: #eee;
+    line-height: 1.6;
 }
 
-.highlight {
-    color: #d4af37; /* Gold text for highlights */
+/* 强调字段 */
+.order-container .highlight {
+    color: #d4af37;
     font-weight: bold;
 }
 
+/* 订单项列表 */
+.cart-items {
+    margin-top: 20px;
+}
+
+.cart-item {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #333;
+    padding-bottom: 15px;
+}
+
+.cart-item img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    margin-right: 20px;
+    border-radius: 8px;
+    border: 1px solid #555;
+}
+
+.cart-item-details h4 {
+    margin: 0;
+    font-size: 18px;
+    color: #fff;
+}
+
+.cart-item-details p {
+    margin: 5px 0;
+    color: #bbb;
+}
+
+/* 状态说明 */
+.order-container .status {
+    font-size: 16px;
+    color: #bbb;
+    margin-top: 20px;
+}
+
+/* 返回按钮 */
 .back-button {
-    display: block;
-    width: fit-content;
-    margin: 30px auto 0;
+    display: inline-block;
     padding: 14px 20px;
     background-color: #d4af37;
     color: #0d0d0d;
-    text-decoration: none;
-    border-radius: 8px;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: bold;
-    text-align: center;
-    transition: background-color 0.3s;
+    border-radius: 8px;
+    margin-top: 20px;
+    text-decoration: none;
+    transition: 0.3s;
 }
 
 .back-button:hover {
-    background-color: #bfa133; /* Darker gold on hover */
+    background-color: #bfa133;
+}
+
+/* 订单估计交付日期 */
+.estimated-delivery {
+    font-size: 18px;
+    color: #d4af37;
 }
