@@ -50,7 +50,7 @@ $estimatedDelivery = date('d M Y', strtotime("+$deliveryDays days"));
 </head>
 <body>
     <div class="order-container">
-        <h1>🎉 Order Confirmation</h1>
+        <h1>Order Confirmation</h1>
         <p><strong>Order ID:</strong> <?php echo htmlspecialchars($row['OrderID']); ?></p>
         <p><strong>Total Paid:</strong> RM <?php echo number_format($row['Total_Price'], 2); ?></p>
         <p><strong>Your Tracking Number:</strong> <span class="highlight"><?php echo htmlspecialchars($row['Tracking_Number']); ?></span></p>

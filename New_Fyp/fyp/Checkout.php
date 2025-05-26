@@ -15,10 +15,10 @@ $shipping_fee = 0;
 $total = 0;
 $error = "";
 
-// Load shipping rules from CSV
+// 读取配送规则
 $shipping_rules = [];
 if (($handle = fopen("shipping_rules.csv", "r")) !== false) {
-    fgetcsv($handle); // skip header
+    fgetcsv($handle); 
     while (($data = fgetcsv($handle, 1000, ",")) !== false) {
         $shipping_rules[] = [
             'start' => (int)trim($data[0]),
@@ -30,18 +30,41 @@ if (($handle = fopen("shipping_rules.csv", "r")) !== false) {
     fclose($handle);
 }
 
-// Get CartID
+// 获取银行名称列表
+function getBankNames() {
+    $banks = [];
+    if (($handle = fopen("banks.csv", "r")) !== FALSE) {
+        fgetcsv($handle);  // 跳过表头
+        while (($data = fgetcsv($handle)) !== FALSE) {
+            $banks[] = trim($data[0]);  // 假设银行名称在第一列
+        }
+        fclose($handle);
+    }
+    return $banks;
+}
+
+// 获取用户输入的银行名称
+$inputBank = isset($_POST['card_bank']) ? trim($_POST['card_bank']) : '';  
+
+// 获取银行名称列表
+$validBanks = getBankNames();
+
+// 检查用户输入的银行是否在有效银行列表中
+if (!empty($inputBank) && !in_array($inputBank, $validBanks)) {
+    $error = "Please enter a valid bank name.";  // 显示提示信息
+}
+
 $stmt = $conn->prepare("SELECT CartID FROM 11_cart WHERE CustomerID = ?");
 $stmt->bind_param("i", $customerID);
 $stmt->execute();
-$result = $stmt->get_result();
+$result = $stmt->get_result();  
+
 if ($row = $result->fetch_assoc()) {
     $cartID = $row['CartID'];
 } else {
     $error = "Cart not found.";
 }
 
-// Get Cart Items and check if any quantity exceeds 10
 if ($cartID) {
     $stmt = $conn->prepare("
         SELECT p.ProductID, p.ProductName, p.Product_Image, p.Product_Price, ci.Quantity
@@ -49,22 +72,23 @@ if ($cartID) {
         JOIN 05_product p ON ci.ProductID = p.ProductID
         WHERE ci.CartID = ?
     ");
+
     $stmt->bind_param("i", $cartID);
     $stmt->execute();
     $result = $stmt->get_result();
 
     while ($row = $result->fetch_assoc()) {
         if ($row['Quantity'] > 10) {
-            $echo = "Each product can only be bought up to 10! Please adjust your cart."; // Error message if quantity > 10
-            break; 
+            $error = "Each product can only be bought up to 10! Please adjust your cart."; 
+            break;
         }
+
         $row['Subtotal'] = $row['Product_Price'] * $row['Quantity'];
         $subtotal += $row['Subtotal'];
         $cart_items[] = $row;
     }
 }
 
-// Handle order submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']) && empty($error)) {
     $name     = trim($_POST['name']);
     $address  = trim($_POST['address']);
@@ -76,16 +100,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']) && emp
     $card_number = trim($_POST['card_number'] ?? '');
     $card_bank = trim($_POST['card_bank'] ?? '');
 
+    // 检查必填项
     if (!$name || !$address || !$city || !$postcode || !$state || !$phone || !$payment_method) {
         $error = "Please fill in all required shipping and payment information.";
     } elseif (empty($cart_items)) {
         $error = "Your cart is empty. Cannot place order.";
     }
 
+    // 如果没有错误，继续处理订单
     if (empty($error)) {
-        // Calculate shipping fee based on postcode
         $customer_postcode = (int)$postcode;
-        $shipping_fee = 00; // Default shipping fee
+        $shipping_fee = 0;
 
         foreach ($shipping_rules as $rule) {
             if ($customer_postcode >= $rule['start'] && $customer_postcode <= $rule['end']) {
@@ -99,10 +124,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']) && emp
         try {
             $conn->begin_transaction();
 
-            // Generate Tracking Number
             $tracking_number = substr(str_shuffle("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"), 0, 11);
 
-            // Insert tracking record
             $tracking_query = "
                 INSERT INTO 06_tracking 
                 (Tracking_Number, Delivery_Status, Delivery_Address, Delivery_City, Delivery_Postcode, Delivery_State)
@@ -113,7 +136,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']) && emp
             $stmt->execute();
             $trackingID = $conn->insert_id;
 
-            // Insert order
             $order_query = "
                 INSERT INTO 07_order 
                 (CustomerID, TrackingID, OrderDate, OrderStatus, Shipping_Method, Shipping_Name, Shipping_Address, Shipping_City, Shipping_Postcode, Shipping_State, Shipping_Phone, Total_Price)
@@ -124,7 +146,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']) && emp
             $stmt->execute();
             $orderID = $stmt->insert_id;
 
-            // Insert order details
             foreach ($cart_items as $item) {
                 $item_query = "
                     INSERT INTO 08_order_details 
@@ -136,7 +157,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']) && emp
                 $stmt->execute();
             }
 
-            // Insert payment info
             $payment_query = "
                 INSERT INTO 09_payment 
                 (OrderID, Payment_Card_Type, Payment_Card_Number, Payment_Card_Bank)
@@ -146,7 +166,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']) && emp
             $stmt->bind_param("isss", $orderID, $payment_method, $card_number, $card_bank);
             $stmt->execute();
 
-            // Clear cart
+            // 清空购物车
             $clear_cart_query = "DELETE FROM 12_cart_item WHERE CartID = ?";
             $stmt = $conn->prepare($clear_cart_query);
             $stmt->bind_param("i", $cartID);
@@ -164,6 +184,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']) && emp
 }
 ?>
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -175,14 +196,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']) && emp
     <div class="checkout-container">
         <div class="checkout-left">
             <h1>Checkout</h1>
-            <a href="customer_products.php" class="continue-shopping-btn">back</a>
 
             <?php if (!empty($error)): ?>
                 <p class="error"><?= htmlspecialchars($error) ?></p>
             <?php endif; ?>
 
             <?php if (!empty($cart_items)): ?>
-            <form method="post" class="checkout-form">
+            <form method="post" class="checkout-form" onsubmit="return validateCardNumber()">
                 <h3>Shipping Information</h3>
                 <input type="text" name="name" placeholder="Full Name" required>
                 <input type="text" name="address" placeholder="Address" required>
@@ -197,8 +217,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']) && emp
                     <option value="Mastercard">Mastercard</option>
                     <option value="FPX">FPX</option>
                 </select>
-                <input type="text" name="card_number" placeholder="Card Number">
-                <input type="text" name="card_bank" placeholder="Card Issuer Bank">
+                <input type="text" name="card_number" placeholder="Card Number" required>
+                <input type="text" name="card_bank" placeholder="Bank Name" required>
 
                 <button type="submit" name="place_order" class="place-order-button">Place Order</button>
             </form>
@@ -237,11 +257,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']) && emp
             const postcode = document.querySelector("input[name='postcode']").value;
             const shippingFeeDisplay = document.querySelector(".shipping-fee");
 
-            if (postcode) {
+            if (postcode) 
+            {
                 const customerPostcode = parseInt(postcode, 10);
-                let shippingFee = 00;
+                let shippingFee = 0;
 
-                for (let rule of shippingRules) {
+                for (let rule of shippingRules) 
+                {
                     if (customerPostcode >= rule.start && customerPostcode <= rule.end) 
                     {
                         shippingFee = rule.fee;
@@ -255,6 +277,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']) && emp
                 const total = subtotal + shippingFee;
                 document.querySelector(".total-price").textContent = "RM " + total.toFixed(2);
             }
+        }
+
+        function validateCardNumber() 
+        {
+            const cardNumber = document.querySelector("input[name='card_number']").value;
+            
+            const cardNumberWithoutSpaces = cardNumber.replace(/\s+/g, '');
+            
+            if (cardNumberWithoutSpaces.length !== 16 || isNaN(cardNumberWithoutSpaces)) 
+            {
+                alert("Card number must be exactly 16 digits long.");
+                return false; // Prevent form submission
+            }
+            return true;
         }
     </script>
 </body>
