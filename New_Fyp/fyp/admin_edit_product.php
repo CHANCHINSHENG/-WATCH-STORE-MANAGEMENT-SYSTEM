@@ -1,113 +1,93 @@
 <?php
 require_once 'admin_login_include/config_session.php';
 require_once 'admin_login_include/db.php';
+require_once 'admin_editproduct_include/admin_editproduct_model.php';
+require_once 'admin_editproduct_include/admin_editproduct_view.php';
 
 if (!isset($_SESSION['admin_id'])) {
     header("Location: admin_login.php");
     exit();
 }
 
-// Check if product ID is set
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
-    echo "❌ Invalid Product ID.";
-    exit();
+    die("❌ Invalid Product ID.");
 }
 
-$product_id = intval($_GET['id']); // safer (convert to int)
-
-// Fetch existing product details
-$stmt = $pdo->prepare("SELECT * FROM `05_PRODUCT` WHERE ProductID = ?");
-$stmt->execute([$product_id]);
-$product = $stmt->fetch(PDO::FETCH_ASSOC);
-
+$product_id = (int)$_GET['id'];
+$product = getProductById($pdo, $product_id);
 if (!$product) {
-    echo "❌ Product not found.";
-    exit();
-}
-
-$success_message = "";
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $name = $_POST['ProductName'];
-    $description = $_POST['Product_Description'];
-    $price = $_POST['Product_Price'];
-    $stock = $_POST['Product_Stock_Quantity'];
-    $status = $_POST['Product_Status'];
-
-    if (
-        $name !== $product['ProductName'] ||
-        $description !== $product['Product_Description'] ||
-        $price != $product['Product_Price'] ||
-        $stock != $product['Product_Stock_Quantity'] ||
-        $status !== $product['Product_Status']
-    ) {
-        $update_stmt = $pdo->prepare("UPDATE `05_PRODUCT` 
-                                      SET ProductName = ?, 
-                                          Product_Price = ?, 
-                                          Product_Description = ?, 
-                                          Product_Stock_Quantity = ?, 
-                                          Product_Status = ? 
-                                      WHERE ProductID = ?");
-        if ($update_stmt->execute([$name, $price, $description, $stock, $status, $product_id])) {
-            $success_message = "✅ Product updated successfully!";
-
-            // Refresh the product data after update
-            $stmt = $pdo->prepare("SELECT * FROM `05_PRODUCT` WHERE ProductID = ?");
-            $stmt->execute([$product_id]);
-            $product = $stmt->fetch(PDO::FETCH_ASSOC);
-        } else {
-            echo "❌ Error updating product.";
-        }
-    }
+    die("❌ Product not found.");
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Edit Product - TIGO</title>
     <link rel="stylesheet" href="admin_edit_product.css">
+ 
 </head>
 <body>
-    <div class="dashboard-container">
-        <h2>Edit Product</h2>
+<div class="dashboard-container">
+    <h2>Edit Product</h2>
+    <?php displayFormMessages() ?>
 
-        <!-- ✅ Show success message inline -->
-        <?php if ($success_message) { ?>
-            <p class="success-message"><?= $success_message; ?></p>
-        <?php } ?>
+    <form method="POST" enctype="multipart/form-data" action="admin_editproduct_include/admin_editproduct_inc.php?id=<?= $product_id ?>">
+        <div class="input-group">
+            <label>Product Name</label>
+            <input type="text" name="ProductName" value="<?= htmlspecialchars($product['ProductName']); ?>" required>
+        </div>
+        <div class="input-group">
+            <label>Description</label>
+            <textarea name="Product_Description" required><?= htmlspecialchars($product['Product_Description']); ?></textarea>
+        </div>
+        <div class="input-group">
+            <label>Price</label>
+            <input type="number" name="Product_Price" step="0.01" value="<?= htmlspecialchars($product['Product_Price']); ?>" required>
+        </div>
+        <div class="input-group">
+            <label>Stock Quantity</label>
+            <input type="number" name="Product_Stock_Quantity" value="<?= htmlspecialchars($product['Product_Stock_Quantity']); ?>" required>
+        </div>
+        <div class="input-group">
+            <label>Status</label>
+            <select name="Product_Status" required>
+                <option value="Available" <?= ($product['Product_Status'] === "Available") ? "selected" : ""; ?>>Available</option>
+                <option value="Out of Stock" <?= ($product['Product_Status'] === "Out of Stock") ? "selected" : ""; ?>>Out of Stock</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label>Category</label>
+            <input type="text" value="<?= htmlspecialchars($product['CategoryName'] ?? 'N/A') ?>" readonly>
+        </div>
+        <div class="input-group">
+            <label>Brand</label>
+            <input type="text" value="<?= htmlspecialchars($product['BrandName'] ?? 'N/A') ?>" readonly>
+        </div>
 
-        <form method="POST">
-            <div class="input-group">
-                <label>Product Name</label>
-                <input type="text" name="ProductName" value="<?= htmlspecialchars($product['ProductName']); ?>" required>
-            </div>
+        <!-- Image Replacements -->
+        <div class="input-group">
+            <label>Replace Image 1</label>
+            <input type="file" name="product_image">
+            <img src="admin_addproduct_include/<?= htmlspecialchars($product['Product_Image']) ?>" class="preview-image" alt="Image 1">
+        </div>
+        <div class="input-group">
+            <label>Replace Image 2</label>
+            <input type="file" name="product_image2">
+            <img src="admin_addproduct_include/<?= htmlspecialchars($product['Product_Image2']) ?>" class="preview-image" alt="Image 2">
+        </div>
+        <div class="input-group">
+            <label>Replace Image 3</label>
+            <input type="file" name="product_image3">
+            <img src="admin_addproduct_include/<?= htmlspecialchars($product['Product_Image3']) ?>" class="preview-image" alt="Image 3">
+        </div>
 
-            <div class="input-group">
-                <label>Description</label>
-                <textarea name="Product_Description" required><?= htmlspecialchars($product['Product_Description']); ?></textarea>
-            </div>
-
-            <div class="input-group">
-                <label>Price</label>
-                <input type="number" name="Product_Price" step="0.01" value="<?= $product['Product_Price']; ?>" required>
-            </div>
-
-            <div class="input-group">
-                <label>Stock Quantity</label>
-                <input type="number" name="Product_Stock_Quantity" value="<?= $product['Product_Stock_Quantity']; ?>" required>
-            </div>
-
-            <div class="input-group">
-                <label>Status</label>
-                <select name="Product_Status" required>
-                    <option value="Available" <?= ($product['Product_Status'] == "Available") ? "selected" : ""; ?>>Available</option>
-                    <option value="Out of Stock" <?= ($product['Product_Status'] == "Out of Stock") ? "selected" : ""; ?>>Out of Stock</option>
-                </select>
-            </div>
-
-            <button type="submit">Update Product</button>
-        </form>
-    </div>
+        <div class="button-group">
+            <a href="admin_layout.php?page=admin_view_products" class="btn secondary-btn">Back</a>
+            <button type="submit" class="btn primary-btn">Update Product</button>
+        </div>
+    </form>
+</div>
 </body>
 </html>

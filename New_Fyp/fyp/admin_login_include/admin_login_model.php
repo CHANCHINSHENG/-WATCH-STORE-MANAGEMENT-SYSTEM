@@ -1,7 +1,7 @@
 <?php
 
 function getusers(object $pdo, string $username) {
-    $query = "SELECT Admin_Username,Admin_Password FROM 01_ADMIN WHERE Admin_Username = ?";
+    $query = "SELECT AdminID,Admin_Username,Admin_Password FROM 01_ADMIN WHERE Admin_Username  = ?";
     $stmt = $pdo->prepare($query);
     $stmt->execute([$username]);
 
