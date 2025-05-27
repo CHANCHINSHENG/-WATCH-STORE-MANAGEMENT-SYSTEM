@@ -8,10 +8,12 @@
 error_reporting(E_ALL);
 
 // Redirect if not logged in
-if (!isset($_SESSION['admin_id'])) {
+if (!isset($_SESSION['admin_id'])) 
+{
     header("Location: admin_login.php");
     exit();
 }
+
 $categories = getAllCategories($pdo);
 $brands = getAllBrands($pdo);
 ?>  

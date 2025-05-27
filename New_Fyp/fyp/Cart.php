@@ -1,10 +1,11 @@
 <?php
 session_start();
-include 'db.php'; // 确保数据库连接正常
+include 'db.php';
 
 $cart_items = [];
 $total_amount = 0;
 $item_count = 0;
+$error_message = "";
 
 $customerID = $_SESSION['customer_id'] ?? null;
 
@@ -20,12 +21,7 @@ if ($customerID) {
         $cartID = $cart_row['CartID'];
 
         $sql_items = "
-            SELECT 
-                p.ProductID, 
-                p.ProductName, 
-                p.Product_Price, 
-                p.Product_Image, 
-                ci.Quantity 
+            SELECT p.ProductID, p.ProductName, p.Product_Price, p.Product_Image, ci.Quantity 
             FROM `12_cart_item` ci
             JOIN `05_product` p ON ci.ProductID = p.ProductID
             WHERE ci.CartID = ?
@@ -36,6 +32,10 @@ if ($customerID) {
         $result_items = $stmt_items->get_result();
 
         while ($row = $result_items->fetch_assoc()) {
+            if ($row['Quantity'] > 10) {
+                $error_message = "Quantity exceeds 10 for one or more products. Please adjust your cart.";
+                break;
+            }
             $subtotal = $row['Product_Price'] * $row['Quantity'];
             $cart_items[] = [
                 'ProductID'      => $row['ProductID'],
@@ -50,10 +50,6 @@ if ($customerID) {
         }
     }
 }
-
-// 运费计算（满100免邮）
-$shipping_fee = ($total_amount >= 100) ? 0 : 10;
-$grand_total = $total_amount + $shipping_fee;
 ?>
 
 <!DOCTYPE html>
@@ -61,46 +57,44 @@ $grand_total = $total_amount + $shipping_fee;
 <head>
     <meta charset="UTF-8">
     <title>Shopping Cart</title>
-    <link rel="stylesheet" href="Cart.css"> 
+    <link rel="stylesheet" href="Cart.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> 
 </head>
 <body>
+
+<div class="Title main page">
+    <div class="container">
+        <a class="navbar-brand d-inline-flex" href="customermainpage.php"><img src="assets/img/Screenshot 2025-03-20 113245.png"></a>
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item px-2"><a class="nav-link fw-bold" href="customer_products.php">WATCHES</a></li>
+            <li class="nav-item px-2"><a class="nav-link fw-bold" href="customer_products.php">STORE</a></li>
+            <li class="nav-item px-2"><a class="nav-link fw-bold" href="#contact">CONTACT</a></li>
+            <li class="nav-item px-2"><a class="nav-link fw-bold" href="cart.php"><img src="img/Cart_icon.png" style="width:24px; height:24px;"></a></li>
+        </ul>
+    </div>
+
     <div class="cart-container">
-        <h1>Your Shopping Cart</h1>
+        <h1>Your Shopping Cart (<span id="cart-item-count"><?= $item_count ?></span>)</h1>
 
         <?php if (empty($cart_items)): ?>
-            <div class="empty-cart">
-                <h2>Your cart is empty</h2>
-                <a href="customer_products.php">Continue Shopping</a>
-            </div>
+            <div class="empty-cart"><h2>Your cart is empty.</h2><a href="customer_products.php" class="continue-shopping-btn">Continue Shopping</a></div>
         <?php else: ?>
             <div class="cart-items">
                 <?php foreach ($cart_items as $item): ?>
-                    <div class="cart-item">
-                        <img src="<?= htmlspecialchars($item['Product_Image']) ?>" 
-                             alt="<?= htmlspecialchars($item['ProductName']) ?>" 
-                             class="cart-item-image">
-                        
+                    <div class="cart-item" data-product-id="<?= $item['ProductID'] ?>">
+                        <img src="<?= htmlspecialchars($item['Product_Image']) ?>" class="cart-item-image" alt="<?= htmlspecialchars($item['ProductName']) ?>">
+
                         <div class="cart-item-details">
                             <h3><?= htmlspecialchars($item['ProductName']) ?></h3>
                             <p>Price: RM <?= number_format($item['Product_Price'], 2) ?></p>
-
-                            <!-- User can update quantity -->
-                            <form action="update_cart.php" method="post" style="display:inline;">
-                                <input type="hidden" name="product_id" value="<?= $item['ProductID'] ?>">
-                                <input type="number" name="quantity" value="<?= $item['Order_Quantity'] ?>" min="1" style="width: 50px;">
-                                <button type="submit">Update Quantity</button>
-                            </form>
-
-                            <!-- Remove item from cart -->
-                            <form action="update_cart.php" method="post" style="display:inline;">
-                                <input type="hidden" name="product_id" value="<?= $item['ProductID'] ?>">
-                                <input type="hidden" name="action" value="remove">
-                                <button type="submit" class="remove-btn">Remove</button>
-                            </form>
-                        </div>
                         
-                        <div class="item-subtotal">
-                            RM <?= number_format($item['Order_Subtotal'], 2) ?>
+                            <div class="quantity-control">
+                                <button class="decrease-btn">-</button>
+                                <input type="text" class="quantity-input" value="<?= $item['Order_Quantity'] ?>">
+                                <button class="increase-btn">+</button>
+                            </div>
+
+                            <button class="remove-btn">Remove</button>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -108,14 +102,96 @@ $grand_total = $total_amount + $shipping_fee;
 
             <div class="order-summary">
                 <h2>Order Summary</h2>
-                <p>Subtotal (<?= $item_count ?> items): RM <?= number_format($total_amount, 2) ?></p>
-                <p>Shipping: <?= $shipping_fee == 0 ? 'FREE' : 'RM ' . number_format($shipping_fee, 2) ?></p>
-                <p><strong>Total: RM <?= number_format($grand_total, 2) ?></strong></p>
-                <form action="Checkout.php" method="post">
-                    <button type="submit" class="checkout-btn">Proceed to Checkout</button>
-                </form>
+                <p>Items Total: RM <span id="total-amount"><?= number_format($total_amount, 2) ?></span></p>
+                <form action="Checkout.php" method="post"><button type="submit" class="checkout-btn" id="checkout-btn">Proceed to Checkout</button></form>
             </div>
         <?php endif; ?>
     </div>
+
+<script>
+$(document).ready(function() {
+
+    $('.increase-btn').click(function() {
+        var parent = $(this).closest('.cart-item');
+        var quantityInput = parent.find('.quantity-input');
+        var quantity = parseInt(quantityInput.val()) + 1;
+
+        if (quantity > 10) {
+            alert("You cannot add more than 10 of this product.");
+            return;
+        }
+
+        updateQuantity(parent, quantity, 'increase');
+    });
+
+    $('.decrease-btn').click(function() {
+        var parent = $(this).closest('.cart-item');
+        var quantityInput = parent.find('.quantity-input');
+        var quantity = parseInt(quantityInput.val()) - 1;
+
+        if (quantity >= 1) {
+            updateQuantity(parent, quantity, 'decrease');
+        }
+    });
+
+    $('.quantity-input').on('change', function() {
+    var parent = $(this).closest('.cart-item');
+    var quantity = parseInt($(this).val());  // 获取输入框中的数量
+    var productId = parent.data('product-id'); // 获取商品ID
+
+    // 验证输入的数量
+    if (isNaN(quantity) || quantity < 1) {
+        quantity = 1;
+    }
+    if (quantity > 10) {
+        alert("You cannot buy more than 10 of this product.");
+        $(this).val(10);
+        quantity = 10;
+    }
+});
+
+
+
+    $('.remove-btn').click(function() {
+        var parent = $(this).closest('.cart-item');
+        var productId = parent.data('product-id');
+
+        $.ajax({
+            url: 'update_cart.php',
+            method: 'POST',
+            data: { product_id: productId, quantity: 0, action: 'remove' },
+            success: function(response) {
+                var data = JSON.parse(response);
+                if (data.success) {
+                    parent.fadeOut(300, function() {
+                        $(this).remove();
+                    });
+                    $('#total-amount').text(data.total_amount.toFixed(2));
+                    $('#cart-item-count').text(data.total_items);
+                }
+            }
+        });
+    });
+
+    function updateQuantity(parent, newQuantity, action) {
+        var productId = parent.data('product-id');
+
+        $.ajax({
+            url: 'update_cart.php',
+            method: 'POST',
+            data: { product_id: productId, quantity: newQuantity, action: action },
+            success: function(response) {
+                var data = JSON.parse(response);
+                if (data.success) {
+                    parent.find('.quantity-input').val(data.new_quantity);
+                    $('#total-amount').text(data.total_amount.toFixed(2));
+                    $('#cart-item-count').text(data.total_items);
+                }
+            }
+        });
+    }
+});
+</script>
+
 </body>
 </html>

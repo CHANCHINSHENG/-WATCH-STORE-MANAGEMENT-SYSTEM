@@ -1,0 +1,16 @@
+﻿Start_Postcode,End_Postcode,State,Shipping_Fee (RM)
+50000,60000,Kuala Lumpur,0
+62000,62999,Putrajaya,5
+40000,48999,Selangor,5
+80000,86999,Johor,10
+75000,78000,Melaka (Malacca),8
+70000,73500,Negeri ,8
+30000,36800,Perak,10
+10000,14120,Puala Pinang ,8
+05000,09810,Kedah ,12
+01000,02999,Perlis ,12
+15000,18500,Kelantan ,12
+20000,243000,Terengganu,12
+25000,28800,Pahang ,10
+88000,91309,Sabah,20
+93000,98859,Sarawak,20
