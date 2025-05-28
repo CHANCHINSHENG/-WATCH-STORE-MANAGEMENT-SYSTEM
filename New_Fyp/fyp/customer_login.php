@@ -93,25 +93,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
         } ?>
 
         <form action="customer_login.php" method="POST">
-            <div class="input-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="Cust_Username" placeholder="Enter your username" required>
-            </div>
+    <div class="input-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="Cust_Username" placeholder="Enter your username" required>
+    </div>
 
-            <div class="input-group">
-                <label for="password">Password</label>
-                <div class="password-wrapper">
-                    <input type="password" id="password" name="Cust_Password" placeholder="Enter your password" required>
-                    <span class="toggle-password" onclick="togglePassword()">👁️</span>
-                </div>
-            </div>
+    <div class="input-group">
+        <label for="password">Password</label>
+        <div class="password-wrapper">
+            <input type="password" id="password" name="Cust_Password" placeholder="Enter your password" required>
+            <span class="toggle-password" onclick="togglePassword()">👁️</span>
+        </div>
+    </div>
 
-            <button type="submit" class="login-btn">Login</button>
+    <!-- Forgot password link -->
+    <div class="text-right" style="text-align:right; margin-bottom: 10px;">
+        <a href="customer_forgot_password.php" class="forgot-password-link">Forgot Password?</a>
+    </div>
 
-            <p class="register-link">
-                Don't have an account? <a href="customer_signup.php">Sign up here</a>
-            </p>
-        </form>
+    <button type="submit" class="login-btn">Login</button>
+
+    <p class="register-link">
+        Don't have an account? <a href="customer_signup.php">Sign up here</a>
+    </p>
+</form>
+
     </div>
 
     <script>

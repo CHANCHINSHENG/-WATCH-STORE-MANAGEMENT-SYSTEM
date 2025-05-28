@@ -1,3 +1,4 @@
+<?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="en-US" dir="ltr">
 
@@ -45,10 +46,38 @@
           <div class="collapse navbar-collapse border-top border-lg-0 mt-4 mt-lg-0" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
               <li class="nav-item px-2"><a class="nav-link fw-bold active" aria-current="page" href="#collections">WATCHES</a></li>
+              <li class="nav-item px-2"><a class="nav-link fw-bold" href="customer_products.php">BRANDS</a></li>
+              <li class="nav-item px-2"><a class="nav-link fw-bold" href="customer_products.php">CATEGORIES</a></li>
               <li class="nav-item px-2"><a class="nav-link fw-bold" href="customer_products.php">STORE</a></li>
               <li class="nav-item px-2"><a class="nav-link fw-bold" href="#contact">CONTACT</a></li>
               <li class="nav-item px-2"><a class="nav-link fw-bold" href="cart.php"><img src="img/Cart icon.png" alt="Cart" style="width:24px; height:24px;"></a></li>
-              <li class="nav-item px-2"><a class="nav-link fw-bold" href="customer_login.php"><img src="img/user_icon.png" alt="login" style="width:24px; height:24px;"></a></li>
+              
+              <?php
+              require_once 'db.php';
+
+              $customerName = 'Guest';
+              $profileLink = 'customer_login.php';
+
+              if (isset($_SESSION['customer_id'])) {
+              $CustomerID = $_SESSION['customer_id'];
+              $stmt = $conn->prepare("SELECT Cust_First_Name FROM 02_customer WHERE CustomerID = ?");
+              $stmt->bind_param("i", $CustomerID);
+              $stmt->execute();
+              $result = $stmt->get_result();
+               if ($row = $result->fetch_assoc()) {
+                 $customerName = 'Hello, ' . htmlspecialchars($row['Cust_First_Name']);
+                 $profileLink = 'customer_profile.php';
+               }
+              }
+              ?>
+
+              <li class="nav-item px-2 d-flex align-items-center">
+              <a class="nav-link fw-bold d-flex align-items-center" href="<?= $profileLink ?>">
+              <img src="img/user_icon.png" alt="profile" style="width:24px; height:24px;" class="me-1">
+              <span class="text-white"><?= $customerName ?></span>
+              </a>
+              </li>
+
             </ul>
           </div>
         </div>
