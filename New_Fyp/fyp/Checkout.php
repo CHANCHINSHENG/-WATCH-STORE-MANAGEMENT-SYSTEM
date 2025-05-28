@@ -97,13 +97,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']) && emp
     $address  = trim($_POST['address']);
     $city     = trim($_POST['city']);
     $postcode = trim($_POST['postcode']);
-    $state    = trim($_POST['state']);
+    $State    = trim($_POST['state']);
     $phone    = trim($_POST['phone']);
     $payment_method = trim($_POST['payment_method']);
     $card_number = trim($_POST['card_number'] ?? '');
     $card_bank = trim($_POST['card_bank'] ?? '');
 
-    if (!$name || !$address || !$city || !$postcode || !$state || !$phone || !$payment_method) 
+    if (!$name || !$address || !$city || !$postcode || !$State || !$phone || !$payment_method) 
     {
         $error = "Please fill in all required shipping and payment information.";
     } 
@@ -135,15 +135,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']) && emp
             $tracking_number = substr(str_shuffle("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"), 0, 11);
 
             $tracking_query = "
-                INSERT INTO 06_tracking 
-                (Tracking_Number, Delivery_Status, Delivery_Address, Delivery_City, Delivery_Postcode, Delivery_State)
-                VALUES (?, '准备中', ?, ?, ?, ?)
+            INSERT INTO 06_tracking 
+            (Tracking_Number, Delivery_Status, Delivery_Address, Delivery_City, Delivery_Postcode, Delivery_State, Shipping_Fee)
+            VALUES (?, 'pending', ?, ?, ?, ?, ?)
             ";
 
             $stmt = $conn->prepare($tracking_query);
-            $stmt->bind_param("sssis", $tracking_number, $address, $city, $postcode, $state);
+            $stmt->bind_param("sssssi", $tracking_number, $address, $city, $postcode, $State, $shipping_fee);
             $stmt->execute();
             $trackingID = $conn->insert_id;
+
 
             $order_query = "
                 INSERT INTO 07_order 
@@ -151,7 +152,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']) && emp
                 VALUES (?, ?, NOW(), 'pending', 'Standard Delivery (Malaysia)', ?, ?, ?, ?, ?, ?, ?)
             ";
             $stmt = $conn->prepare($order_query);
-            $stmt->bind_param("iissssisd", $customerID, $trackingID, $name, $address, $city, $postcode, $state, $phone, $total);
+            $stmt->bind_param("iissssssd", $customerID, $trackingID, $name, $address, $city, $postcode, $State, $phone, $total);
             $stmt->execute();
             $orderID = $stmt->insert_id;
 
@@ -220,7 +221,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']) && emp
                 <input type="text" name="address" placeholder="Address" value="<?= htmlspecialchars($address ?? '') ?>" required>
                 <input type="text" name="city" placeholder="City" value="<?= htmlspecialchars($city ?? '') ?>" required>
                 <input type="text" name="postcode" placeholder="Postcode" value="<?= htmlspecialchars($postcode ?? '') ?>" required oninput="updateShippingFee()">
-                <input type="text" name="state" placeholder="State" value="<?= htmlspecialchars($state ?? '') ?>" required>
+                <input type="text" name="state" placeholder="State" value="<?= htmlspecialchars($State ??  '') ?>" required>
                 <input type="text" name="phone" placeholder="Phone Number" value="<?= htmlspecialchars($phone ?? '') ?>" required>
 
                 <h3>Payment Method</h3>

@@ -33,39 +33,81 @@
 }
 
 .product-card {
-    background: white;
-    backdrop-filter: blur(10px);
-    border-radius: 15px;
-    padding: 1.5rem;
-    box-shadow: 0 8px 16px rgba(74, 20, 140, 0.15);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    width: 300px; /* Adjust the width to fit your layout */
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin: 10px;
+    transition: transform 0.3s ease-in-out;
 }
 
 .product-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 12px 24px rgba(74, 20, 140, 0.25);
+    transform: scale(1.05); /* Slight scale effect when hovering */
 }
 
-.product-card h3 {
-    font-size: 1.25rem;
-    color: #4a148c;
-    margin-bottom: 0.5rem;
+.product-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-bottom: 1px solid #ddd;
 }
 
-.product-card p {
-    font-size: 0.95rem;
+.product-card .product-info {
+    padding: 15px;
+}
+
+.product-card .product-info p {
+    margin: 8px 0;
+    font-size: 16px;
     color: #333;
-    margin-bottom: 0.5rem;
 }
 
-.product-price {
+.product-card .product-info .product-name {
     font-weight: bold;
-    color: #4a148c;
+    font-size: 18px;
+    color: #333;
 }
 
+.product-card .product-info .price {
+    font-size: 16px;
+    font-weight: 500;
+    color: #FF5722; /* A vibrant color for the price */
+}
+
+.product-card .product-info .description {
+    font-size: 14px;
+    color: #777;
+    margin-top: 10px;
+}
+
+.product-card .button-container {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+    background-color: #f5f5f5;
+    border-top: 1px solid #ddd;
+}
+
+.product-card .button-container button {
+    background-color: #4CAF50; /* Green for action buttons */
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.product-card .button-container button:hover {
+    background-color: #45a049;
+}
+
+.product-card .button-container button:active {
+    background-color: #388e3c;
+}
 
 .add-to-cart-btn {
     margin-top: 1rem;
