@@ -106,9 +106,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </div>
                 </div>
 
+                <div class="input-group">
+                    <label for="password">Conform Password</label>
+                    <div class="password-container">
+                        <input type="password" id="password" name="Cust_Password" placeholder="Enter password" required>
+                        <span class="toggle-password" onclick="togglePassword()">👁️</span>
+                    </div>
+                </div>
+
                 <button type="submit">Sign Up</button>
 
-                <!-- Added "Already have an account?" link -->
                 <p class="signin-link">Already have an account? <a href="customer_login.php">Sign in here</a></p>
 
             </form>

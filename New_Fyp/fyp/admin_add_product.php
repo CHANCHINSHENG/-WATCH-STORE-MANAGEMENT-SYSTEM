@@ -107,36 +107,13 @@ $brands = getAllBrands($pdo);
                 </div>
 
                 <div class="button-group">
-                    <a href="admin_dashboard.php" class="btn secondary-btn">Back</a>
+                    <a href="admin_layout.php?page=admin_view_products" class="btn secondary-btn">Back</a>
                     <button type="submit" class="btn primary-btn">Add Product</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <script>
-function previewImage(inputId, previewId) {
-    const input = document.getElementById(inputId);
-    const preview = document.getElementById(previewId);
-
-    input.addEventListener('change', function (e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                preview.innerHTML = `<img src="${e.target.result}" class="upload-preview-image" alt="Preview">`;
-            }
-            reader.readAsDataURL(file);
-        } else {
-            preview.innerHTML = '';
-        }
-    });
-}
-
-previewImage('product_image', 'preview1');
-previewImage('product_image2', 'preview2');
-previewImage('product_image3', 'preview3');
-</script>
 
 </body>
 </html>

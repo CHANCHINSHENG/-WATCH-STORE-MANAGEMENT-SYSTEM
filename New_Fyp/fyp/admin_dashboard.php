@@ -1,10 +1,12 @@
 <?php
-session_start();
+require_once 'admin_login_include/config_session.php';
+require_once 'admin_login_include/db.php';
 if (!isset($_SESSION['admin_id'])) {
     header("Location: admin_login.php");
     exit();
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

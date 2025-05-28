@@ -77,7 +77,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if ($errors) {
             $_SESSION["error_signup"] = $errors;
-            header("Location: ../admin_add_product.php");
+            header("Location: ../admin_layout.php?page=admin_add_product");
             die();
         }
 
@@ -93,7 +93,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $pdo = null;
         $stmt = null;
 
-        header("Location: ../admin_add_product.php");
+        header("Location: ../admin_layout.php?page=admin_add_product");
         die();
 
     } catch (PDOException $th) {
@@ -101,6 +101,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
 } else {
-    header("Location: ../admin_add_product.php");
+    header("Location: ../admin_layout.php?page=admin_add_product");
 }
 ?>
