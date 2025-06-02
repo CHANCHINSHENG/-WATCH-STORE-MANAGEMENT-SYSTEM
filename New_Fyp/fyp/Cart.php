@@ -62,16 +62,28 @@ if ($customerID) {
 </head>
 <body>
 
+<?php
+$current_page = basename($_SERVER['PHP_SELF']);
+?>
+
 <div class="Title main page">
-    <div class="container">
-        <a class="navbar-brand d-inline-flex" href="customermainpage.php"><img src="assets/img/Screenshot 2025-03-20 113245.png"></a>
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item px-2"><a class="nav-link fw-bold" href="customer_products.php">WATCHES</a></li>
-            <li class="nav-item px-2"><a class="nav-link fw-bold" href="customer_products.php">STORE</a></li>
-            <li class="nav-item px-2"><a class="nav-link fw-bold" href="#contact">CONTACT</a></li>
-            <li class="nav-item px-2"><a class="nav-link fw-bold" href="cart.php"><img src="img/Cart_icon.png" style="width:24px; height:24px;"></a></li>
-        </ul>
-    </div>
+    <div class="container"><a class="navbar-brand d-inline-flex" href="customermainpage.php"><img src="assets/img/Screenshot 2025-03-20 113245.png"></a>
+
+    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item px-2">
+            <a class="nav-link fw-bold <?= $current_page == 'customer_products.php' ? 'active' : '' ?>" href="customer_products.php">WATCHES</a>
+        </li>
+        <li class="nav-item px-2">
+            <a class="nav-link fw-bold <?= $current_page == 'contact.php' ? 'active' : '' ?>" href="#contact">CONTACT</a>
+        </li>
+        <li class="nav-item px-2">
+            <a class="nav-link fw-bold <?= $current_page == 'cart.php' ? 'active' : '' ?>" href="cart.php"><img src="img/Cart_icon.png" alt="Cart" style="width:24px; height:24px;"></a>
+        </li>
+        <li class="nav-item px-2">
+            <a class="nav-link fw-bold <?= $current_page == 'customer_profile.php' ? 'active' : '' ?>" href="customer_profile.php"><img src="img/user_icon.png" alt="login" style="width:24px; height:24px;"></a>
+        </li>
+    </ul>
+</div>
 
     <div class="cart-container">
         <h1>Your Shopping Cart (<span id="cart-item-count"><?= $item_count ?></span>)</h1>
