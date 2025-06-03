@@ -49,7 +49,7 @@ if (session_status() === PHP_SESSION_NONE) {
           <button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
           <div class="collapse navbar-collapse border-top border-lg-0 mt-4 mt-lg-0" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-              <li class="nav-item px-2"><a class="nav-link fw-bold active" aria-current="page" href="#collections">WATCHES</a></li>
+              <li class="nav-item px-2"><a class="nav-link fw-bold active" aria-current="page" href="customer_products.php">WATCHES</a></li>
               
               <li class="nav-item px-2 dropdown brands-dropdown position-relative">
                 <a class="nav-link fw-bold" href="#" id="brandDropdown">BRANDS</a>
