@@ -59,7 +59,7 @@ if (!$order) {
         <p><?= htmlspecialchars($order['Shipping_Address']) ?></p>
         <p><?= htmlspecialchars($order['Shipping_Postcode'] . ' ' . $order['Shipping_City']) ?></p>
         <p><?= htmlspecialchars($order['Shipping_State']) ?></p>
-        <p>Phone: <?= htmlspecialchars($order['Shipping_Phone']) ?></p>
+        <p>Phone : <?= htmlspecialchars($order['Shipping_Phone']) ?></p>
 
         <a href="customer_profile.php" class="btn btn-outline-light mt-4">← Back to Dashboard</a>
     </div>

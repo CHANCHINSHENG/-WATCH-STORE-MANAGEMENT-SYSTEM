@@ -41,7 +41,7 @@
     <!-- ===============================================-->
     <main class="main" id="top">
       <nav class="navbar navbar-expand-lg navbar-light fixed-top py-3 d-block" data-navbar-on-scroll="data-navbar-on-scroll">
-        <div class="container"><a class="navbar-brand d-inline-flex" href="index.html"><img src="assets/img/Screenshot 2025-03-20 113245.png"></a>
+        <div class="container"><a class="navbar-brand d-inline-flex" href="customermainpage.php"><img src="assets/img/Screenshot 2025-03-20 113245.png"></a>
           <button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
           <div class="collapse navbar-collapse border-top border-lg-0 mt-4 mt-lg-0" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
@@ -50,7 +50,7 @@
               <li class="nav-item px-2"><a class="nav-link fw-bold" href="customer_products.php">CATEGORIES</a></li>
               <li class="nav-item px-2"><a class="nav-link fw-bold" href="customer_products.php">STORE</a></li>
               <li class="nav-item px-2"><a class="nav-link fw-bold" href="#contact">CONTACT</a></li>
-              <li class="nav-item px-2"><a class="nav-link fw-bold" href="cart.php"><img src="img/Cart icon.png" alt="Cart" style="width:24px; height:24px;"></a></li>
+              <li class="nav-item px-2"><a class="nav-link fw-bold" href="cart.php"><img src="img/Cart_icon.png" alt="Cart" style="width:24px; height:24px;"></a></li>
               
               <?php
               require_once 'db.php';
@@ -551,18 +551,25 @@
 
         <div class="container">
           <div class="row">
-            <div class="col-6 col-sm-4 col-xl-3 mb-3">
-              <h4 class="lh-lg fw-bold text-light">WATCH</h4>
-            </div>
+
             <div class="col-6 col-sm-4 col-xl-3 mb-3">
               <h5 class="lh-lg fw-bold text-light">MENU</h5>
               <ul class="list-unstyled mb-md-4 mb-lg-0">
-                <li class="lh-lg"><a class="text-800 text-decoration-none text-uppercase fw-bold" href="#!">Shipping Info</a></li>
-                <li class="lh-lg"><a class="text-800 text-decoration-none text-uppercase fw-bold" href="#!">How to Order</a></li>
+                <li class="lh-lg"><a class="text-800 text-decoration-none text-uppercase fw-bold" href="Shipping_info.php">Shipping Info</a></li>
+                <li class="lh-lg"><a class="text-800 text-decoration-none text-uppercase fw-bold" href="Payment_info.php">Payment info</a></li>
                 <li class="lh-lg"><a class="text-800 text-decoration-none text-uppercase fw-bold" href="#!">How to Track</a></li>
                 <li class="lh-lg"><a class="text-800 text-decoration-none text-uppercase fw-bold" href="#!">Size Guides</a></li>
               </ul>
             </div>
+
+            <div class="col-6 col-sm-4 col-xl-3 mb-3">
+              <h4 class="lh-lg fw-bold text-light">WATCH</h4>
+            </div>
+
+            <div class="col-6 col-sm-4 col-xl-3 mb-3">
+              <h4 class="lh-lg fw-bold text-light">WATCH</h4>
+            </div>
+
             <div class="col-6 col-sm-4 col-xl-3 mb-3">
               <h5 class="mb-5"></h5>
               <ul class="list-unstyled mb-md-4 mb-lg-0">
@@ -570,6 +577,7 @@
                 <li class="lh-lg"><a class="text-800 text-decoration-none text-uppercase fw-bold" href="#!">my account</a></li>
               </ul>
             </div>
+
             <div class="col-12 col-xl-3">
               <h5 class="lh-lg fw-bold text-light text-uppercase">Signup For our Latest News</h5>
               <div class="row input-group-icon mb-5">

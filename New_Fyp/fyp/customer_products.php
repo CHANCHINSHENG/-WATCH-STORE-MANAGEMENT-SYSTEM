@@ -60,30 +60,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id'])) {
                 $stmt_insert->execute();
             }
 
-            // 减少库存
-            $sql_product = "SELECT Product_Stock_Quantity FROM `05_product` WHERE ProductID = ?";
-            $stmt_product = $conn->prepare($sql_product);
-            $stmt_product->bind_param("i", $product_id);
-            $stmt_product->execute();
-            $result_product = $stmt_product->get_result();
-
-            if ($result_product->num_rows > 0) {
-                $product = $result_product->fetch_assoc();
-                $new_stock_quantity = $product['Product_Stock_Quantity'] - 1;
-
-                if ($new_stock_quantity >= 0) {
-                    // 更新库存数量
-                    $sql_update_stock = "UPDATE `05_product` SET Product_Stock_Quantity = ? WHERE ProductID = ?";
-                    $stmt_update_stock = $conn->prepare($sql_update_stock);
-                    $stmt_update_stock->bind_param("ii", $new_stock_quantity, $product_id);
-                    $stmt_update_stock->execute();
-                } else {
-                    // 库存不足，提示用户
-                    echo "Out of stock, Please choose another product.";
-                    exit();
-                }
-            }
-
             // 获取商品详细信息并存储到会话中
             $sql_product = "SELECT ProductName, Product_Price, Product_Image FROM `05_product` WHERE ProductID = ?";
             $stmt_product = $conn->prepare($sql_product);
@@ -125,7 +101,7 @@ if (isset($product_added)) {
     <meta charset="UTF-8">
     <title>Shop - Available Products</title>
     <link rel="stylesheet" href="Customer_products.css">
-    <link rel="stylesheet" href="add_to_cart.css"> 
+    <link rel="stylesheet" href="add_to_cart.css">   
 </head>
 <body>
 
@@ -186,15 +162,17 @@ $current_page = basename($_SERVER['PHP_SELF']);
         <div id="myModal" class="modal">
             <div class="modal-content">
                 <span class="close">&times;</span>
-                <h2> Product Added to Cart! </h2>
-                <div class="product-info">
+
+                <h2> Product Added to Cart</h2> <div class="product-info">
                     <img src="<?= htmlspecialchars($product_added['Product_Image']); ?>" alt="Product Image">
                     <p><strong>Product Name:</strong> <?= htmlspecialchars($product_added['ProductName']); ?></p>
                     <p><strong>Price:</strong> MYR <?= number_format($product_added['Product_Price'], 2); ?></p>
+
                     <div class="total-section">
-                        <span>Total: RM <?= number_format($total_price, 2); ?></span> <!-- 显示总价 -->
+                        <span>Total: RM <?= number_format($total_price, 2); ?></span> 
                     </div>
                 </div>
+                
                 <div class="button-container">
                     <button onclick="window.location.href='customer_products.php'">Continue Shopping</button>
                     <button onclick="window.location.href='cart.php'">View Cart</button>
