@@ -264,7 +264,7 @@ $total_price = $product_added['Product_Price'] ?? 0;
             <button type="submit">Search</button>
             <a href="customer_products.php" class="reset-btn">Reset</a>
         </form>
-
+        
         <div class="product-grid">  
             <?php while ($row = $result->fetch_assoc()) { ?>
                 <div class="product-card">
