@@ -1,43 +1,56 @@
+/* 整体页面背景优化 */
 .page-wrapper {
     min-height: 100vh;
-    background: linear-gradient(black, #e0f7fa, black);
+    background: linear-gradient(to bottom, #121212, #1c1c1c);
     padding: 2rem;
     display: flex;
     justify-content: center;
     align-items: flex-start;
 }
 
+/* 主容器暗色背景 + 清晰边框 */
 .product-page-container {
     max-width: 1200px;
+    border: 1px solid #333;
     width: 100%;
-    background: rgba(255, 255, 255, 0.95);
+    background: #1e1e1e;
     border-radius: 20px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+    padding: 2rem;
 }
 
+/* 标题样式 */
 .product-page-header {
     text-align: center;
     margin-bottom: 2rem;
 }
 
 .product-page-header h1 {
-    color: #311b92;
+    color: #ffd700;
     font-size: 2.5rem;
     font-weight: bold;
 }
 
+/* 产品网格 */
 .product-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 2rem;
 }
 
+.product-link {
+    text-decoration: none;
+    color: inherit; /* 可选，继承文字颜色 */
+}
+
+/* 产品卡片样式 */
 .product-card {
-    background: white;
+    background: #2a2a2a;
     backdrop-filter: blur(10px);
     border-radius: 15px;
     padding: 1.5rem;
-    box-shadow: 0 8px 16px rgba(74, 20, 140, 0.15);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    overflow: hidden;  
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     display: flex;
     flex-direction: column;
@@ -46,30 +59,38 @@
 
 .product-card:hover {
     transform: translateY(-6px);
-    box-shadow: 0 12px 24px rgba(74, 20, 140, 0.25);
+    box-shadow: 0 12px 24px rgba(255, 215, 0, 0.3);
 }
 
 .product-card h3 {
     font-size: 1.25rem;
-    color: #4a148c;
+    color: #ffd700;
     margin-bottom: 0.5rem;
 }
 
 .product-card p {
     font-size: 0.95rem;
-    color: #333;
+    color: #ccc;
     margin-bottom: 0.5rem;
 }
 
 .product-price {
     font-weight: bold;
-    color: #4a148c;
+    color: #ff69b4;
 }
 
+.product-card .button-container button:hover {
+    background-color: #45a049;
+}
 
+.product-card .button-container button:active {
+    background-color: #388e3c;
+}
+
+/* 加入购物车按钮 */
 .add-to-cart-btn {
     margin-top: 1rem;
-    background: linear-gradient(135deg, #4a148c, #311b92);
+    background: linear-gradient(135deg, #ff69b4, #9c27b0);
     color: white;
     padding: 0.75rem;
     border: none;
@@ -81,15 +102,15 @@
 }
 
 .add-to-cart-btn:hover {
-    background: #4a148c;
-    box-shadow: 0 4px 10px rgba(74, 20, 140, 0.3);
+    background: #ba2f7b;
+    box-shadow: 0 4px 10px rgba(255, 105, 180, 0.4);
 }
 
-
+/* 顶部导航栏样式 */
 .Title.main.page {
-    background-color: #111;
+    background-color: #1a1a1a;
     padding: 20px 40px;
-    border-bottom: 1px solid #333;
+    border-bottom: 1px solid #444;
     box-shadow: 0 2px 10px rgba(255, 215, 0, 0.05);
 }
 
@@ -106,7 +127,7 @@
 .Title.main.page .nav-link {
     font-size: 16px;
     font-weight: bold;
-    color: #f5f5f5;
+    color: #eee;
     padding: 10px 16px;
     border-radius: 8px;
     transition: background-color 0.3s ease, color 0.3s ease;
@@ -114,10 +135,12 @@
 
 .Title.main.page .nav-link:hover,
 .Title.main.page .nav-link.active {
-    color: #000;
+    background-color: #ffd700;
+    color: #111 !important;
     transform: scale(1.05);
 }
 
+/* 图标 hover */
 .Title.main.page img {
     vertical-align: middle;
     transition: transform 0.3s ease;
@@ -127,17 +150,27 @@
     transform: scale(1.1);
 }
 
-.nav-link.active {
-    background-color: #d4af37; 
-    color: black !important;   
-    border-radius: 5px;
+/* 产品图像控制 */
+.product-info img {
+    width: 100%;
+    max-height: 250px;
+    object-fit: cover;
+    border-radius: 10px;
+    display: block;
+    margin: 0 auto;
 }
 
-/* ==================================== */
-/* === Modal (Product Added to Cart) === */
-/* ==================================== */
+.product-info img:hover {
+    transform: scale(1.05);
+}
 
-/* Modal Backdrop */
+.product-info p {
+    font-size: 1rem;
+    margin: 5px 0;
+    color: #ddd;
+}
+
+/* 模态框样式 */
 .modal {
     display: none; /* 默认隐藏 */
     position: fixed; /* 固定定位，覆盖整个视口 */
@@ -157,201 +190,116 @@
 
 /* Modal Content Box */
 .modal-content {
-    background-color: #2a2a2a; /* 深灰色背景，与你的产品容器颜色接近 🖤 */
-    margin: auto; /* 自动边距，帮助居中 */
-    padding: 35px; /* 更大的内边距，提供更多空间 */
-    border: 1px solid #444; /* 边框颜色更协调 */
-    width: 90%; /* 宽度适中 */
-    max-width: 550px; /* 最大宽度，避免在宽屏上过大 */
-    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.7); /* 更深更明显的阴影，营造悬浮感 ✨ */
-    border-radius: 15px; /* 更大的圆角，与你的按钮和卡片设计匹配 */
-    position: relative; /* 用于关闭按钮的绝对定位 */
-    text-align: center; /* 文本居中 */
-    animation: fadeInScale 0.4s ease-out; /* 新的动画效果，带一点缩放 🚀 */
-    color: #f0f0f0; /* 弹窗内文本颜色与 body 匹配 */
-}
-
-/* Fade In and Scale Animation */
-@keyframes fadeInScale {
-    from {
-        opacity: 0;
-        transform: translateY(-30px) scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-/* Close Button */
-.close {
-    color: #aaa; /* 灰色 */
-    position: absolute; /* 绝对定位 */
-    top: 15px; /* 距离顶部 */
-    right: 25px; /* 距离右侧 */
-    font-size: 36px; /* 更大字体 */
-    font-weight: bold; /* 加粗 */
-    cursor: pointer; /* 鼠标悬停变手型 */
-    transition: color 0.3s ease, transform 0.2s ease; /* 添加 transform 过渡 */
-}
-
-.close:hover,
-.close:focus {
-    color: #ff9800; /* 鼠标悬停时变成你的橙色主题色 🧡 */
-    text-decoration: none; /* 移除下划线 */
-    transform: rotate(90deg); /* 悬停时旋转一点点，增加趣味性 💫 */
-}
-
-/* Modal Header */
-.modal-content h2 {
-    color: #ff9800; /* 标题使用你的橙色主题色 🤩 */
-    margin-bottom: 25px; /* 底部间距 */
-    font-size: 30px; /* 标题字体大小 */
-    font-weight: 700; /* 加粗 */
-    border-bottom: 2px solid #444; /* 底部边框，与主题色调和 */
-    padding-bottom: 15px; /* 底部填充 */
-    text-shadow: 0 0 8px rgba(255, 152, 0, 0.2); /* 标题阴影效果 */
-}
-
-/* Product Info Container inside Modal */
-/* 注意：你的 PHP 代码中，产品信息的 P 标签没有 Strong 标签 */
-/* 所以我把 product-info 的样式调整了，并且为 P 标签添加了样式 */
-.modal-content .product-info {
-    display: flex; /* 使用 flexbox 布局 */
-    flex-direction: column; /* 垂直堆叠 */
-    align-items: center; /* 水平居中 */
-    gap: 15px; /* 项目间距 */
-    margin-bottom: 25px; /* 底部间距 */
-    background-color: #1e1e1e; /* 内部产品信息的背景色，与你的 product-detail-container 匹配 */
+    background: #2e2e2e;
     padding: 20px;
+    border-radius: 15px;
+    max-width: 500px;
+    width: 100%;
+    position: relative;
+    color: #fff;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 20px;
+    background: transparent;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.close-btn:hover {
+    color: red;
+    transform: scale(1.2);
+}
+
+/* 总价按钮区域 */
+.total-section {
+    margin-top: 10px;
+    font-weight: bold;
+    color: #ffd700;
+}
+
+.button-container button {
+    padding: 10px 20px;
+    background-color: #9c27b0;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    margin-top: 10px;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.button-container button:hover {
+    background-color: #6a0080;
+}
+
+.filter-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    justify-content: center;
+    background-color: #2a2a2a;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.filter-form select,
+.filter-form input[type="text"] {
+    padding: 0.5rem 1rem;
+    background-color: #1e1e1e;
+    border: 1px solid #444;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 1rem;
+    transition: 0.3s ease;
+    min-width: 180px;
+}
+
+.filter-form select:focus,
+.filter-form input[type="text"]:focus {
+    border-color: #ffd700;
+    outline: none;
+    box-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+}
+
+.filter-form button[type="submit"] {
+    background: linear-gradient(135deg, #ff69b4, #9c27b0);
+    color: white;
+    padding: 0.5rem 1.2rem;
+    border: none;
     border-radius: 10px;
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3); /* 内部阴影 */
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
-.modal-content .product-info img {
-    width: 150px; /* 图片宽度稍大 */
-    height: 150px; /* 图片高度稍大 */
-    object-fit: cover; /* 裁剪图片以填充容器 */
-    border-radius: 10px; /* 图片圆角 */
-    border: 2px solid #555; /* 图片边框 */
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3); /* 图片阴影 */
-    transition: transform 0.3s ease;
+.filter-form button[type="submit"]:hover {
+    background: #ba2f7b;
+    box-shadow: 0 0 10px rgba(255, 105, 180, 0.4);
 }
 
-.modal-content .product-info img:hover {
-    transform: scale(1.03); /* 鼠标悬停时轻微放大 */
+.filter-form .reset-btn {
+    background-color: transparent;
+    border: 1px solid #ff69b4;
+    color: #ff69b4;
+    padding: 0.5rem 1.2rem;
+    border-radius: 10px;
+    font-weight: bold;
+    text-decoration: none;
+    transition: all 0.3s ease;
 }
 
-.modal-content .product-info p {
-    margin: 0; /* 移除默认外边距 */
-    color: #ccc; /* 文本颜色 */
-    font-size: 19px; /* 字体大小 */
-    text-align: center; /* 文本居中 */
-    font-weight: 500; /* 适中字重 */
-    line-height: 1.4;
-}
-
-/* Total Price Section */
-.modal-content .total-section {
-    width: 100%; /* 占据整行 */
-    text-align: right; /* 右对齐 */
-    margin-top: 20px; /* 上边距 */
-    padding-top: 15px; /* 顶部填充 */
-    border-top: 1px dashed #555; /* 虚线分隔线，与暗色主题协调 */
-}
-
-.modal-content .total-section span {
-    font-size: 26px; /* 总价字体大小 */
-    font-weight: bold; /* 加粗 */
-    color: #4caf50; /* 总价使用绿色，表示成功 ✅ */
-    text-shadow: 0 0 10px rgba(76, 175, 80, 0.3); /* 绿色阴影 */
-}
-
-/* Button Container */
-.modal-content .button-container {
-    display: flex; /* 使用 flexbox 布局按钮 */
-    justify-content: space-around; /* 按钮之间均匀分布空间 */
-    margin-top: 35px; /* 顶部间距 */
-    gap: 20px; /* 按钮之间的间距 */
-    flex-wrap: wrap; /* 允许按钮换行 */
-}
-
-.modal-content .button-container button {
-    padding: 15px 30px; /* 内边距 */
-    border: none; /* 无边框 */
-    border-radius: 10px; /* 圆角按钮，与你的主按钮设计匹配 */
-    cursor: pointer; /* 鼠标悬停变手型 */
-    font-size: 19px; /* 字体大小 */
-    font-weight: 600; /* 加粗 */
-    transition: all 0.3s ease; /* 所有属性过渡效果 */
-    flex: 1; /* 按钮平分可用空间 */
-    min-width: 180px; /* 最小宽度，避免过小 */
-    max-width: 250px; /* 按钮最大宽度 */
-}
-
-.modal-content .button-container button:first-child { /* Continue Shopping Button */
-    background-color: #333; /* 浅灰色背景，与你的 top-nav 按钮匹配 */
-    color: #fff; /* 白色文本 */
-    border: 1px solid #555; /* 边框 */
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-}
-
-.modal-content .button-container button:first-child:hover {
-    background-color: #444; /* 鼠标悬停时颜色变深 */
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4); /* 悬停阴影 */
-    transform: translateY(-2px); /* 轻微上浮效果 */
-}
-
-.modal-content .button-container button:last-child { /* View Cart Button */
-    /* 使用你的主按钮的渐变色 */
-    background: linear-gradient(to right, #e65100, #ff9800);
-    color: #fff; /* 白色文本 */
-    box-shadow: 0 6px 18px rgba(255, 152, 0, 0.4); /* 橙色阴影 */
-}
-
-.modal-content .button-container button:last-child:hover {
-    background: linear-gradient(to right, #ff6f00, #ffa726); /* 鼠标悬停时渐变色变亮 */
-    box-shadow: 0 8px 22px rgba(255, 167, 38, 0.5); /* 更深的阴影 */
-    transform: scale(1.03); /* 轻微放大，与你的主按钮效果一致 */
-}
-
-/* Responsive Adjustments (for smaller screens) */
-@media (max-width: 768px) {
-    .modal-content {
-        width: 95%; /* 小屏幕下宽度更宽 */
-        padding: 25px; /* 内边距减小 */
-    }
-
-    .modal-content h2 {
-        font-size: 26px; /* 标题字体减小 */
-    }
-
-    .modal-content .product-info {
-        flex-direction: column; /* 产品信息垂直堆叠 */
-        gap: 10px; /* 间距减小 */
-        padding: 15px;
-    }
-
-    .modal-content .product-info img {
-        width: 120px; /* 图片尺寸减小 */
-        height: 120px;
-    }
-
-    .modal-content .product-info p {
-        font-size: 17px; /* 字体减小 */
-    }
-
-    .modal-content .total-section span {
-        font-size: 22px; /* 总价字体减小 */
-    }
-
-    .modal-content .button-container {
-        flex-direction: column; /* 按钮垂直堆叠 */
-        gap: 12px; /* 间距减小 */
-    }
-
-    .modal-content .button-container button {
-        width: 100%; /* 按钮宽度100% */
-        max-width: none; /* 移除最大宽度限制 */
-    }
+.filter-form .reset-btn:hover {
+    background-color: #ff69b4;
+    color: #111;
+    box-shadow: 0 0 10px rgba(255, 105, 180, 0.4);
 }

@@ -1,5 +1,17 @@
 <?php
-include 'db.php';
+session_start();
+require_once 'db.php';
+
+if (isset($_SESSION['customer_id']) && isset($_GET['id'])) {
+    $customerID = $_SESSION['customer_id'];
+    $productID = intval($_GET['id']);
+
+    // 插入浏览记录
+    $stmt = $conn->prepare("INSERT INTO `15_view_history` (CustomerID, ProductID, ViewTime) VALUES (?, ?, NOW())");
+    $stmt->bind_param("ii", $customerID, $productID);
+    $stmt->execute();
+}
+
 
 if (!isset($_GET['id']) || empty($_GET['id'])) {
     die("❌ Product ID is missing.");
