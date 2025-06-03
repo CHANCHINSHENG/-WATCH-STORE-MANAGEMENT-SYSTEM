@@ -12,7 +12,7 @@ $options = [
 
 $hashpassword = password_hash($pwd, PASSWORD_BCRYPT, $options);
 
-$query = "INSERT INTO 01_   admin(Admin_Name, Admin_Username, Admin_Password, Admin_email) VALUES (?, ?, ?, ?)";
+$query = "INSERT INTO 01_admin(Admin_Name, Admin_Username, Admin_Password, Admin_email) VALUES (?, ?, ?, ?)";
 $stmt = $pdo->prepare($query);
 
 if ($stmt->execute([$admin_name, $admin_username, $hashpassword, $admin_email])) {

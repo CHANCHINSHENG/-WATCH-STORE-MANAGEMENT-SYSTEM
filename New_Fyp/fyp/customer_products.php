@@ -188,9 +188,6 @@ $total_price = $product_added['Product_Price'] ?? 0;
             <a class="nav-link fw-bold <?= $current_page == 'customer_products.php' ? 'active' : '' ?>" href="customer_products.php">WATCHES</a>
         </li>
         <li class="nav-item px-2">
-            <a class="nav-link fw-bold <?= $current_page == 'customer_products.php' ? 'active' : '' ?>" href="customer_products.php">STORE</a>
-        </li>
-        <li class="nav-item px-2">
             <a class="nav-link fw-bold <?= $current_page == 'contact.php' ? 'active' : '' ?>" href="#contact">CONTACT</a>
         </li>
         <li class="nav-item px-2">
@@ -206,7 +203,7 @@ $total_price = $product_added['Product_Price'] ?? 0;
     <div class="product-page-container">
         <div class="product-page-header">
             <h1>TOP PICKS</h1>
-            <h3>Discover our latest collection of premium watches</h3>
+            <h3>Check out our most popular watches.</h3>
         </div>
 
         <!-- 筛选表单 -->

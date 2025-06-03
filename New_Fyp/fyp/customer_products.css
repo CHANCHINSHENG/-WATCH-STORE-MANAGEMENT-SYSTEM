@@ -31,6 +31,10 @@
     font-weight: bold;
 }
 
+.product-page-header h3 {
+    color: #f4f2ec;
+}
+
 /* 产品网格 */
 .product-grid {
     display: grid;
