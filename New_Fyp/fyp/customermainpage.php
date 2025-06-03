@@ -50,11 +50,6 @@ if (session_status() === PHP_SESSION_NONE) {
           <div class="collapse navbar-collapse border-top border-lg-0 mt-4 mt-lg-0" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
               <li class="nav-item px-2"><a class="nav-link fw-bold active" aria-current="page" href="#collections">WATCHES</a></li>
-              <li class="nav-item px-2"><a class="nav-link fw-bold" href="customer_products.php">BRANDS</a></li>
-              <li class="nav-item px-2"><a class="nav-link fw-bold" href="customer_products.php">CATEGORIES</a></li>
-              <li class="nav-item px-2"><a class="nav-link fw-bold" href="customer_products.php">STORE</a></li>
-              <li class="nav-item px-2"><a class="nav-link fw-bold" href="#contact">CONTACT</a></li>
-              <li class="nav-item px-2"><a class="nav-link fw-bold" href="cart.php"><img src="img/Cart_icon.png" alt="Cart" style="width:24px; height:24px;"></a></li>
               
               <li class="nav-item px-2 dropdown brands-dropdown position-relative">
                 <a class="nav-link fw-bold" href="#" id="brandDropdown">BRANDS</a>
