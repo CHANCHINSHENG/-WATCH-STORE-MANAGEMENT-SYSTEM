@@ -1,4 +1,8 @@
-<?php session_start(); ?>
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>
 <!DOCTYPE html>
 <html lang="en-US" dir="ltr">
 
@@ -82,7 +86,7 @@
               </li>
 
               <li class="nav-item px-2 dropdown brands-dropdown position-relative">
-                <a class="nav-link fw-bold" href="#" id="brandDropdown">CATEGORIES</a>
+                <a class="nav-link fw-bold" href="#" id="categoriesDropdown">CATEGORIES</a>
                 <div class="brand-dropdown-content" style="display: none;">
                   <a href="customer_products.php" class="brand-item">
                     <span>All Watches</span>
@@ -105,6 +109,12 @@
               <li class="nav-item px-2"><a class="nav-link fw-bold" href="#contact">CONTACT</a></li>
               <li class="nav-item px-2"><a class="nav-link fw-bold" href="cart.php"><img src="img/Cart_icon.png" alt="Cart" style="width:24px; height:24px;"></a></li>
               
+              <?php if (isset($_SESSION['customer_id'])): ?>
+              <li class="nav-item px-2">
+                <a class="nav-link fw-bold" href="view_history.php">VIEW HISTORY</a>
+              </li>
+             <?php endif; ?>
+
               <?php
               require_once 'db.php';
 
