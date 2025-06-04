@@ -60,41 +60,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id'])) {
                 $stmt_insert->execute();
             }
 
-            // 减少库存
-            $sql_product = "SELECT Product_Stock_Quantity FROM `05_product` WHERE ProductID = ?";
-            $stmt_product = $conn->prepare($sql_product);
-            $stmt_product->bind_param("i", $product_id);
-            $stmt_product->execute();
-            $result_product = $stmt_product->get_result();
-
-            if ($result_product->num_rows > 0) {
-                $product = $result_product->fetch_assoc();
-                $new_stock_quantity = $product['Product_Stock_Quantity'] - 1;
-
-                if ($new_stock_quantity >= 0) {
-                    // 更新库存数量
-                    $sql_update_stock = "UPDATE `05_product` SET Product_Stock_Quantity = ? WHERE ProductID = ?";
-                    $stmt_update_stock = $conn->prepare($sql_update_stock);
-                    $stmt_update_stock->bind_param("ii", $new_stock_quantity, $product_id);
-                    $stmt_update_stock->execute();
-                } else {
-                    // 库存不足，提示用户
-                    echo "Out of stock, Please choose another product.";
-                    exit();
-                }
-            }
-
             // 获取商品详细信息并存储到会话中
-            $sql_product = "SELECT ProductName, Product_Price, Product_Image FROM `05_product` WHERE ProductID = ?";
-            $stmt_product = $conn->prepare($sql_product);
-            $stmt_product->bind_param("i", $product_id);
-            $stmt_product->execute();
-            $result_product = $stmt_product->get_result();
+            $sql_product_info = "SELECT ProductName, Product_Price, Product_Image FROM `05_product` WHERE ProductID = ?";
+            $stmt_product_info = $conn->prepare($sql_product_info);
+            $stmt_product_info->bind_param("i", $product_id);
+            $stmt_product_info->execute();
+            $result_product_info = $stmt_product_info->get_result();
 
-            if ($result_product->num_rows > 0) {
-                $product = $result_product->fetch_assoc();
-                $_SESSION['product_added'] = $product;
-                $product_added = $product;
+            if ($result_product_info->num_rows > 0) {
+                $product_details = $result_product_info->fetch_assoc();
+                $_SESSION['product_added'] = $product_details;
+                $product_added = $product_details;
             }
         } else {
             // 如果 CustomerID 不存在，则引导用户登录
@@ -162,7 +138,8 @@ if ($category_id !== '') {
 
 if (!empty($search_query)) {
     $sql .= " AND ProductName LIKE ?";
-    $params[] = "%$search_query%";
+    $search_param_val = "%$search_query%"; // 修改了变量名以避免与 $params 混淆
+    $params[] = $search_param_val;
     $types .= 's';
 }
 
@@ -209,16 +186,16 @@ $total_price = $product_added['Product_Price'] ?? 0;
 
     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item px-2">
-            <a class="nav-link fw-bold <?= $current_page == 'customer_products.php' ? 'active' : '' ?>" href="customer_products.php">WATCHES</a>
+            <a class="nav-link fw-bold <?= ($current_page ?? '') == 'customer_products.php' ? 'active' : '' ?>" href="customer_products.php">WATCHES</a>
         </li>
         <li class="nav-item px-2">
-            <a class="nav-link fw-bold <?= $current_page == 'contact.php' ? 'active' : '' ?>" href="#contact">CONTACT</a>
+            <a class="nav-link fw-bold <?= ($current_page ?? '') == 'contact.php' ? 'active' : '' ?>" href="#contact">CONTACT</a>
         </li>
         <li class="nav-item px-2">
-            <a class="nav-link fw-bold <?= $current_page == 'cart.php' ? 'active' : '' ?>" href="cart.php"><img src="img/Cart_icon.png" alt="Cart" style="width:24px; height:24px;"></a>
+            <a class="nav-link fw-bold <?= ($current_page ?? '') == 'cart.php' ? 'active' : '' ?>" href="cart.php"><img src="img/Cart_icon.png" alt="Cart" style="width:24px; height:24px;"></a>
         </li>
         <li class="nav-item px-2">
-            <a class="nav-link fw-bold <?= $current_page == 'customer_login.php' ? 'active' : '' ?>" href="customer_login.php"><img src="img/user_icon.png" alt="login" style="width:24px; height:24px;"></a>
+            <a class="nav-link fw-bold <?= ($current_page ?? '') == 'customer_login.php' ? 'active' : '' ?>" href="customer_login.php"><img src="img/user_icon.png" alt="login" style="width:24px; height:24px;"></a>
         </li>
     </ul>
 </div>
@@ -230,7 +207,6 @@ $total_price = $product_added['Product_Price'] ?? 0;
             <h3>Check out our most popular watches.</h3>
         </div>
 
-        <!-- 筛选表单 -->
         <form method="get" class="filter-form">
             <select name="brand_id">
                 <option value="">All Brands</option>
