@@ -619,9 +619,7 @@ if (session_status() === PHP_SESSION_NONE) {
               <h5 class="lh-lg fw-bold text-light">MENU</h5>
               <ul class="list-unstyled mb-md-4 mb-lg-0">
                 <li class="lh-lg"><a class="text-800 text-decoration-none text-uppercase fw-bold" href="Shipping_info.php">Shipping Info</a></li>
-                <li class="lh-lg"><a class="text-800 text-decoration-none text-uppercase fw-bold" href="Payment_info.php">Payment info</a></li>
-                <li class="lh-lg"><a class="text-800 text-decoration-none text-uppercase fw-bold" href="#!">How to Track</a></li>
-                <li class="lh-lg"><a class="text-800 text-decoration-none text-uppercase fw-bold" href="#!">Size Guides</a></li>
+                <li class="lh-lg"><a class="text-800 text-decoration-none text-uppercase fw-bold" href="Payment_info.html">Payment info</a></li>
               </ul>
             </div>
 
@@ -636,8 +634,9 @@ if (session_status() === PHP_SESSION_NONE) {
             <div class="col-6 col-sm-4 col-xl-3 mb-3">
               <h5 class="mb-5"></h5>
               <ul class="list-unstyled mb-md-4 mb-lg-0">
-                <li class="lh-lg"><a class="text-800 text-decoration-none text-uppercase fw-bold" href="#!">Contact Us</a></li>
-                <li class="lh-lg"><a class="text-800 text-decoration-none text-uppercase fw-bold" href="#!">my account</a></li>
+                <li class="lh-lg"><a class="text-800 text-decoration-none text-uppercase fw-bold" href="About_Us.html">About Us</a></li>
+                <li class="lh-lg"><a class="text-800 text-decoration-none text-uppercase fw-bold" href="Contact_Us.php">Contact Us</a></li>
+                <li class="lh-lg"><a class="text-800 text-decoration-none text-uppercase fw-bold" href="customer_profile.php">my account</a></li>
               </ul>
             </div>
 
