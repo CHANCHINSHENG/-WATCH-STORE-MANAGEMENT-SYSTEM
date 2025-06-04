@@ -407,7 +407,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_payment']) &&
 
 <body>    
     <div class="payment-container">
-        <img src="MayBank_Logo.jpg" alt="RHB Logo" style="max-width: 300px; margin: 1rem auto;">
+        <img src="MayBank_Logo.jpg" alt="<?= htmlspecialchars($bankName ?? 'Maybank') ?> Logo" style="display: block; width: 300px; max-width: 100%; height: auto; object-fit: contain; margin: 1rem auto 1.5rem auto;">
         <h1 class="payment-header">Online Banking Payment </h1>
 
         <?php if (!empty($error)): ?>
