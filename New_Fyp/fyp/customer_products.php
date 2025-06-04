@@ -143,7 +143,6 @@ if (!empty($search_query)) {
     $types .= 's';
 }
 
-// 加入排序逻辑
 switch ($sort) {
     case 'price_asc':
         $sql .= " ORDER BY Product_Price ASC";
