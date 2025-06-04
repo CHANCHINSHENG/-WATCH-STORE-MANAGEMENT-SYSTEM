@@ -177,6 +177,152 @@ $total_price = $product_added['Product_Price'] ?? 0;
     <title>Shop - Available Products</title>
     <link rel="stylesheet" href="customer_products.css">
     <link rel="stylesheet" href="add_to_cart.css">
+
+    <style>
+    .modal 
+    {
+        display: none;
+        position: fixed; 
+        z-index: 1000; 
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto; 
+        background-color: rgba(0, 0, 0, 0.7); 
+        backdrop-filter: blur(8px); 
+        -webkit-backdrop-filter: blur(8px);
+        display: flex; 
+        justify-content: center;
+        align-items: center; 
+        padding: 1rem;
+    }
+
+    .modal-content 
+    {
+        background: #2e2e2e; 
+        padding: 25px; 
+        border-radius: 15px;
+        max-width: 450px; 
+        width: 100%; 
+        position: relative;
+        color: #fff; 
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4); 
+        text-align: center; 
+    }
+
+    .modal .close 
+    {
+        position: absolute;
+        top: 15px; 
+        right: 15px;
+        font-size: 1.8rem; 
+        font-weight: bold;
+        color: #aaa; 
+        background: transparent; 
+        border: none; 
+        cursor: pointer;
+        transition: color 0.3s ease, transform 0.3s ease;
+        line-height: 1; 
+        padding: 0; 
+    }
+
+    .modal .close:hover 
+    {
+        color: #ffd700; 
+        transform: scale(1.1); 
+    }
+
+    .modal-content h2 
+    {
+        color: #ffd700; 
+        font-size: 1.75rem; 
+        margin-top: 0; 
+        margin-bottom: 1.5rem; 
+    }
+
+    .modal .product-info 
+    {
+        margin-bottom: 1.5rem; 
+    }
+
+    modal .product-info img
+     {
+        max-width: 130px; 
+        height: auto; 
+        object-fit: cover;
+        border-radius: 10px; 
+        margin: 0 auto 1rem auto; 
+        display: block; 
+        border: 2px solid #444; 
+    }
+
+    .modal .product-info p 
+    {
+        font-size: 1rem; 
+        color: #eee; 
+        margin: 0.6rem 0; 
+    }
+
+    .modal .product-info p strong 
+    {
+        color: #bbb; 
+    }
+
+    .modal .total-section 
+    {
+        margin-top: 1rem; 
+        margin-bottom: 1.5rem; 
+        font-size: 1.25rem; 
+        font-weight: bold;
+        color: #ffd700;
+    }
+
+    .modal .button-container 
+    {
+        display: flex;
+        justify-content: space-around; 
+        gap: 1rem; 
+    }
+
+    .modal .button-container button 
+    {
+        flex-grow: 1; 
+        padding: 12px 10px; 
+        color: white;
+        border: none;
+        border-radius: 8px; 
+        font-size: 0.9rem; 
+        font-weight: 600; 
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase; 
+        letter-spacing: 0.5px; 
+        box-shadow: 0 2px 5px rgba(0,0,0,0.15); 
+    }
+
+    .modal .button-container button:first-child 
+    {
+        background-color: #555; 
+    }
+
+    .modal .button-container button:first-child:hover 
+    {
+        background-color: #666; 
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .modal .button-container button:last-child 
+    {
+        background: linear-gradient(135deg, #ff69b4, #9c27b0); 
+    }
+
+    .modal .button-container button:last-child:hover 
+    {
+        background: linear-gradient(135deg, #e05aa0, #8c239e); 
+        box-shadow: 0 4px 10px rgba(255, 105, 180, 0.3); 
+    }
+    </style>
 </head>
 <body>
 
