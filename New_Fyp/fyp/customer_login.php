@@ -22,7 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 
             $sql_cart = "SELECT CartID FROM `11_cart` WHERE CustomerID = ?";
             $stmt_cart = $conn->prepare($sql_cart);
-            $stmt_cart->bind_param("i", $CustomerID);
+            $stmt_cart->bind_param("i", $CustomerID);   
             $stmt_cart->execute();
             $result_cart = $stmt_cart->get_result();
 
@@ -108,7 +108,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 
     <!-- Forgot password link -->
     <div class="text-right" style="text-align:right; margin-bottom: 10px;">
-        <a href="customer_forgot_password.php" class="forgot-password-link">Forgot Password?</a>
+        <a href="forgot_password.php" class="forgot-password-link">Forgot Password?</a>
     </div>
 
     <button type="submit" class="login-btn">Login</button>
