@@ -1,47 +1,60 @@
-<?php
-//Import PHPMailer classes into the global namespace
-//These must be at the top of your script, not inside a function
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
-use PHPMailer\PHPMailer\Exception;
+<?php session_start(); ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forgot Password</title>
+  <link rel="stylesheet" href="customerlogin.css">
+</head>
+<body>
 
-//Load Composer's autoloader (created by composer, not included with PHPMailer)
-require 'vendor/autoload.php';
+  <div class="login-container">
+    <h2 class="login-title">Forgot Password</h2>
 
-//Create an instance; passing `true` enables exceptions
-$mail = new PHPMailer(true);
+    <form id="otp-form">
+      <div class="input-group">
+        <label for="email">Email</label>
+        <input type="email" name="email" id="email" placeholder="Enter your email" required>
+      </div>
 
-try {
-    //Server settings
-    $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
-    $mail->isSMTP();                                            //Send using SMTP
-    $mail->Host       = 'smtp.example.com';                     //Set the SMTP server to send through
-    $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
-    $mail->Username   = 'user@example.com';                     //SMTP username
-    $mail->Password   = 'secret';                               //SMTP password
-    $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
-    $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+      <button type="submit" class="login-btn">Send OTP</button>
 
-    //Recipients
-    $mail->setFrom('from@example.com', 'Mailer');
-    $mail->addAddress('joe@example.net', 'Joe User');     //Add a recipient
-    $mail->addAddress('ellen@example.com');               //Name is optional
-    $mail->addReplyTo('info@example.com', 'Information');
-    $mail->addCC('cc@example.com');
-    $mail->addBCC('bcc@example.com');
+      <p id="response-message" class="error-message" style="margin-top: 15px;"></p>
+    </form>
 
-    //Attachments
-    $mail->addAttachment('/var/tmp/file.tar.gz');         //Add attachments
-    $mail->addAttachment('/tmp/image.jpg', 'new.jpg');    //Optional name
+    <p class="register-link">
+      Remember your password? <a href="customer_login.php">Login here</a>
+    </p>
+  </div>
 
-    //Content
-    $mail->isHTML(true);                                  //Set email format to HTML
-    $mail->Subject = 'Here is the subject';
-    $mail->Body    = 'This is the HTML message body <b>in bold!</b>';
-    $mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
+  <script>
+    document.getElementById("otp-form").addEventListener("submit", function (e) {
+      e.preventDefault();
 
-    $mail->send();
-    echo 'Message has been sent';
-} catch (Exception $e) {
-    echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
-}
+      const email = document.getElementById("email").value;
+
+      fetch("send_otp.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ email: email })
+      })
+      .then(response => response.json())
+      .then(data => {
+        const messageElement = document.getElementById("response-message");
+        messageElement.innerText = data.message;
+        if (data.status === "success") {
+          messageElement.style.color = "green";
+          setTimeout(() => {
+            window.location.href = "verify_otp.php";
+          }, 1500);
+        } else {
+          messageElement.style.color = "red";
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
+
