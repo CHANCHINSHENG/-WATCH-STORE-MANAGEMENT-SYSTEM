@@ -22,7 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 
             $sql_cart = "SELECT CartID FROM `11_cart` WHERE CustomerID = ?";
             $stmt_cart = $conn->prepare($sql_cart);
-            $stmt_cart->bind_param("i", $CustomerID);
+            $stmt_cart->bind_param("i", $CustomerID);   
             $stmt_cart->execute();
             $result_cart = $stmt_cart->get_result();
 
