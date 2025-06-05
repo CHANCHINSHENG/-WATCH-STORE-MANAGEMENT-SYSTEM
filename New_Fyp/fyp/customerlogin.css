@@ -101,3 +101,13 @@ body {
 .register-link a:hover {
     text-decoration: underline;
 }
+
+.forgot-password-link {
+    font-size: 0.9rem;
+    color: #007bff;
+    text-decoration: none;
+}
+
+.forgot-password-link:hover {
+    text-decoration: underline;
+}

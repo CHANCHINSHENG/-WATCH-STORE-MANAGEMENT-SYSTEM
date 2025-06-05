@@ -7,19 +7,33 @@ $response = ['success' => false, 'message' => '', 'new_quantity' => 0, 'total_am
 $customerID = $_SESSION['customer_id'] ?? null;
 if ($customerID) {
     $product_id = $_POST['product_id'] ?? null;
-    $quantity = $_POST['quantity'] ?? 0;
-    $action = $_POST['action'] ?? null;
+    $new_quantity = (int)($_POST['quantity'] ?? 0); // 将接收到的quantity重命名为new_quantity，并确保是整数
+    $action = $_POST['action'] ?? null; 
 
-    if ($product_id && $quantity >= 0) {
+    if ($product_id && $new_quantity >= 0) 
+    { // 使用 new_quantity
         $sql_cart = "SELECT CartID FROM `11_cart` WHERE CustomerID = ?";
         $stmt_cart = $conn->prepare($sql_cart);
         $stmt_cart->bind_param("i", $customerID);
         $stmt_cart->execute();
         $result_cart = $stmt_cart->get_result();
 
-        if ($result_cart->num_rows > 0) {
+        if ($result_cart->num_rows > 0) 
+        {
             $cart_row = $result_cart->fetch_assoc();
             $cartID = $cart_row['CartID'];
+
+            // === 增加的逻辑：获取商品在购物车中的当前数量 ===
+            $sql_get_current_cart_quantity = "SELECT Quantity FROM `12_cart_item` WHERE CartID = ? AND ProductID = ?";
+            $stmt_get_current_cart_quantity = $conn->prepare($sql_get_current_cart_quantity);
+            $stmt_get_current_cart_quantity->bind_param("ii", $cartID, $product_id);
+            $stmt_get_current_cart_quantity->execute();
+            $result_current_cart_quantity = $stmt_get_current_cart_quantity->get_result();
+            $current_cart_quantity = 0;
+            if ($result_current_cart_quantity->num_rows > 0) {
+                $row_current_cart_quantity = $result_current_cart_quantity->fetch_assoc();
+                $current_cart_quantity = (int)$row_current_cart_quantity['Quantity'];
+            }
 
             $sql_product = "SELECT Product_Stock_Quantity FROM `05_product` WHERE ProductID = ?";
             $stmt_product = $conn->prepare($sql_product);
@@ -31,92 +45,63 @@ if ($customerID) {
                 $product = $result_product->fetch_assoc();
                 $current_stock = $product['Product_Stock_Quantity'];
 
-                if ($quantity > $current_stock) {
-                    $response['message'] = "Not enough stock available.";
+                // 计算实际需要的库存增减量，基于新的购物车数量和当前的购物车数量
+                $stock_change_needed = $new_quantity - $current_cart_quantity;
+
+                // 在这里进行库存检查：是否能满足新的购物车数量
+                // 如果 stock_change_neded > 0，意味着购物车数量增加了，那么需要检查库存是否足够减少
+                if ($stock_change_needed > 0 && $current_stock < $stock_change_needed) {
+                    $response['message'] = "Not enough stock available for this increase.";
+                    $response['new_quantity'] = $current_cart_quantity; // 保持原数量，因为库存不足以增加
+                    calculateCartTotal($cartID, $response); // 重新计算，因为数量可能没变
                     echo json_encode($response);
                     exit;
                 }
 
-                if ($quantity > 0) {
-                    $sql_update = "UPDATE `12_cart_item` SET Quantity = ? WHERE CartID = ? AND ProductID = ?";
-                    $stmt_update = $conn->prepare($sql_update);
-                    $stmt_update->bind_param("iii", $quantity, $cartID, $product_id);
-                    $stmt_update->execute();
+                if ($new_quantity == 0) {
+                    $deleted_quantity = $current_cart_quantity; // 使用我们刚刚获取到的当前购物车数量
 
-                    if ($action == 'increase') {
-                        updateStock($product_id, 1, 'decrease');
-                    } elseif ($action == 'decrease') {
-                        updateStock($product_id, 1, 'increase');
-                    }
+                    $sql_delete = "DELETE FROM `12_cart_item` WHERE CartID = ? AND ProductID = ?";
+                    $stmt_delete = $conn->prepare($sql_delete);
+                    $stmt_delete->bind_param("ii", $cartID, $product_id);
+                    $stmt_delete->execute();
 
                     $response['success'] = true;
-                    $response['new_quantity'] = $quantity;
-
+                    $response['new_quantity'] = 0;
                     calculateCartTotal($cartID, $response);
-                } elseif ($quantity == 0 && $action == 'remove') {
-                    // 删除购物车商品
-                    $sql_item = "SELECT Quantity FROM `12_cart_item` WHERE CartID = ? AND ProductID = ?";
-                    $stmt_item = $conn->prepare($sql_item);
-                    $stmt_item->bind_param("ii", $cartID, $product_id);
-                    $stmt_item->execute();
-                    $result_item = $stmt_item->get_result();
-                    
-                    if ($result_item->num_rows > 0) {
-                        $item = $result_item->fetch_assoc();
-                        $deleted_quantity = $item['Quantity']; 
 
-                        $sql_delete = "DELETE FROM `12_cart_item` WHERE CartID = ? AND ProductID = ?";
-                        $stmt_delete = $conn->prepare($sql_delete);
-                        $stmt_delete->bind_param("ii", $cartID, $product_id);
-                        $stmt_delete->execute();
+                } elseif ($new_quantity > 0) { 
+                    // 更新商品数量（通过输入框）
+                    $sql_update = "UPDATE `12_cart_item` SET Quantity = ? WHERE CartID = ? AND ProductID = ?";
+                    $stmt_update = $conn->prepare($sql_update);
+                    $stmt_update->bind_param("iii", $new_quantity, $cartID, $product_id);
+                    $stmt_update->execute();
 
-                        updateStock($product_id, $deleted_quantity, 'restore');
-
-                        $response['success'] = true;
-                        $response['new_quantity'] = 0;
-
-                        calculateCartTotal($cartID, $response);
+                    // === 新的库存调整逻辑 ===
+                    if ($stock_change_needed > 0) { // 购物车数量增加了，库存需要减少
+                    } elseif ($stock_change_needed < 0) { // 购物车数量减少了，库存需要增加
                     }
+                    // 如果 stock_change_needed == 0，表示数量没变，不需要更新库存
+
+                    $response['success'] = true;
+                    $response['new_quantity'] = $new_quantity;
+                    calculateCartTotal($cartID, $response);
                 }
+            } else {
+                $response['message'] = "Product not found.";
             }
+        } else {
+            $response['message'] = "Cart not found for customer.";
         }
+    } else {
+        $response['message'] = "Invalid product ID or quantity.";
     }
+} else {
+    $response['message'] = "Customer not logged in.";
 }
 
 echo json_encode($response);
 
-function updateStock($product_id, $quantity, $action) {
-    global $conn;
-
-    $sql_product = "SELECT Product_Stock_Quantity FROM `05_product` WHERE ProductID = ?";
-    $stmt_product = $conn->prepare($sql_product);
-    $stmt_product->bind_param("i", $product_id);
-    $stmt_product->execute();
-    $result_product = $stmt_product->get_result();
-
-    if ($result_product->num_rows > 0) {
-        $product = $result_product->fetch_assoc();
-        $current_stock = $product['Product_Stock_Quantity'];
-
-        if ($action == 'decrease') {
-            $new_stock_quantity = $current_stock - $quantity;
-        } elseif ($action == 'increase' || $action == 'restore') {
-            $new_stock_quantity = $current_stock + $quantity;
-        } 
-
-        if ($new_stock_quantity < 0) {
-            return false;
-        }
-
-        // 更新库存
-        $sql_update_stock = "UPDATE `05_product` SET Product_Stock_Quantity = ? WHERE ProductID = ?";
-        $stmt_update_stock = $conn->prepare($sql_update_stock);
-        $stmt_update_stock->bind_param("ii", $new_stock_quantity, $product_id);
-        $stmt_update_stock->execute();
-    }
-}
-
-// 计算购物车总金额和总件数
 function calculateCartTotal($cartID, &$response) {
     global $conn;
 
@@ -133,8 +118,8 @@ function calculateCartTotal($cartID, &$response) {
 
     if ($result_total->num_rows > 0) {
         $total = $result_total->fetch_assoc();
-        $response['total_amount'] = $total['total_amount'];
-        $response['total_items'] = $total['total_items'];
+        $response['total_amount'] = $total['total_amount'] ?? 0;
+        $response['total_items'] = $total['total_items'] ?? 0;
     }
 }
 ?>

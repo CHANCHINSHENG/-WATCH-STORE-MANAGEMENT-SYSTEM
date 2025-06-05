@@ -1,3 +1,8 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>
 <!DOCTYPE html>
 <html lang="en-US" dir="ltr">
 
@@ -40,22 +45,108 @@
     <!-- ===============================================-->
     <main class="main" id="top">
       <nav class="navbar navbar-expand-lg navbar-light fixed-top py-3 d-block" data-navbar-on-scroll="data-navbar-on-scroll">
-        <div class="container"><a class="navbar-brand d-inline-flex" href="index.html"><img src="assets/img/Screenshot 2025-03-20 113245.png"></a>
+        <div class="container"><a class="navbar-brand d-inline-flex" href="customermainpage.php"><img src="assets/img/Screenshot 2025-03-20 113245.png"></a>
           <button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
           <div class="collapse navbar-collapse border-top border-lg-0 mt-4 mt-lg-0" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
               <li class="nav-item px-2"><a class="nav-link fw-bold active" aria-current="page" href="#collections">WATCHES</a></li>
-              <li class="nav-item px-2"><a class="nav-link fw-bold" href="customer_products.php">STORE</a></li>
+              
+              <li class="nav-item px-2 dropdown brands-dropdown position-relative">
+                <a class="nav-link fw-bold" href="#" id="brandDropdown">BRANDS</a>
+                <div class="brand-dropdown-content" style="display: none;">
+                  <a href="customer_products.php?brand=Alain Delon" class="brand-item">
+                    <img src="uploads/brand_picture/AD_Logo-01.jpg" alt="Alain Delon">
+                    <span>Alain Delon</span>
+                  </a>
+                  <a href="customer_products.php?brand=Bonia" class="brand-item">
+                    <img src="uploads/brand_picture/BONIA.jpg" alt="Bonia">
+                    <span>Bonia</span>
+                  </a>
+                  <a href="customer_products.php?brand=Casio" class="brand-item">
+                    <img src="uploads/brand_picture/CASIO.jpg" alt="Casio">
+                    <span>Casio</span>
+                  </a>
+                  <a href="customer_products.php?brand=Hummer" class="brand-item">
+                    <img src="uploads/brand_picture/HUMMER.jpg" alt="Hummer">
+                    <span>Hummer</span>
+                  </a>
+                  <a href="customer_products.php?brand=iGear" class="brand-item">
+                    <img src="uploads/brand_picture/iGear.jpg" alt="iGear">
+                    <span>iGear</span>
+                  </a>
+                  <a href="customer_products.php?brand=Suunto" class="brand-item">
+                    <img src="uploads/brand_picture/SUUNTO.jpg" alt="Suunto">
+                    <span>Suunto</span>
+                  </a>
+                  <a href="customer_products.php?brand=Timex" class="brand-item">
+                    <img src="uploads/brand_picture/Timex.jpg" alt="Timex">
+                    <span>Timex</span>
+                  </a>
+                </div>
+              </li>
+
+              <li class="nav-item px-2 dropdown brands-dropdown position-relative">
+                <a class="nav-link fw-bold" href="#" id="categoriesDropdown">CATEGORIES</a>
+                <div class="brand-dropdown-content" style="display: none;">
+                  <a href="customer_products.php" class="brand-item">
+                    <span>All Watches</span>
+                  </a>
+                  <a href="customer_products.php?category=Analogue" class="brand-item">
+                    <span>Analogue</span>
+                  </a>
+                  <a href="customer_products.php?category=Digital" class="brand-item">
+                    <span>Digital</span>
+                  </a>
+                  <a href="customer_products.php?category=Smart Watches" class="brand-item">
+                    <span>Smart Watches</span>
+                  </a>
+                  <a href="customer_products.php?category=Perfomance" class="brand-item">
+                    <span>Perfomance</span>
+                  </a>
+                </div>
+              </li>
+
               <li class="nav-item px-2"><a class="nav-link fw-bold" href="#contact">CONTACT</a></li>
               <li class="nav-item px-2"><a class="nav-link fw-bold" href="cart.php"><img src="img/Cart_icon.png" alt="Cart" style="width:24px; height:24px;"></a></li>
-              <li class="nav-item px-2"><a class="nav-link fw-bold" href="customer_login.php"><img src="img/user_icon.png" alt="login" style="width:24px; height:24px;"></a></li>
+              
+              <?php if (isset($_SESSION['customer_id'])): ?>
+              <li class="nav-item px-2">
+                <a class="nav-link fw-bold" href="view_history.php">VIEW HISTORY</a>
+              </li>
+             <?php endif; ?>
+
+              <?php
+              require_once 'db.php';
+
+              $customerName = 'Guest';
+              $profileLink = 'customer_login.php';
+
+              if (isset($_SESSION['customer_id'])) {
+              $CustomerID = $_SESSION['customer_id'];
+              $stmt = $conn->prepare("SELECT Cust_First_Name FROM 02_customer WHERE CustomerID = ?");
+              $stmt->bind_param("i", $CustomerID);
+              $stmt->execute();
+              $result = $stmt->get_result();
+               if ($row = $result->fetch_assoc()) {
+                 $customerName = 'Hello, ' . htmlspecialchars($row['Cust_First_Name']);
+                 $profileLink = 'customer_profile.php';
+               }
+              }
+              ?>
+
+              <li class="nav-item px-2 d-flex align-items-center">
+              <a class="nav-link fw-bold d-flex align-items-center" href="<?= $profileLink ?>">
+              <img src="img/user_icon.png" alt="profile" style="width:24px; height:24px;" class="me-1">
+              <span class="text-white"><?= $customerName ?></span>
+              </a>
+              </li>
             </ul>
           </div>
         </div>
       </nav>
       <section class="py-0" id="header">
         <div class="bg-holder" style="background-image:url(assets/img/gallery/header-bg.png);background-position:right top;background-size:contain;">
-        </div>
+        </div>
         <!--/.bg-holder-->
 
         <div class="container">
@@ -523,25 +614,32 @@
 
         <div class="container">
           <div class="row">
-            <div class="col-6 col-sm-4 col-xl-3 mb-3">
-              <h4 class="lh-lg fw-bold text-light">WATCH</h4>
-            </div>
+
             <div class="col-6 col-sm-4 col-xl-3 mb-3">
               <h5 class="lh-lg fw-bold text-light">MENU</h5>
               <ul class="list-unstyled mb-md-4 mb-lg-0">
-                <li class="lh-lg"><a class="text-800 text-decoration-none text-uppercase fw-bold" href="#!">Shipping Info</a></li>
-                <li class="lh-lg"><a class="text-800 text-decoration-none text-uppercase fw-bold" href="#!">How to Order</a></li>
-                <li class="lh-lg"><a class="text-800 text-decoration-none text-uppercase fw-bold" href="#!">How to Track</a></li>
-                <li class="lh-lg"><a class="text-800 text-decoration-none text-uppercase fw-bold" href="#!">Size Guides</a></li>
+                <li class="lh-lg"><a class="text-800 text-decoration-none text-uppercase fw-bold" href="Shipping_info.php">Shipping Info</a></li>
+                <li class="lh-lg"><a class="text-800 text-decoration-none text-uppercase fw-bold" href="Payment_info.html">Payment info</a></li>
               </ul>
             </div>
+
+            <div class="col-6 col-sm-4 col-xl-3 mb-3">
+              <h4 class="lh-lg fw-bold text-light">WATCH</h4>
+            </div>
+
+            <div class="col-6 col-sm-4 col-xl-3 mb-3">
+              <h4 class="lh-lg fw-bold text-light">WATCH</h4>
+            </div>
+
             <div class="col-6 col-sm-4 col-xl-3 mb-3">
               <h5 class="mb-5"></h5>
               <ul class="list-unstyled mb-md-4 mb-lg-0">
-                <li class="lh-lg"><a class="text-800 text-decoration-none text-uppercase fw-bold" href="#!">Contact Us</a></li>
-                <li class="lh-lg"><a class="text-800 text-decoration-none text-uppercase fw-bold" href="#!">my account</a></li>
+                <li class="lh-lg"><a class="text-800 text-decoration-none text-uppercase fw-bold" href="About_Us.html">About Us</a></li>
+                <li class="lh-lg"><a class="text-800 text-decoration-none text-uppercase fw-bold" href="Contact_Us.php">Contact Us</a></li>
+                <li class="lh-lg"><a class="text-800 text-decoration-none text-uppercase fw-bold" href="customer_profile.php">my account</a></li>
               </ul>
             </div>
+
             <div class="col-12 col-xl-3">
               <h5 class="lh-lg fw-bold text-light text-uppercase">Signup For our Latest News</h5>
               <div class="row input-group-icon mb-5">
@@ -600,6 +698,54 @@
       feather.replace();
     </script>
     <script src="assets/js/theme.js"></script>
+    <!-- Bootstrap JS Bundle (with Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<style>
+.brands-dropdown {
+  position: relative;
+}
+
+.brands-dropdown .brand-dropdown-content {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #222;
+  border-radius: 10px;
+  padding: 15px;
+  z-index: 999;
+  flex-wrap: wrap;         /* 允许多行 */
+  gap: 20px;               /* 品牌之间间距 */
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  min-width: 400px;        /* ✅ 设置一个合适的宽度，让它横向显示 */
+  max-width: 800px;        /* ✅ 可选：最大宽度 */
+}
+
+.brands-dropdown:hover .brand-dropdown-content {
+  display: flex !important; /* ✅ 鼠标悬停时才显示 加 !important 防止被内联覆盖 */
+}
+
+.brand-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #fff;
+  text-decoration: none;
+  width: 100px;             /* ✅ 每个品牌项宽度相同，便于横向排布 */
+}
+
+.brand-item img {
+  width: 60px;
+  height: 60px;
+  background: #fff;
+  padding: 5px;
+  border-radius: 8px;
+  object-fit: contain;
+}
+
+</style>
+
 
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;700&amp;display=swap" rel="stylesheet">
   </body>
