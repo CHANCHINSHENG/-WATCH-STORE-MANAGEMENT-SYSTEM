@@ -51,7 +51,6 @@ $customer = $customer_stmt->get_result()->fetch_assoc();
     <nav class="navbar navbar-dark bg-dark mb-4">
   <div class="container d-flex justify-content-between">
     <a class="navbar-brand d-flex align-items-center" href="customermainpage.php">
-      <!-- Home icon -->
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-house me-2" viewBox="0 0 16 16">
         <path fill-rule="evenodd" d="M8 3.293l6 6V13.5a1.5 1.5 0 0 1-1.5 1.5h-3v-4H7v4H4.5A1.5 1.5 0 0 1 3 13.5V9.293l5-5zM7.293 2.5 1 8.793V14.5A1.5 1.5 0 0 0 2.5 16h11a1.5 1.5 0 0 0 1.5-1.5V8.793L8.707 2.5a1 1 0 0 0-1.414 0z"/>
       </svg>
@@ -84,7 +83,7 @@ $customer = $customer_stmt->get_result()->fetch_assoc();
             <th>Total</th>
             <th>Tracking ID</th>
             <th>Shipping</th>
-            <th>Actions</th> <!-- 新增操作栏 -->
+            <th>Actions</th> 
         </tr>
         </thead>
         <tbody>
@@ -92,7 +91,8 @@ $customer = $customer_stmt->get_result()->fetch_assoc();
         $orders_query = "
             SELECT OrderID, OrderDate, OrderStatus, TrackingID, Total_Price, 
                    Shipping_Name, Shipping_Address, Shipping_City, 
-                   Shipping_Postcode, Shipping_State, Shipping_Phone
+                   Shipping_Postcode, Shipping_State, Shipping_Phone,
+                   Admin_Payment_Confirmation
             FROM `07_order`
             WHERE CustomerID = ?
             ORDER BY OrderDate DESC
@@ -110,7 +110,20 @@ $customer = $customer_stmt->get_result()->fetch_assoc();
             <tr>
                 <td><?= $row['OrderID'] ?></td>
                 <td><?= $row['OrderDate'] ?></td>
-                <td><?= $row['OrderStatus'] ?></td>
+                <td>
+                    <?php
+                    $display_order_status = '';
+                    if (isset($row['Admin_Payment_Confirmation']) && $row['Admin_Payment_Confirmation'] === 'Confirmed') 
+                    {
+                        $display_order_status = 'Shipped'; 
+                    } 
+                    else 
+                    {
+                        $display_order_status = $row['OrderStatus'] ?? 'Unknown'; 
+                    }
+                    echo htmlspecialchars($display_order_status);
+                    ?>
+                </td>
                 <td>$<?= number_format($row['Total_Price'], 2) ?></td>
                 <td><?= $row['TrackingID'] ?></td>
                 <td>

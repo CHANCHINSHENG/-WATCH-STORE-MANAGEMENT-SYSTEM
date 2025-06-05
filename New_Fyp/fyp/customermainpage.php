@@ -1,5 +1,6 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
+if (session_status() === PHP_SESSION_NONE) 
+{
     session_start();
 }
 ?>
@@ -43,7 +44,7 @@ if (session_status() === PHP_SESSION_NONE) {
     <!-- ===============================================-->
     <!--    Main Content-->
     <!-- ===============================================-->
-    <main class="main" id="top">
+    <main class="main" id="top">  
       <nav class="navbar navbar-expand-lg navbar-light fixed-top py-3 d-block" data-navbar-on-scroll="data-navbar-on-scroll">
         <div class="container"><a class="navbar-brand d-inline-flex" href="customermainpage.php"><img src="assets/img/Screenshot 2025-03-20 113245.png"></a>
           <button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
@@ -106,7 +107,6 @@ if (session_status() === PHP_SESSION_NONE) {
                 </div>
               </li>
 
-              <li class="nav-item px-2"><a class="nav-link fw-bold" href="#contact">CONTACT</a></li>
               <li class="nav-item px-2"><a class="nav-link fw-bold" href="cart.php"><img src="img/Cart_icon.png" alt="Cart" style="width:24px; height:24px;"></a></li>
               
               <?php if (isset($_SESSION['customer_id'])): ?>

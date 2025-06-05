@@ -2,34 +2,35 @@
 session_start();
 include 'db.php';
 
-// 处理添加到购物车
 $product_added = null;
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id'])) 
+{
     $product_id = (int)$_POST['product_id'];
     $customerID = $_SESSION['customer_id'] ?? null;
     
-    if ($customerID) {
-        // 检查 CustomerID 是否存在
+    if ($customerID) 
+    {
         $sql_check_customer = "SELECT CustomerID FROM `02_customer` WHERE CustomerID = ?";
         $stmt_check_customer = $conn->prepare($sql_check_customer);
         $stmt_check_customer->bind_param("i", $customerID);
         $stmt_check_customer->execute();
         $result_check_customer = $stmt_check_customer->get_result();
 
-        if ($result_check_customer->num_rows > 0) {
-            // 获取或创建购物车
+        if ($result_check_customer->num_rows > 0) 
+        {
             $sql_cart = "SELECT CartID FROM `11_cart` WHERE CustomerID = ?";
             $stmt_cart = $conn->prepare($sql_cart);
             $stmt_cart->bind_param("i", $customerID);
             $stmt_cart->execute();
             $result_cart = $stmt_cart->get_result();
 
-            if ($result_cart->num_rows > 0) {
-                // 如果购物车存在
+            if ($result_cart->num_rows > 0) 
+            {
                 $cart_row = $result_cart->fetch_assoc();
                 $cartID = $cart_row['CartID'];
-            } else {
-                // 如果购物车不存在，创建新购物车
+            } 
+            else 
+            {
                 $sql_create_cart = "INSERT INTO `11_cart` (CustomerID) VALUES (?)";
                 $stmt_create_cart = $conn->prepare($sql_create_cart);
                 $stmt_create_cart->bind_param("i", $customerID);
@@ -37,113 +38,120 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id'])) {
                 $cartID = $stmt_create_cart->insert_id;
             }
 
-            // 检查商品是否在购物车中
             $sql_check = "SELECT Quantity FROM `12_cart_item` WHERE CartID = ? AND ProductID = ?";
             $stmt_check = $conn->prepare($sql_check);
             $stmt_check->bind_param("ii", $cartID, $product_id);
             $stmt_check->execute();
             $result_check = $stmt_check->get_result();
 
-            // 商品已存在则更新数量，否则插入新记录
-            if ($result_check->num_rows > 0) {
+            if ($result_check->num_rows > 0) 
+            {
                 $row = $result_check->fetch_assoc();
-                $quantity = $row['Quantity'] + 1; // 增加数量
+                $quantity = $row['Quantity'] + 1; 
                 $sql_update = "UPDATE `12_cart_item` SET Quantity = ? WHERE CartID = ? AND ProductID = ?";
                 $stmt_update = $conn->prepare($sql_update);
                 $stmt_update->bind_param("iii", $quantity, $cartID, $product_id);
                 $stmt_update->execute();
-            } else {
-                $quantity = 1; // 初始数量为 1
+            } 
+            else 
+            {
+                $quantity = 1; 
                 $sql_insert = "INSERT INTO `12_cart_item` (CartID, ProductID, Quantity) VALUES (?, ?, ?)";
                 $stmt_insert = $conn->prepare($sql_insert);
                 $stmt_insert->bind_param("iii", $cartID, $product_id, $quantity);
                 $stmt_insert->execute();
             }
 
-            // 获取商品详细信息并存储到会话中
             $sql_product_info = "SELECT ProductName, Product_Price, Product_Image FROM `05_product` WHERE ProductID = ?";
             $stmt_product_info = $conn->prepare($sql_product_info);
             $stmt_product_info->bind_param("i", $product_id);
             $stmt_product_info->execute();
             $result_product_info = $stmt_product_info->get_result();
 
-            if ($result_product_info->num_rows > 0) {
+            if ($result_product_info->num_rows > 0) 
+            {
                 $product_details = $result_product_info->fetch_assoc();
                 $_SESSION['product_added'] = $product_details;
                 $product_added = $product_details;
             }
-        } else {
-            // 如果 CustomerID 不存在，则引导用户登录
+        } 
+        else 
+        {
             header("Location: customer_login.php");
             exit();
         }
-    } else {
-        // 如果没有登录的用户 ID，跳转到登录页面
+    } 
+    else 
+    {
         header("Location: customer_login.php");
         exit();
     }
 }
 
-// 获取筛选条件
 $brand_id = $_GET['brand_id'] ?? '';
 $category_id = $_GET['category_id'] ?? '';
 $search_query = $_GET['search'] ?? '';
 $sort = $_GET['sort'] ?? '';
 
-// 支持 brand 名称跳转
 $brand_name = $_GET['brand'] ?? '';
-if (!empty($brand_name)) {
+if (!empty($brand_name)) 
+{
     $stmt_brand = $conn->prepare("SELECT BrandID FROM `03_brand` WHERE BrandName = ?");
     $stmt_brand->bind_param("s", $brand_name);
     $stmt_brand->execute();
     $result_brand = $stmt_brand->get_result();
-    if ($row_brand = $result_brand->fetch_assoc()) {
-        $brand_id = $row_brand['BrandID']; // 自动赋值给原本的 $brand_id 用来筛选
+
+    if ($row_brand = $result_brand->fetch_assoc()) 
+    {
+        $brand_id = $row_brand['BrandID']; 
     }
 }
 
-// 支持 category 名称跳转
 $category_name = $_GET['category'] ?? '';
-if (!empty($category_name)) {
+if (!empty($category_name)) 
+{
     $stmt_category = $conn->prepare("SELECT CategoryID FROM `04_category` WHERE CategoryName = ?");
     $stmt_category->bind_param("s", $category_name);
     $stmt_category->execute();
     $result_category = $stmt_category->get_result();
-    if ($row_category = $result_category->fetch_assoc()) {
+    if ($row_category = $result_category->fetch_assoc()) 
+    {
         $category_id = $row_category['CategoryID'];
     }
 }
 
-// 获取品牌和分类选项
 $brands = $conn->query("SELECT * FROM `03_brand`");
 $categories = $conn->query("SELECT * FROM `04_category`");
 
-// 构建查询
 $sql = "SELECT * FROM `05_product` WHERE Product_Status = 'Available'";
 $params = [];
 $types = '';
 
 
-if ($brand_id !== '') {
+if ($brand_id !== '') 
+{
     $sql .= " AND BrandID = ?";
     $params[] = $brand_id;
     $types .= 'i';
 }
 
-if ($category_id !== '') {
+if ($category_id !== '') 
+{
     $sql .= " AND CategoryID = ?";
     $params[] = $category_id;
     $types .= 'i';
 }
 
-if (!empty($search_query)) {
+if (!empty($search_query)) 
+{
     $sql .= " AND ProductName LIKE ?";
-    $search_param_val = "%$search_query%"; // 修改了变量名以避免与 $params 混淆
+    $search_param_val = "%$search_query%"; 
     $params[] = $search_param_val;
     $types .= 's';
 }
 
-switch ($sort) {
+switch ($sort) 
+{
     case 'price_asc':
         $sql .= " ORDER BY Product_Price ASC";
         break;
@@ -157,11 +165,12 @@ switch ($sort) {
         $sql .= " ORDER BY ProductName DESC";
         break;
     default:
-        $sql .= " ORDER BY ProductID DESC"; // 默认排序（你可改成其他）
+        $sql .= " ORDER BY ProductID DESC";
 }
 
 $stmt = $conn->prepare($sql);
-if (!empty($params)) {
+if (!empty($params)) 
+{
     $stmt->bind_param($types, ...$params);
 }
 $stmt->execute();
@@ -322,9 +331,98 @@ $total_price = $product_added['Product_Price'] ?? 0;
         background: linear-gradient(135deg, #e05aa0, #8c239e); 
         box-shadow: 0 4px 10px rgba(255, 105, 180, 0.3); 
     }
+
+    .filter-form {
+        display: flex;
+        flex-wrap: wrap; /* Allows items to wrap to the next line on smaller screens */
+        gap: 1rem; /* Space between form elements */
+        margin-bottom: 2rem; /* Space below the form */
+        padding: 1.5rem;
+        background-color: #2a2a2a; /* Slightly lighter than product card for differentiation */
+        border-radius: 15px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .filter-form select,
+    .filter-form input[type="text"] {
+        padding: 0.75rem 1rem;
+        background-color: #333; /* Dark background for inputs */
+        color: #f0f0f0; /* Light text color */
+        border: 1px solid #555; /* Subtle border */
+        border-radius: 8px;
+        font-size: 0.95rem;
+        flex-grow: 1; /* Allows input fields to grow and fill available space */
+        min-width: 180px; /* Minimum width for select and input fields */
+        box-sizing: border-box; /* Ensures padding and border don't add to the width */
+    }
+
+    .filter-form select {
+        cursor: pointer;
+    }
+
+    .filter-form input[type="text"]::placeholder {
+        color: #888; /* Lighter placeholder text */
+    }
+
+    .filter-form button[type="submit"],
+    .filter-form .reset-btn {
+        padding: 0.75rem 1.5rem;
+        color: #121212; /* Dark text for contrast on bright button */
+        background-color: #ffd700; /* Gold color to match headers */
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 0.95rem;
+        text-decoration: none; /* For the reset link styled as a button */
+        display: inline-flex; /* Aligns icon and text if an icon was present */
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        flex-grow: 0; /* Buttons don't grow as much as input fields */
+    }
+
+    .filter-form .reset-btn {
+        background-color: #555; /* Different color for reset button */
+        color: #f0f0f0;
+    }
+
+    .filter-form button[type="submit"]:hover {
+        background-color: #e6c300; /* Darker gold on hover */
+        transform: translateY(-2px);
+    }
+
+    .filter-form .reset-btn:hover {
+        background-color: #666; /* Darker grey on hover for reset */
+        transform: translateY(-2px);
+    }
+
+    .filter-form button[type="submit"]:active,
+    .filter-form .reset-btn:active {
+        transform: translateY(0); /* Click effect */
+    }
+
+    /* Responsive adjustments for smaller screens */
+    @media (max-width: 768px) {
+        .filter-form {
+            flex-direction: column; /* Stack elements vertically */
+        }
+
+        .filter-form select,
+        .filter-form input[type="text"],
+        .filter-form button[type="submit"],
+        .filter-form .reset-btn {
+            width: 100%; /* Make all form elements full width */
+            min-width: 0; /* Reset min-width */
+        }
+    }
     </style>
 </head>
 <body>
+
+<?php
+$current_page = basename($_SERVER['PHP_SELF']);
+?>
 
 <div class="Title main page">
     <div class="container"><a class="navbar-brand d-inline-flex" href="customermainpage.php"><img src="assets/img/Screenshot 2025-03-20 113245.png"></a>
