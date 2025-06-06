@@ -12,7 +12,7 @@ if (isset($_SESSION['customer_id']))
     $customer_id_logged_in = (int)$_SESSION['customer_id']; 
 
     $sql_my_inquiries = "SELECT id, message_subject, message_content, submission_date, admin_reply_content, replied_at 
-                         FROM 16_customer_inquiries 
+                         FROM 17_customer_inquiries 
                          WHERE customer_id = ? 
                          ORDER BY submission_date DESC";
     
@@ -73,7 +73,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
     if (empty($errors)) 
     {
         $customer_id_logged_in = isset($_SESSION['customer_id']) ? (int)$_SESSION['customer_id'] : null;
-        $sql = "INSERT INTO 16_customer_inquiries (customer_id, customer_name, customer_email, message_subject, message_content) VALUES (?,?, ?, ?, ?)";
+        $sql = "INSERT INTO 17_customer_inquiries (customer_id, customer_name, customer_email, message_subject, message_content) VALUES (?,?, ?, ?, ?)";
         
         if ($stmt = $conn->prepare($sql)) 
         {
