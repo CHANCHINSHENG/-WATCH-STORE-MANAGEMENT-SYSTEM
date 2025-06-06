@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About Us - TGO Fashion Watch</title>
     <style>
-        body {
+        body 
+        {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.7;
             margin: 0;
@@ -13,7 +14,9 @@
             background-color: #f8f9fa;
             color: #343a40;
         }
-        .container {
+
+        .container 
+        {
             max-width: 900px;
             margin: 30px auto;
             background: #ffffff;
@@ -21,29 +24,37 @@
             border-radius: 10px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
-        h1 {
+        h1 
+        {
             text-align: center;
             color: #0056b3;
             margin-bottom: 30px;
             font-size: 2.5em;
         }
-        h2 {
+
+        h2 
+        {
             color: #007bff;
             border-bottom: 2px solid #dee2e6;
             padding-bottom: 10px;
             margin-top: 40px;
             font-size: 1.8em;
         }
-        p {
+
+        p 
+        {
             margin-bottom: 18px;
             color: #495057;
-            font-size: 1.05em; /* Slightly larger paragraph text */
+            font-size: 1.05em; 
         }
+
         .highlight {
             color: #0056b3;
             font-weight: bold;
         }
-        .brand-list ul, .category-list ul {
+
+        .brand-list ul, .category-list ul 
+        {
             list-style: none;
             padding: 0;
             display: flex;
@@ -52,7 +63,9 @@
             margin-top: 15px;
             margin-bottom: 20px;
         }
-        .brand-list li, .category-list li {
+
+        .brand-list li, .category-list li 
+        {
             background-color: #e9ecef;
             padding: 8px 18px;
             border-radius: 20px;
@@ -61,75 +74,99 @@
             border: 1px solid #ced4da;
             font-weight: 500;
         }
-        .contact-link a {
+
+        .contact-link a 
+        {
             color: #007bff;
             text-decoration: none;
             font-weight: bold;
         }
-        .contact-link a:hover {
+
+        .contact-link a:hover 
+        {
             text-decoration: underline;
             color: #0056b3;
         }
-        .emoji {
+
+        .emoji 
+        {
             margin-right: 8px;
             vertical-align: middle;
         }
-        .text-center {
+
+        .text-center 
+        {
             text-align: center;
         }
-        #why-choose-us ul {
+
+        #why-choose-us ul 
+        {
             list-style: none;
             padding-left: 0;
         }
-        #why-choose-us li {
-            padding-left: 35px; /* Increased padding for better alignment with larger emoji */
+
+        #why-choose-us li 
+        {
+            padding-left: 35px; 
             position: relative;
             margin-bottom: 12px;
             font-size: 1.05em;
         }
-        #why-choose-us li::before {
+
+        #why-choose-us li::before 
+        {
             content: "✅";
             position: absolute;
             left: 0;
-            top: 2px; /* Fine-tune vertical alignment */
-            font-size: 1.2em; /* Slightly larger emoji */
+            top: 2px; 
+            font-size: 1.2em; 
         }
-        #get-in-touch {
-            background-color: #e9ecef; /* Consistent light background for call to action */
+
+        #get-in-touch 
+        {
+            background-color: #e9ecef; 
             padding: 30px;
             margin-top: 40px;
             border-radius: 8px;
-            border-top: 5px solid #007bff; /* Accent top border */
+            border-top: 5px solid #007bff; 
         }
-        #get-in-touch h2 {
+
+        #get-in-touch h2 
+        {
             border-bottom: none;
             margin-top: 0;
             text-align: center;
         }
-        .placeholder-text {
+
+        .placeholder-text 
+        {
             color: #007bff;
             font-weight: bold;
             font-style: italic;
         }
-        .story-intro, .mission-intro { /* Class for introductory paragraphs */
-            font-size: 1.1em; /* Slightly larger for intros */
+
+        .story-intro, .mission-intro 
+        { 
+            font-size: 1.1em; 
             color: #333;
             margin-bottom: 20px;
         }
 
-        .button-container-back {
-        text-align: center; /* 让按钮在容器内居中（如果按钮是 inline-block） */
-        padding: 20px 0; /* 给按钮上下一些空间 */
+        .button-container-back 
+        {
+            text-align: center; 
+            padding: 20px 0; 
         }
 
-        .back-to-main-button {
+        .back-to-main-button 
+        {
             display: inline-block;
             padding: 12px 25px;
-            background-color: #6c757d; /* 中性灰色 - 你可以改成你的主题色 */
+            background-color: #6c757d;
             color: white;
             text-decoration: none;
             border-radius: 5px;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* 和你页面其他部分字体一致 */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 1em;
             font-weight: 500;
             text-align: center;
@@ -139,13 +176,15 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        .back-to-main-button:hover {
-            background-color: #5a6268; /* 鼠标悬停颜色变深 */
-            transform: translateY(-2px); /* 轻微上浮效果 */
+        .back-to-main-button:hover 
+        {
+            background-color: #5a6268; 
+            transform: translateY(-2px);
         }
 
-        .back-to-main-button:active {
-            background-color: #495057; /* 点击时颜色再深一点 */
+        .back-to-main-button:active 
+        {
+            background-color: #495057;
             transform: translateY(0);
         }
     </style>
