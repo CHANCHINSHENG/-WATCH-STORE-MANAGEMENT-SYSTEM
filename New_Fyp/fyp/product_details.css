@@ -35,44 +35,97 @@ body {
     background-color: #444;
 }
 
-/* Product Container */
+/* Product Container (Layout) */
 .product-detail-container {
-    max-width: 1100px;
-    margin: 0 auto;
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: space-between;
     gap: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
     padding: 40px;
     background: #1e1e1e;
     border-radius: 18px;
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
 }
 
-/* Image */
-.product-image {
+/* LEFT: Gallery */
+.product-gallery {
     flex: 1;
     max-width: 55%;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
 }
 
-.product-image img {
+.main-image-container {
+    position: relative;
+    width: 100%;
+    background: #fff;
+    padding: 10px;
+    border-radius: 12px;
+}
+
+.main-image-container img {
     width: 100%;
     height: auto;
-    max-height: 550px;
     object-fit: contain;
-    border-radius: 15px;
+    border-radius: 10px;
     border: 2px solid #444;
-    box-shadow: 0 10px 25px rgba(255, 255, 255, 0.05);
-    transition: transform 0.3s ease;
+    background-color: #fff;
 }
 
-.product-image img:hover {
-    transform: scale(1.05);
+.thumbnail-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 15px;
+    flex-wrap: wrap;
 }
 
-/* Info */
+.thumbnail {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    background-color: #fff;
+    border: 2px solid #444;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.3s ease, border-color 0.3s;
+}
+
+.thumbnail:hover {
+    transform: scale(1.1);
+    border-color: #ff9800;
+}
+
+.arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.2);
+    color: white;
+    border: none;
+    font-size: 26px;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 50%;
+    z-index: 2;
+}
+
+.arrow.left {
+    left: -25px;
+}
+
+.arrow.right {
+    right: -25px;
+}
+
+.arrow:hover {
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+/* RIGHT: Info */
 .product-info {
     flex: 1;
     max-width: 45%;
@@ -135,13 +188,21 @@ body {
         padding: 25px;
     }
 
-    .product-image,
+    .product-gallery,
     .product-info {
         max-width: 100%;
     }
 
-    .product-image img {
-        max-height: 400px;
+    .main-image-container {
+        width: 100%;
+    }
+
+    .arrow.left {
+        left: 10px;
+    }
+
+    .arrow.right {
+        right: 10px;
     }
 
     .product-info h1 {

@@ -45,10 +45,52 @@ if (!$product) {
     </nav>
 
     <div class="product-detail-container">
-        <div class="product-image">
-            <img src="<?= htmlspecialchars($product['Product_Image']); ?>" 
-                 alt="<?= htmlspecialchars($product['ProductName']); ?>">
+        <div class="product-gallery">
+        <div class="main-image-container">
+            <button class="arrow left" onclick="prevImage()">&#10094;</button>
+            <img id="mainImage" src="<?= htmlspecialchars($product['Product_Image']); ?>" alt="Main Image">
+            <button class="arrow right" onclick="nextImage()">&#10095;</button>
         </div>
+
+        <div class="thumbnail-container">
+            <?php if (!empty($product['Product_Image'])): ?>
+                <img class="thumbnail" src="<?= htmlspecialchars($product['Product_Image']); ?>" onclick="showImage(0)">
+            <?php endif; ?>
+            <?php if (!empty($product['Product_Image2'])): ?>
+                <img class="thumbnail" src="<?= htmlspecialchars($product['Product_Image2']); ?>" onclick="showImage(1)">
+            <?php endif; ?>
+            <?php if (!empty($product['Product_Image3'])): ?>
+                <img class="thumbnail" src="<?= htmlspecialchars($product['Product_Image3']); ?>" onclick="showImage(2)">
+            <?php endif; ?>
+        </div>
+    </div>
+    <script>
+    const images = [
+        <?= json_encode($product['Product_Image']); ?>,
+        <?= json_encode($product['Product_Image2']); ?>,
+        <?= json_encode($product['Product_Image3']); ?>
+    ].filter(img => img);
+
+    let currentIndex = 0;
+
+    function showImage(index) {
+        currentIndex = index;
+        document.getElementById("mainImage").src = images[currentIndex];
+    }
+
+    function prevImage() {
+        currentIndex = (currentIndex - 1 + images.length) % images.length;
+        showImage(currentIndex);
+    }
+
+    function nextImage() {
+        currentIndex = (currentIndex + 1) % images.length;
+        showImage(currentIndex);
+    }
+</script>
+
+
+
 
         <div class="product-info">
             <h1><?= htmlspecialchars($product['ProductName']); ?></h1>
