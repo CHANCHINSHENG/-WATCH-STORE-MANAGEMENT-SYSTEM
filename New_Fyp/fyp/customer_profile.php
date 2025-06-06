@@ -129,7 +129,7 @@ $customer = $customer_stmt->get_result()->fetch_assoc();
                     echo htmlspecialchars($display_order_status);
                     ?>
                 </td>
-                <td>$<?= number_format($row['Total_Price'], 2) ?></td>
+                <td>RM<?= number_format($row['Total_Price'], 2) ?></td>
                 <td><?= $row['TrackingID'] ?></td>
                 <td>
                     <?= htmlspecialchars($row['Shipping_Name']) ?><br>
