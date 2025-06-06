@@ -509,7 +509,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <span class="close">&times;</span>
             <h2>Product Added to Cart!</h2>
             <div class="product-info">
-                <img src="<?= htmlspecialchars($product_added['Product_Image']); ?>" alt="Product Image">
+                <img src="admin_addproduct_include/<?= htmlspecialchars($product_added['Product_Image']); ?>" alt="Product Image">
                 <p><strong>Product Name:</strong> <?= htmlspecialchars($product_added['ProductName']); ?></p>
                 <p><strong>Price:</strong> MYR <?= number_format($product_added['Product_Price'], 2); ?></p>
                 <div class="total-section">

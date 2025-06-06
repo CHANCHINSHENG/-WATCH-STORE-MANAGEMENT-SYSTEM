@@ -23,14 +23,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Upload main image
         $image_path = '';
-        if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] === UPLOAD_ERR_OK) {
-            $filename = $_FILES["product_image"]["name"];
-            $fileTmpName = $_FILES["product_image"]["tmp_name"];
+        if (isset($_FILES['Product_Image']) && $_FILES['Product_Image']['error'] === UPLOAD_ERR_OK) {
+            $filename = $_FILES["Product_Image"]["name"];
+            $fileTmpName = $_FILES["Product_Image"]["tmp_name"];
             $fileEXT = explode(".", $filename);
             $fileActualExt = strtolower(end($fileEXT));
 
             if (in_array($fileActualExt, $allowed)) {
-                $new_file_name = uniqid('product_', true) . '.' . $fileActualExt;
+                $new_file_name = uniqid('Product_', true) . '.' . $fileActualExt;
                 $image_path = $upload_dir . $new_file_name;
                 move_uploaded_file($fileTmpName, $image_path);
             }
@@ -38,7 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Upload additional image 1
         $image_path2 = '';
-        if (isset($_FILES['product_image2']) && $_FILES['product_image2']['error'] === UPLOAD_ERR_OK) {
+        if (isset($_FILES['Product_Image2']) && $_FILES['Product_Image2']['error'] === UPLOAD_ERR_OK) {
             $filename2 = $_FILES["product_image2"]["name"];
             $fileTmpName2 = $_FILES["product_image2"]["tmp_name"];
             $fileEXT2 = explode(".", $filename2);

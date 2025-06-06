@@ -3,7 +3,7 @@
 $host = "localhost";
 $user = "root";
 $password = "";
-$database = "e-fashion"; // ⬅️ Change this to your database name
+$database = "watch_store_db"; // ⬅️ Change this to your database name
 
 $conn = mysqli_connect($host, $user, $password, $database);
 
