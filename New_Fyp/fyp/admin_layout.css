@@ -460,6 +460,9 @@ body.dark .user-profile:hover {
 .dashboard-content {
   padding: var(--spacing-xl);
 }
+.dashboard.sidebar-collapsed .main-content {
+  margin-left: 80px;
+}
 
 .stats-grid {
   display: grid;
@@ -676,7 +679,7 @@ body.dark .product-table {
     align-items: center;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
     margin-bottom: 1.5rem;
-}
+} 
 
 .top-header h1 {
     font-size: 1.6rem;
@@ -804,3 +807,156 @@ body.dark .product-table {
   margin-right: 8px;
   vertical-align: middle;
 }
+
+.notifications {
+  position: relative;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.notifications svg {
+  width: 24px;
+  height: 24px;
+  stroke: #1f2937; /* 可改成 white 如果是深色背景 */
+}
+
+/* 若 SVG 沒成功渲染，給預設 fallback 寬高 */
+.notifications i[data-lucide="bell"] {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+}、
+.notifications svg {
+  stroke: white;
+}
+
+
+.notification-dropdown {
+  display: none;
+  position: absolute;
+  top: 40px;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  width: 280px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+}
+
+.notification-dropdown ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.notification-dropdown li {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+  color: #333;
+}
+
+.notification-dropdown li:last-child {
+  border-bottom: none;
+}
+
+.notification-dropdown .view-link {
+  float: right;
+  font-size: 12px;
+  color: #007bff;
+}
+#notificationDropdown {
+  width: 320px;
+  max-height: 400px;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  font-size: 16px;
+  padding: 12px;
+}
+
+#notificationDropdown ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.notification-item {
+  padding: 12px 10px;
+  border-bottom: 1px solid #ddd;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.notif-title {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.notif-time {
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 6px;
+}
+
+.notif-view {
+  font-size: 14px;
+  color: #007bff;
+  text-decoration: none;
+}
+
+.notif-view:hover {
+  text-decoration: underline;
+}
+/* 紅點數字 */
+.notif-count {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  background: red;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 50%;
+  padding: 2px 6px;
+  min-width: 20px;
+  text-align: center;
+  z-index: 10;
+}
+
+/* Modal 樣式 */
+.modal {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px 30px;
+  border-radius: 10px;
+  width: 400px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+  position: relative;
+}
+
+.close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+

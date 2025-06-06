@@ -76,7 +76,7 @@ if (!$product) {
             <label>Replace Image 2</label>
             <input type="file" name="product_image2">
             <img src="admin_addproduct_include/<?= htmlspecialchars($product['Product_Image2']) ?>" class="preview-image" alt="Image 2">
-        </div>
+        </div>  
         <div class="input-group">
             <label>Replace Image 3</label>
             <input type="file" name="product_image3">

@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
   lucide.createIcons();
+  let isDropdownOpen = false;
 
   function showToast(message, type = 'success') {
     Swal.fire({
@@ -20,27 +21,191 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  function setupStatusDropdowns() {
-    document.querySelectorAll('.order-dropdown').forEach(select => {
-      select.addEventListener('change', function () {
-        const orderId = this.dataset.orderId;
-        const newStatus = this.value;
+  function updateNotificationUI(data) {
+    const bell = document.querySelector('.notifications');
+    const list = document.getElementById('notificationList');
+    const notifCount = document.getElementById('notifCount');
 
-        fetch('admin_update_orderstatus.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: `order_id=${orderId}&order_status=${newStatus}`
-        })
-        .then(res => res.text())
-        .then(() => {
-          showToast("✅ Order status updated!");
-          const badge = this.closest('tr').querySelector('.status-badge');
+    if (data.newOrders.length > 0) {
+      bell.classList.add('has-new');
+      notifCount.style.display = 'inline-block';
+      notifCount.textContent = data.newOrders.length;
+      list.innerHTML = '';
+
+      data.newOrders.forEach(order => {
+        const li = document.createElement('li');
+        const dateTime = order.OrderDateTime ?? 'Just now';
+        li.className = 'notification-item';
+        li.innerHTML = ` 
+          <div class="notif-title">🛒 <strong>${order.Cust_Username}</strong> placed an order of ${order.Total_Price}</div>
+          <div class="notif-time">${dateTime}</div>
+          <a href="admin_layout.php?page=admin_view_allorder" class="notif-view">View</a>
+        `;
+        list.appendChild(li);
+      });
+    } else {
+      bell.classList.remove('has-new');
+      list.innerHTML = '<li class="notification-item">No new orders</li>';
+      notifCount.style.display = 'none';
+    }
+  }
+
+  const savedData = sessionStorage.getItem('notifData');
+  if (savedData) {
+    const parsed = JSON.parse(savedData);
+    updateNotificationUI(parsed);
+  }
+
+  function pollNewOrders() {
+    setInterval(() => {
+      fetch('admin_check_new_orders.php')
+        .then(res => res.json())
+        .then(data => {
+          sessionStorage.setItem('notifData', JSON.stringify(data));
+          updateNotificationUI(data);
+        });
+    }, 10000);
+  }
+
+  pollNewOrders();
+
+  const bellBtn = document.querySelector('.notifications');
+  const dropdown = document.getElementById('notificationDropdown');
+
+  bellBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    isDropdownOpen = !isDropdownOpen;
+    dropdown.style.display = isDropdownOpen ? 'block' : 'none';
+  });
+
+  document.addEventListener('click', function () {
+    dropdown.style.display = 'none';
+    isDropdownOpen = false;
+  });
+
+  document.addEventListener('change', function (e) {
+    if (e.target.matches('.order-dropdown')) {
+      const select = e.target;
+      const orderId = select.dataset.orderId;
+      const newStatus = select.value;
+
+      fetch('admin_update_orderstatus.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `order_id=${orderId}&order_status=${newStatus}`
+      })
+      .then(res => res.text())
+      .then(() => {
+        showToast("✅ Order status updated!");
+        const badge = select.closest('tr').querySelector('.status-badge');
+        if (badge) {
           badge.textContent = newStatus;
           badge.className = `status-badge ${newStatus.toLowerCase().replace(/\s+/g, '-')}`;
-        })
-        .catch(() => showToast("❌ Failed to update order.", 'error'));
-      });
-    });
+        }
+
+        // 🆕 Refresh notification immediately
+        fetch('check_new_orders.php')
+          .then(res => res.json())
+          .then(data => {
+            sessionStorage.setItem('notifData', JSON.stringify(data));
+            updateNotificationUI(data);
+          });
+      })
+      .catch(() => showToast("❌ Failed to update order.", 'error'));
+    }
+  });
+
+
+
+  function setupAdvancedOrderFilter() {
+  const searchInput = document.getElementById('searchInput');
+  const statusFilter = document.getElementById('statusFilter');
+  const deliveryStatusFilter = document.getElementById('deliveryStatusFilter');
+  const methodFilter = document.getElementById('methodFilter');
+  const orderLimitFilter = document.getElementById('orderlimits');
+  const startDate = document.getElementById('startDate');
+  const endDate = document.getElementById('endDate');
+  const table = document.getElementById('ordertable');
+
+  if (!table) return;
+
+  function filterRows() {
+    const query = searchInput.value.toLowerCase();
+    const status = statusFilter.value;
+    const delivery = deliveryStatusFilter.value;
+    const method = methodFilter.value.toLowerCase();
+    const limit = orderLimitFilter.value;
+    const start = startDate.value ? new Date(startDate.value) : null;
+    const end = endDate.value ? new Date(endDate.value) : null;
+    const today = new Date();
+
+    table.querySelectorAll('tbody tr').forEach(row => {
+      const cells = row.children;
+  const orderDate = new Date(cells[0].innerText);                  // Date
+  const name = cells[1].innerText.toLowerCase();                   // Customer Name
+  const orderStatusText = cells[2].innerText.trim();               // Order Status
+  const deliveryStatusText = cells[5].innerText.trim();            // Delivery Status
+  const methodText = cells[7].innerText.trim().toLowerCase();      // Payment Method
+
+let show = true;
+
+  if (query && !name.includes(query)) show = false;
+  if (status && orderStatusText !== status) show = false;
+  if (delivery && deliveryStatusText !== delivery) show = false;
+  if (method && !methodText.includes(method)) show = false;
+  if (start && orderDate < start) show = false;
+  if (end && orderDate > end) show = false;
+
+  if (limit) {
+    const days = parseInt(limit.replace('days', ''));
+    const limitDate = new Date(today);
+    limitDate.setDate(today.getDate() - days);
+    if (orderDate < limitDate) show = false;
+  }
+
+  row.style.display = show ? '' : 'none';
+});
+  }
+
+  document.getElementById('filterButton').addEventListener('click', filterRows);
+  document.getElementById('resetButton').addEventListener('click', () => {
+    searchInput.value = '';
+    statusFilter.value = '';
+    deliveryStatusFilter.value = '';
+    methodFilter.value = '';
+    orderLimitFilter.value = '';
+    startDate.value = '';
+    endDate.value = '';
+    table.querySelectorAll('tbody tr').forEach(row => row.style.display = '');
+  });
+}
+
+
+
+  function setupStatusDropdowns() {
+   document.addEventListener('change', function (e) {
+    if (e.target.matches('.order-dropdown')) {
+      const select = e.target;
+      const orderId = select.dataset.orderId;
+      const newStatus = select.value;
+
+      fetch('admin_update_orderstatus.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `order_id=${orderId}&order_status=${newStatus}`
+      })
+      .then(res => res.text())
+      .then(() => {
+        showToast("✅ Order status updated!");
+        const badge = select.closest('tr').querySelector('.status-badge');
+        if (badge) {
+          badge.textContent = newStatus;
+          badge.className = `status-badge ${newStatus.toLowerCase().replace(/\s+/g, '-')}`;
+        }
+      })
+      .catch(() => showToast("❌ Failed to update order.", 'error'));
+    }
+  });
 
     document.querySelectorAll('.delivery-dropdown').forEach(select => {
       select.addEventListener('change', function () {
@@ -213,7 +378,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (document.getElementById('customerTable')) setupTableSearch('customerTable', [1, 2, 3]);
     if (document.getElementById('brandTable')) setupTableSearch('brandTable', [1]);
     if (document.getElementById('categoryTable')) setupTableSearch('categoryTable', [1]);
-    if (document.getElementById('ordertable')) setupTableSearch('ordertable', [0,1,2,3,5,6]);
+        if (document.getElementById('staffTable')) setupTableSearch('staffTable', [1,2]);
+    if (document.getElementById('ordertable')) setupAdvancedOrderFilter();
     if (document.getElementById('editSidebar')) setupEditSidebar();
     if (document.getElementById('product_image')) {
       previewImage('product_image', 'preview1');

@@ -18,7 +18,7 @@ require_once 'admin_addbrand_include/admin_addbrand_view.php';
             <h2><span class="watch-icon">⌚</span> Add Brand</h2>
         </div>
 
-        <?php displayFormMessages(); ?> <!-- ✅ Display messages here -->
+        <?php displayFormMessages(); ?> 
 
         <form action="admin_addbrand_include/admin_addbrand_inc.php" method="POST" enctype="multipart/form-data" class="product-form">
             <div class="form-grid">

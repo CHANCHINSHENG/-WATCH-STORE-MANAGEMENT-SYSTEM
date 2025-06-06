@@ -7,13 +7,10 @@
 
 error_reporting(E_ALL);
 
-// Redirect if not logged in
-if (!isset($_SESSION['admin_id'])) 
-{
+if (!isset($_SESSION['admin_id'])) {
     header("Location: admin_login.php");
     exit();
 }
-
 $categories = getAllCategories($pdo);
 $brands = getAllBrands($pdo);
 ?>  
@@ -89,20 +86,20 @@ $brands = getAllBrands($pdo);
                 </div>
 
                 <div class="input-group full-width">
-                    <label for="Product_Image">Product Image</label>
-                    <input type="file" name="Product_Image" id="Product_Image" accept=".jpg,.jpeg,.png,.webp" class="file-upload-input">
+                    <label for="product_image">Product Image</label>
+                    <input type="file" name="product_image" id="product_image" accept=".jpg,.jpeg,.png,.webp" class="file-upload-input">
                     <div class="file-upload-preview" id="preview1"></div>
                 </div>
 
                 <div class="input-group full-width">
-                    <label for="Product_Image2">Product Image 2</label>
-                    <input type="file" name="Product_Image2" id="Product_Image2" accept=".jpg,.jpeg,.png,.webp" class="file-upload-input">
+                    <label for="product_image2">Product Image 2</label>
+                    <input type="file" name="product_image2" id="product_image2" accept=".jpg,.jpeg,.png,.webp" class="file-upload-input">
                     <div class="file-upload-preview" id="preview2"></div>
                 </div>
 
                 <div class="input-group full-width">
-                    <label for="Product_Image3">Product Image 3</label>
-                    <input type="file" name="Product_Image3" id="Product_Image3" accept=".jpg,.jpeg,.png,.webp" class="file-upload-input">
+                    <label for="product_image3">Product Image 3</label>
+                    <input type="file" name="product_image3" id="product_image3" accept=".jpg,.jpeg,.png,.webp" class="file-upload-input">
                     <div class="file-upload-preview" id="preview3"></div>
                 </div>
 

@@ -30,19 +30,19 @@ if (isset($_FILES['profileImage']) && $_FILES['profileImage']['error'] === UPLOA
     }
 }
 
-// Prepare SQL update
+// Prepare SQL update using AdminID
 if ($profileImagePath) {
-    $stmt = $pdo->prepare("UPDATE 01_admin SET Admin_Username = ?, Admin_Email = ?, ProfileImage = ? WHERE Admin_Username = ?");
+    $stmt = $pdo->prepare("UPDATE 01_admin SET Admin_Username = ?, Admin_Email = ?, ProfileImage = ? WHERE AdminID = ?");
     $stmt->execute([$name, $email, $profileImagePath, $admin_id]);
 } else {
-    $stmt = $pdo->prepare("UPDATE 01_admin SET Admin_Username = ?, Admin_Email = ? WHERE Admin_Username = ?");
+    $stmt = $pdo->prepare("UPDATE 01_admin SET Admin_Username = ?, Admin_Email = ? WHERE AdminID = ?");
     $stmt->execute([$name, $email, $admin_id]);
 }
 
-// 更新 session admin_id（如果使用者改了名字）
-$_SESSION['admin_id'] = $name;
+// ✅ Correct: Only update display name if needed
+$_SESSION['admin_name'] = $name;
 
-// 成功訊息
+// ✅ Success message
 $_SESSION['update_success'] = "Profile updated successfully.";
 
 header("Location: admin_layout.php?page=admin_edit_profile");

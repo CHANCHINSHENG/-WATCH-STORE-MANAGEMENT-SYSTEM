@@ -58,6 +58,8 @@ if (!$admin) {
             <label>Email</label>
             <input type="email" name="Admin_Email" value="<?= htmlspecialchars($admin['Admin_Email']) ?>" required>
 
+            <label>Admin Role</label>
+            <input type="email" name="Admin_Role" value="<?= htmlspecialchars($admin['Admin_Role']) ?>" readonly>
             <div class="button-group">
                 <a href="admin_layout.php?page=admin_main_page" class="btn secondary-btn">Back</a>
                 <button type="submit" class="btn primary-btn">Update Profile</button>

@@ -214,3 +214,106 @@
     background: rgba(74, 20, 140, 0.1);
     color: #4a148c;
 }
+
+.filter-panel {
+background-color: white;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  color: white;
+}
+
+.filter-panel .row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 15px;
+  align-items: center;
+}
+
+.filter-panel input[type="date"],
+.filter-panel select {
+  background-color: #334155;
+  color: white;
+  border: 1px solid #475569;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  flex: 1;
+  min-width: 150px;
+  transition: border-color 0.3s ease;
+}
+
+.filter-panel input[type="text"] {
+  background-color: #334155 !important;
+  color: white !important;
+  border: 1px solid #475569;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  flex: 1;
+  min-width: 150px;
+}
+
+.filter-panel input[type="text"]::placeholder {
+  color: #cbd5e1 !important;
+}
+
+
+
+
+.filter-panel input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
+.filter-panel select option {
+  background: #1e293b;
+  color: white;
+}
+
+.filter-panel label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: black;
+  margin-right: 5px;
+}
+
+.filter-panel .btn {
+  padding: 10px 16px;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  white-space: nowrap;
+}
+
+.filter-panel .btn.green{
+    background-color: #059669;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.filter-panel .btn.green:hoverr {
+    background-color: #047857;
+}
+
+
+.filter-panel .btn.grey {
+    background-color: #374151;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.filter-panel .btn.grey:hover{
+    background-color: #1f2937;
+}
