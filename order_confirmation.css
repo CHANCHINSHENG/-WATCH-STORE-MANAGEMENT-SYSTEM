@@ -1,0 +1,156 @@
+body
+{
+    font-family: 'Poppins', sans-serif; 
+    background-color: #0d0d0d; 
+    margin: 0;
+    padding: 40px; 
+    color: #eee;   
+    animation: fadeIn 1s ease-out; 
+}
+
+@keyframes fadeIn 
+{ 
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.confirmation-page-container 
+{ 
+    max-width: 800px; 
+    margin: 40px auto; 
+}
+
+.order-container 
+{  
+    background: #1a1a1a; 
+    padding: 30px 40px;  
+    border-radius: 12px;   
+    box-shadow: 0 8px 25px rgba(0,0,0,0.7); 
+    border: 1px solid #333; 
+}
+
+.confirmation-header 
+{
+    text-align: center;
+    font-size: 30px; 
+    font-weight: bold;
+    color: #d4af37; 
+    letter-spacing: 1.5px; 
+    margin-bottom: 30px;
+}
+
+.thank-you-message,
+.status-message 
+{
+    text-align: center;
+    font-size: 1.1em;
+    margin-bottom: 20px;
+    color: #ccc;
+}
+
+.order-details-section p,
+.tracking-delivery-section p 
+{
+    margin: 10px 0;
+    font-size: 1.05em; 
+    color: #ddd;
+    line-height: 1.6;
+}
+
+.order-details-section p strong,
+.tracking-delivery-section p strong 
+{
+    color: #f5f5f5; 
+    margin-right: 8px;
+}
+
+.highlight-gold 
+{ 
+    color: #d4af37;
+    font-weight: bold;
+}
+
+.products-list 
+{
+    margin-top: 30px;
+    margin-bottom: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #333; 
+}
+
+.products-list h2 
+{
+    font-size: 20px; 
+    margin-bottom: 20px;
+    color: #eee; 
+    border-bottom: 1px solid #2a2a2a;
+    padding-bottom: 10px;
+}
+
+.product-item 
+{
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #2a2a2a; 
+    padding: 15px 0; 
+    transition: background-color 0.2s ease;
+}
+
+.product-item:last-child 
+{
+    border-bottom: none;
+}
+
+.product-item:hover 
+{
+    background-color: #222; 
+}
+
+.product-image-confirm 
+{ 
+    width: 70px; 
+    height: 70px; 
+    object-fit: cover;
+    border-radius: 8px; 
+    margin-right: 20px; 
+    border: 1px solid #444; 
+}
+
+.product-item-details h4 
+{
+    margin: 0 0 5px 0;
+    font-size: 1em; 
+    color: #fff;  
+}
+
+.product-item-details p 
+{
+    margin: 5px 0;
+    color: #bbb;  
+    font-size: 0.9em;
+}
+
+.action-button.back-to-home-button 
+{ 
+    display: block; 
+    width: fit-content; 
+    margin: 30px auto 0 auto; 
+    padding: 12px 30px;
+    background-color: #d4af37; 
+    color: #0d0d0d;     
+    font-size: 16px;      
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;  
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    transition: background-color 0.3s, transform 0.2s; 
+}
+
+.action-button.back-to-home-button:hover 
+{
+    background-color: #bfa133; 
+    transform: scale(1.03);  
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.5); 
+}

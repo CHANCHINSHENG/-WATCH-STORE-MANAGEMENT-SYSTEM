@@ -1,0 +1,106 @@
+/* admin_invoice.css */
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #0f172a;
+  color: #e2e8f0;
+}
+
+.invoice-container {
+  max-width: 900px;
+  margin: 3rem auto;
+  padding: 2rem;
+  background-color: #1e293b;
+  border-radius: 12px;
+  box-shadow: 0 0 30px rgba(0,0,0,0.3);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #334155;
+  padding-bottom: 1rem;
+  margin-bottom: 2rem;
+}
+
+.header h2 {
+  font-size: 2rem;
+  color: black;
+  margin: 0;
+}
+
+.badge {
+  padding: 0.35rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.badge.Pending {
+  background-color: #facc15;
+}
+
+.badge.Processing {
+  background-color: #60a5fa;
+}
+
+.badge.Done-Processing {
+  background-color: #4ade80;
+}
+
+.details-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  font-size: 0.95rem;
+}
+
+.details-row div {
+  max-width: 45%;
+  line-height: 1.6;
+}
+
+.items {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 2rem;
+}
+
+.items thead tr {
+  background-color: #334155;
+  color: #f1f5f9;
+}
+
+.items th,
+.items td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #475569;
+  text-align: left;
+  font-size: 0.95rem;
+}
+
+.items tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 1rem;
+  border-top: 1px solid #334155;
+  padding-top: 1rem;
+}
+
+.summary div {
+  display: flex;
+  justify-content: space-between;
+  color: #f8fafc;
+}
+
+.summary strong {
+  color: #cbd5e1;
+}
