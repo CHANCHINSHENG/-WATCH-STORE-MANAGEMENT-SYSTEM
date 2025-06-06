@@ -11,7 +11,7 @@ if ($orderID <= 0)
 
 $stmt_order = $conn->prepare
 ("
-    SELECT o.OrderID, o.OrderDate, o.Total_Price, t.Tracking_Number, t.Delivery_State
+    SELECT o.OrderID, o.OrderDate, o.Total_Price, t.Tracking_Number, t.Delivery_State, t.TrackingID
     FROM `07_order` o
     JOIN `06_tracking` t ON o.TrackingID = t.TrackingID
     WHERE o.OrderID = ?
@@ -103,7 +103,29 @@ else
 }
 
 $orderDate = $order_row['OrderDate'] ?? 'now'; 
-$estimatedDelivery = date('d M Y', strtotime($orderDate . " +$deliveryDays days"));
+$estimatedDelivery = date('Y-m-d', strtotime($orderDate . " +$deliveryDays days"));
+
+$trackingID = $order_row['TrackingID'];
+
+if ($trackingID > 0) 
+{
+    $update_tracking_query = "UPDATE `06_tracking` SET `EstimatedDeliveryDate` = ? WHERE `TrackingID` = ?";
+    $stmt_update_tracking = $conn->prepare($update_tracking_query);
+
+    if ($stmt_update_tracking === false) 
+    {
+        error_log("Failed to prepare update tracking statement: " . $conn->error);
+    } 
+    else 
+    {
+        $stmt_update_tracking->bind_param("si", $estimatedDelivery, $trackingID); 
+        if (!$stmt_update_tracking->execute()) 
+        {
+            error_log("Failed to execute update tracking statement: " . $stmt_update_tracking->error);
+        }
+        $stmt_update_tracking->close();
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -140,7 +162,9 @@ $estimatedDelivery = date('d M Y', strtotime($orderDate . " +$deliveryDays days"
             <?php endif; ?>
 
             <div class="tracking-delivery-section">
-                <p><strong>Your Tracking Number:</strong> <span class="highlight-gold"><?php echo htmlspecialchars($order_row['Tracking_Number']); ?></span></p> <p><strong>Estimated Delivery:</strong> <span class="highlight-gold">📅 <?php echo $estimatedDelivery; ?></span></p> </div>
+                <p><strong>Your Tracking Number:</strong> <span class="highlight-gold"><?php echo htmlspecialchars($order_row['Tracking_Number']); ?></span></p> 
+                <p><strong>Estimated Delivery:</strong> <span class="highlight-gold">📅 <?php echo date('d M Y', strtotime($estimatedDelivery)); ?></span></p>            
+            </div>
 
             <p class="status-message">Status: Your order is being prepared. You'll receive updates soon. 🛍️📦</p>
             <a href="customermainpage.php" class="action-button back-to-home-button">🏠 Back to Home</a> </div>

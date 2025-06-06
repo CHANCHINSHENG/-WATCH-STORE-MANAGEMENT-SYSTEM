@@ -8,14 +8,11 @@ if (!isset($_SESSION['customer_id'])) {
 $CustomerID = $_SESSION['customer_id'];
 require_once 'db.php';
 
-// Fetch customer info
 $customer_query = "SELECT * FROM 02_customer WHERE CustomerID = ?";
 $customer_stmt = $conn->prepare($customer_query);
 $customer_stmt->bind_param("i", $CustomerID);
 $customer_stmt->execute();
 $customer = $customer_stmt->get_result()->fetch_assoc();
-
-
 ?>
 
 <!DOCTYPE html>
@@ -88,14 +85,17 @@ $customer = $customer_stmt->get_result()->fetch_assoc();
         </thead>
         <tbody>
         <?php
-        $orders_query = "
-            SELECT OrderID, OrderDate, OrderStatus, TrackingID, Total_Price, 
-                   Shipping_Name, Shipping_Address, Shipping_City, 
-                   Shipping_Postcode, Shipping_State, Shipping_Phone,
-                   Admin_Payment_Confirmation
-            FROM `07_order`
-            WHERE CustomerID = ?
-            ORDER BY OrderDate DESC
+        $orders_query = 
+        "
+            SELECT o.OrderID, o.OrderDate, o.OrderStatus, o.TrackingID, o.Total_Price, 
+                o.Shipping_Name, o.Shipping_Address, o.Shipping_City, 
+                o.Shipping_Postcode, o.Shipping_State, o.Shipping_Phone,
+                o.Admin_Payment_Confirmation,
+                t.Delivery_Status 
+            FROM `07_order` o
+            LEFT JOIN `06_tracking` t ON o.TrackingID = t.TrackingID 
+            WHERE o.CustomerID = ?
+            ORDER BY o.OrderDate DESC
         ";
         $orders_stmt = $conn->prepare($orders_query);
         $orders_stmt->bind_param("i", $CustomerID);
@@ -113,7 +113,12 @@ $customer = $customer_stmt->get_result()->fetch_assoc();
                 <td>
                     <?php
                     $display_order_status = '';
-                    if (isset($row['Admin_Payment_Confirmation']) && $row['Admin_Payment_Confirmation'] === 'Confirmed') 
+                    
+                    if (isset($row['Delivery_Status']) && $row['Delivery_Status'] === 'Delivered') 
+                    {
+                        $display_order_status = 'Delivered';
+                    } 
+                    else if (isset($row['Admin_Payment_Confirmation']) && $row['Admin_Payment_Confirmation'] === 'Confirmed') 
                     {
                         $display_order_status = 'Shipped'; 
                     } 

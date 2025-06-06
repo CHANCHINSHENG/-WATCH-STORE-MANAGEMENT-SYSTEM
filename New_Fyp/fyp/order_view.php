@@ -387,7 +387,7 @@ if ($order)
             <?php elseif ($order['Customer_Review_Status'] === 'Reviewed'): ?>
                 <div class="review-section">
                     <p class="review-prompt">Thank you for your review! You can view it <a href="Submit_Review.php?order_id=<?= $order['OrderID'] ?>">here</a>.</p>
-                </div>
+                </div>  
             <?php endif; ?>
         <?php endif; ?>
 
