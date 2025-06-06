@@ -6,14 +6,14 @@ if (isset($_SESSION['customer_id']) && isset($_GET['id'])) {
     $customerID = $_SESSION['customer_id'];
     $productID = intval($_GET['id']);
 
-    // 插入浏览记录
     $stmt = $conn->prepare("INSERT INTO `15_view_history` (CustomerID, ProductID, ViewTime) VALUES (?, ?, NOW())");
     $stmt->bind_param("ii", $customerID, $productID);
     $stmt->execute();
 }
 
 
-if (!isset($_GET['id']) || empty($_GET['id'])) {
+if (!isset($_GET['id']) || empty($_GET['id'])) 
+{
     die("❌ Product ID is missing.");
 }
 
@@ -38,7 +38,6 @@ if (!$product) {
     <link rel="stylesheet" href="product_details.css">
 </head>
 <body>
-    <!-- Navigation -->
     <nav class="top-nav">
         <button onclick="window.location.href='customermainpage.php'">🏠 Home</button>
         <button onclick="history.back()">🔙 Back</button>
