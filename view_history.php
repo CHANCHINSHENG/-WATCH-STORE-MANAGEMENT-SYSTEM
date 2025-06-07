@@ -130,7 +130,7 @@ $result = $stmt->get_result();
                 <?php while ($row = $result->fetch_assoc()): ?>
                     <div class="history-card">
                         <a href="product_details.php?id=<?= htmlspecialchars($row['ProductID']) ?>" style="text-decoration: none; color: inherit;">
-                            <img src="<?= htmlspecialchars($row['Product_Image']) ?>" alt="<?= htmlspecialchars($row['ProductName']) ?>">
+                            <img src="admin_addproduct_include/<?= htmlspecialchars($row['Product_Image']) ?>" alt="<?= htmlspecialchars($row['ProductName']) ?>">
                             <h4><?= htmlspecialchars($row['ProductName']) ?></h4>
                             <p>RM <?= number_format($row['Product_Price'], 2) ?></p>
                             <div class="view-time">Viewed at: <?= htmlspecialchars($row['ViewTime']) ?></div>
