@@ -108,7 +108,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <div class="cart-items">
                 <?php foreach ($cart_items as $item): ?>
                     <div class="cart-item" data-product-id="<?= $item['ProductID'] ?>">
-                        <img src="<?= htmlspecialchars($item['Product_Image']) ?>" class="cart-item-image" alt="<?= htmlspecialchars($item['ProductName']) ?>">
+                        <img src="admin_addproduct_include/<?= htmlspecialchars($item['Product_Image']) ?>" class="cart-item-image" alt="<?= htmlspecialchars($item['ProductName']) ?>">
 
                         <div class="cart-item-details">
                             <h3><?= htmlspecialchars($item['ProductName']) ?></h3>

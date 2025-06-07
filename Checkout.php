@@ -554,7 +554,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']))
             <div class="cart-items">
                 <?php foreach ($cart_items as $item): ?>
                     <div class="cart-item">
-                        <img src="<?= htmlspecialchars($item['Product_Image']) ?>" alt="<?= htmlspecialchars($item['ProductName']) ?>">
+                        <img src="admin_addproduct_include/<?= htmlspecialchars($item['Product_Image']) ?>" alt="<?= htmlspecialchars($item['ProductName']) ?>">
                         <div class="cart-item-details">
                             <h4><?= htmlspecialchars($item['ProductName']) ?></h4>
                             <p>Quantity: <?= htmlspecialchars($item['Quantity']) ?></p>
