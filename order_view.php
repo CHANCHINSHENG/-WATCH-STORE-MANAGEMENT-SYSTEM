@@ -358,7 +358,7 @@ if ($order)
                     <?php foreach ($order_items as $item): ?>
                         <div class="order-item-card">
                             <div class="order-item-content">
-                                <img src="<?= htmlspecialchars($item['Product_Image']); ?>" 
+                                <img src="admin_addproduct_include/<?= htmlspecialchars($item['Product_Image']); ?>" 
                                     alt="<?= htmlspecialchars($item['ProductName']); ?>" 
                                     class="product-thumbnail">
                                 <div class="item-details">
