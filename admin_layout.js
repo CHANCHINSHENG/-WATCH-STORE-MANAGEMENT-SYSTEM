@@ -325,12 +325,11 @@ let show = true;
               deleteUrl = `admin_delete_product.php?id=${itemId}`;
             } else if (itemType === 'category') {
               deleteUrl = `admin_delete_category.php?id=${itemId}`;
-            } else if (itemType === 'order') {
-              deleteUrl = `admin_delete_order.php?id=${itemId}`;
+            } else if (itemType === 'orders') {
+              deleteUrl = `admin_delete_orders.php?id=${itemId}`;
             }else if (itemType === 'customer') {
   deleteUrl = `admin_delete_customer.php?id=${itemId}`;
 }
-
             if (deleteUrl) {
               window.location.href = deleteUrl;
             }
