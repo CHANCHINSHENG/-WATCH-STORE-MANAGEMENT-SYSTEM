@@ -36,12 +36,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email'])) {
             $mail->isSMTP();
             $mail->Host = 'smtp.gmail.com';
             $mail->SMTPAuth = true;
-            $mail->Username = 'staffyy@gmail.com';
+            $mail->Username = 'sy0829715@gmail.com';
             $mail->Password = 'pcuv yaxk yobd rtjz';
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port = 587;
 
-            $mail->setFrom('teelijohn1229@gmail.com', 'Tigo Admin Support');
+            $mail->setFrom('TIGOAdmin@gmail.com', 'Tigo Admin Support');
             $mail->addAddress($email, $admin_name);
             $mail->isHTML(true);
             $mail->Subject = 'Tigo Admin - OTP for Password Reset';

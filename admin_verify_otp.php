@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // OTP matched
         $_SESSION['verified_email'] = $_SESSION['otp']['email']; // store for password reset
         $success = "✅ OTP verified. You may now reset your password.";
-        header("Refresh: 2; URL=reset_password.php");
+        header("Refresh: 2; URL=admin_reset_password.php");
         exit();
     }
 }

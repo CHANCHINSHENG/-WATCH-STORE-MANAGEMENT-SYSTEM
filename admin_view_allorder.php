@@ -132,10 +132,16 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </td>
                         <td>$<?= number_format($order['Total_Price'], 2) ?></td>
                         <td>
-                            <div class="action-buttons">
-                                <a href="admin_layout.php?page=admin_view_receipt&order_id=<?= $order['OrderID'] ?>" class="btn edit-btn">View Receipt</a>
-                            </div>
-                        </td>
+    <div class="action-buttons">
+        <a href="admin_layout.php?page=admin_view_receipt&order_id=<?= $order['OrderID'] ?>" class="btn edit-btn">View Receipt</a>
+        <button class="btn delete-btn btn-delete"
+    data-id="<?= $order['OrderID'] ?>"
+    data-name="Order #<?= $order['OrderID'] ?>"
+    data-type="orders">
+    Delete
+</button>
+    </div>
+</td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
