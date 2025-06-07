@@ -329,7 +329,10 @@ let show = true;
               deleteUrl = `admin_delete_orders.php?id=${itemId}`;
             }else if (itemType === 'customer') {
   deleteUrl = `admin_delete_customer.php?id=${itemId}`;
+}else if (itemType === 'staff') {
+  deleteUrl = `admin_delete_staff.php?id=${itemId}`;
 }
+
             if (deleteUrl) {
               window.location.href = deleteUrl;
             }
@@ -394,7 +397,71 @@ let show = true;
 
   initializePageFeatures();
 
-  // ✅ Show login success toast
+  const deleteResult = new URLSearchParams(window.location.search).get('delete');
+if (deleteResult) {
+  if (deleteResult === 'success') {
+    showToast("✅ Staff deleted successfully!");
+  } else if (deleteResult === 'self') {
+    Swal.fire({
+      icon: 'warning',
+      title: 'You cannot delete yourself!',
+      text: 'This action is not allowed to prevent account lockout.',
+    });
+  } else if (deleteResult === 'fail') {
+    Swal.fire({
+      icon: 'error',
+      title: 'Something went wrong',
+      text: 'Failed to delete the staff. Please try again.',
+    });
+  }
+
+  // 🔄 Remove ?delete=xxx from URL after showing message
+  const cleanUrl = window.location.pathname + window.location.search.replace(/([?&])delete=([^&]*)/, '');
+  window.history.replaceState({}, document.title, cleanUrl);
+}
+
+// ✅ Show delete result feedback for product
+const deleteproduct = new URLSearchParams(window.location.search).get('deleteproduct');
+if (deleteproduct === 'success') {
+  Swal.fire({
+    toast: true,
+    icon: 'success',
+    title: '✅ Product deleted successfully!',
+    position: 'top',
+    timer: 2000,
+    showConfirmButton: false,
+    customClass: {
+      popup: 'swal2-toast-custom'
+    }
+  });
+} else if (deleteproduct === 'fail') {
+  Swal.fire({
+    icon: 'error',
+    title: 'Oops!',
+    text: '❌ Failed to delete the product. Please try again.',
+  });
+}
+
+const deleteCustomer = new URLSearchParams(window.location.search).get('deletecustomer');
+if (deleteCustomer === 'success') {
+  Swal.fire({
+    toast: true,
+    icon: 'success',
+    title: '✅ Customer deleted successfully!',
+    position: 'top',
+    timer: 2000,
+    showConfirmButton: false,
+    customClass: { popup: 'swal2-toast-custom' }
+  });
+} else if (deleteCustomer === 'fail') {
+  Swal.fire({
+    icon: 'error',
+    title: 'Oops!',
+    text: '❌ Failed to delete the customer. Please try again.',
+  });
+}
+
+
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get('login') === 'success') {
     showToast("✅ Login successfully!");
