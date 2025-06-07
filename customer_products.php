@@ -486,7 +486,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <div class="product-card">
                     <div class="product-info">
                     <a href="product_details.php?id=<?= $row['ProductID']; ?>" class="product-link">
-                        <img src="<?= htmlspecialchars($row['Product_Image']); ?>" alt="<?= htmlspecialchars($row['ProductName']); ?>">
+                        <img src="admin_addproduct_include/<?= htmlspecialchars($row['Product_Image']); ?>" alt="<?= htmlspecialchars($row['ProductName']); ?>">
                         <h3><?= htmlspecialchars($row['ProductName']); ?></h3>
                         <p><?= htmlspecialchars($row['Product_Description']); ?></p>
                         <p class="product-price">Price: RM <?= number_format($row['Product_Price'], 2); ?></p>

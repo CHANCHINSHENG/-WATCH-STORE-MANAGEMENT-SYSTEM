@@ -47,19 +47,19 @@ if (!$product) {
         <div class="product-gallery">
         <div class="main-image-container">
             <button class="arrow left" onclick="prevImage()">&#10094;</button>
-            <img id="mainImage" src="<?= htmlspecialchars($product['Product_Image']); ?>" alt="Main Image">
+            <img id="mainImage" src="admin_addproduct_include/<?= htmlspecialchars($product['Product_Image']); ?>" alt="Main Image">
             <button class="arrow right" onclick="nextImage()">&#10095;</button>
         </div>
 
         <div class="thumbnail-container">
             <?php if (!empty($product['Product_Image'])): ?>
-                <img class="thumbnail" src="<?= htmlspecialchars($product['Product_Image']); ?>" onclick="showImage(0)">
+                <img class="thumbnail" src="admin_addproduct_include/<?= htmlspecialchars($product['Product_Image']); ?>" onclick="showImage(0)">
             <?php endif; ?>
             <?php if (!empty($product['Product_Image2'])): ?>
-                <img class="thumbnail" src="<?= htmlspecialchars($product['Product_Image2']); ?>" onclick="showImage(1)">
+                <img class="thumbnail" src="admin_addproduct_include/<?= htmlspecialchars($product['Product_Image2']); ?>" onclick="showImage(1)">
             <?php endif; ?>
             <?php if (!empty($product['Product_Image3'])): ?>
-                <img class="thumbnail" src="<?= htmlspecialchars($product['Product_Image3']); ?>" onclick="showImage(2)">
+                <img class="thumbnail" src="admin_addproduct_include/<?= htmlspecialchars($product['Product_Image3']); ?>" onclick="showImage(2)">
             <?php endif; ?>
         </div>
     </div>
@@ -73,9 +73,10 @@ if (!$product) {
     let currentIndex = 0;
 
     function showImage(index) {
-        currentIndex = index;
-        document.getElementById("mainImage").src = images[currentIndex];
-    }
+    currentIndex = index;
+    document.getElementById("mainImage").src = "admin_addproduct_include/" + images[currentIndex];
+}
+
 
     function prevImage() {
         currentIndex = (currentIndex - 1 + images.length) % images.length;
