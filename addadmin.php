@@ -3,7 +3,7 @@
 $host = "localhost";
 $user = "root";
 $password = "";
-$database = "watch_store_db"; // ⬅️ Change this to your database name
+$database = "final_watch_store_db"; // ⬅️ Change this to your database name
 
 $conn = mysqli_connect($host, $user, $password, $database);
 
@@ -13,11 +13,12 @@ if (!$conn) {
 }
 
 // Example admin values (you can replace with values from a form or another script)
-$adminID = '98765432';
+$adminID = '1234';
 $adminName = 'New Admin';
-$adminUsername = 'admin2025';
-$adminPassword = 'secure123';
+$adminUsername = 'admin1234';
+$adminPassword = 'admin1234';
 $adminEmail = 'admin2025@example.com';
+// jeff ：我改的，可以不用管他
 
 // Hash the password before saving
 $hashedPassword = password_hash($adminPassword, PASSWORD_DEFAULT);
