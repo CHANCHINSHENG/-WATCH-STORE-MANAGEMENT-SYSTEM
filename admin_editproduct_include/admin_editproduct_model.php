@@ -20,3 +20,14 @@ function updateProduct(PDO $pdo, $id, $name, $description, $price, $stock, $stat
         WHERE ProductID = ?");
     return $stmt->execute([$name, $description, $price, $stock, $status, $id]);
 }
+
+function getAllCategories($pdo) {
+    $stmt = $pdo->query("SELECT * FROM 04_category");
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function getAllBrands($pdo) {
+    $stmt = $pdo->query("SELECT * FROM 03_brand");
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+

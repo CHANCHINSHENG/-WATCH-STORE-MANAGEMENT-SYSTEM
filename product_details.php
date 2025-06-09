@@ -181,7 +181,7 @@ if (!$product) {
         <div class="product-info">
             <h1><?= htmlspecialchars($product['ProductName']); ?></h1>
             <p class="product-price">RM <?= number_format($product['Product_Price'], 2); ?></p>
-            <p class="product-description"><?= htmlspecialchars($product['Product_Description']); ?></p>
+            <p class="product-description"><?= nl2br(htmlspecialchars($product['Product_Description'])); ?></p>
             <p class="product-stock">Stock: <?= $product['Product_Stock_Quantity']; ?></p>
 
             <form action="" method="post">

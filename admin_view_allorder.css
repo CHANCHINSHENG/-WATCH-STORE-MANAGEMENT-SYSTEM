@@ -317,3 +317,33 @@ background-color: white;
 .filter-panel .btn.grey:hover{
     background-color: #1f2937;
 }
+
+.pagination {
+    margin-top: 20px;
+    text-align: center;
+}
+.page-btn {
+    display: inline-block;
+    margin: 0 5px;
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    text-decoration: none;
+    color: #333;
+    background: #f9f9f9;
+}
+.page-btn.active {
+    font-weight: bold;
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+.page-btn:hover {
+    background-color: #ddd;
+}
+
+.highlight-order {
+    background-color: #ffeaa7 !important;
+    border-left: 5px solid #fdcb6e;
+    transition: background-color 0.5s ease;
+}
+

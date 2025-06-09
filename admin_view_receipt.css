@@ -104,3 +104,73 @@ body {
 .summary strong {
   color: #cbd5e1;
 }
+
+.floating-print-btn {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background-color: #1abc9c;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        font-size: 16px;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        cursor: pointer;
+        z-index: 999;
+        transition: background-color 0.3s ease;
+    }
+
+    .floating-print-btn:hover {
+        background-color: #16a085;
+    }
+
+@media print {
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  /* 隱藏 admin layout 包起來的非 invoice 區域 */
+  header,
+  .sidebar,
+  .topbar,
+  .dashboard-overview,
+  .nav,
+  .admin-header,
+  .page-title,
+  .action-buttons,
+  .floating-print-btn {
+    display: none !important;
+  }
+
+  /* 讓 invoice 全頁列印 */
+  .invoice-container {
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    background: white !important;
+    width: 100% !important;
+  }
+}
+
+.floating-download-btn {
+          position: fixed;
+        bottom: 30px;
+        left: calc(260px + 20px); /* ⬅ 假設 sidebar 寬度是 260px */
+        background-color: #1abc9c;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        font-size: 16px;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        cursor: pointer;
+        z-index: 999;
+        transition: background-color 0.3s ease;
+
+}
+
+.floating-download-btn:hover {
+  background-color: #059669;
+}

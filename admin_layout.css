@@ -427,6 +427,8 @@ body.dark .notifications:hover {
   border-radius: 50%;
 }
 
+
+
 .user-profile {
   display: flex;
   align-items: center;
@@ -897,7 +899,9 @@ body.dark .product-table {
 .notif-title {
   font-weight: bold;
   margin-bottom: 4px;
+  color:grey;
 }
+
 
 .notif-time {
   font-size: 13px;

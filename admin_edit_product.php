@@ -18,6 +18,10 @@ $product = getProductById($pdo, $product_id);
 if (!$product) {
     die("❌ Product not found.");
 }
+
+$categories = getAllCategories($pdo);
+$brands = getAllBrands($pdo);
+
 ?>
 
 <!DOCTYPE html>
@@ -50,21 +54,32 @@ if (!$product) {
             <label>Stock Quantity</label>
             <input type="number" name="Product_Stock_Quantity" value="<?= htmlspecialchars($product['Product_Stock_Quantity']); ?>" required>
         </div>
-        <div class="input-group">
-            <label>Status</label>
-            <select name="Product_Status" required>
-                <option value="Available" <?= ($product['Product_Status'] === "Available") ? "selected" : ""; ?>>Available</option>
-                <option value="Out of Stock" <?= ($product['Product_Status'] === "Out of Stock") ? "selected" : ""; ?>>Out of Stock</option>
-            </select>
-        </div>
-        <div class="input-group">
-            <label>Category</label>
-            <input type="text" value="<?= htmlspecialchars($product['CategoryName'] ?? 'N/A') ?>" readonly>
-        </div>
-        <div class="input-group">
-            <label>Brand</label>
-            <input type="text" value="<?= htmlspecialchars($product['BrandName'] ?? 'N/A') ?>" readonly>
-        </div>
+<div class="input-group">
+    <label>Status</label>
+    <input type="text" value="<?= ($product['Product_Stock_Quantity'] == 0) ? 'Out of Stock' : 'Available' ?>" readonly>
+</div>
+      <div class="input-group">
+    <label>Category</label>
+    <select name="CategoryID" required>
+        <?php foreach ($categories as $cat): ?>
+            <option value="<?= $cat['CategoryID'] ?>" <?= $product['CategoryID'] == $cat['CategoryID'] ? 'selected' : '' ?>>
+                <?= htmlspecialchars($cat['CategoryName']) ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
+</div>
+
+<div class="input-group">
+    <label>Brand</label>
+    <select name="BrandID" required>
+        <?php foreach ($brands as $brand): ?>
+            <option value="<?= $brand['BrandID'] ?>" <?= $product['BrandID'] == $brand['BrandID'] ? 'selected' : '' ?>>
+                <?= htmlspecialchars($brand['BrandName']) ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
+</div>
+
 
         <!-- Image Replacements -->
         <div class="input-group">

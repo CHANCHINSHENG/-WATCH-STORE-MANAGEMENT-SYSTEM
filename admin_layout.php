@@ -39,7 +39,7 @@
     <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Admin Dashboard</title>
+        <title>Dashboard</title>
         <link rel="stylesheet" href="admin_layout.css">
         <link rel="stylesheet" href="admin_view_products.css"> 
         <link rel="stylesheet" href="admin_view_customer.css">
@@ -56,7 +56,7 @@
             <div class="sidebar-header">
                 <div class="logo">
                     <i data-lucide="package"></i>
-                    <span>AdminPurple</span>
+                    <span>ADMIN PANEL</span>
                 </div>
                 <button class="sidebar-toggle">
                     <i data-lucide="chevron-left"></i>
@@ -91,7 +91,7 @@
         <main class="main-content">
             <!-- Top Header -->
             <header class="top-header">
-                <h1>Dashboard Overview</h1>
+                <h1>HI,ADMIN <?= htmlspecialchars($admin['Admin_Username']) ?>!, WELCOME BACK</h1>
                 <div class="header-actions">
     <div class="notifications">
     <i data-lucide="bell"></i>
