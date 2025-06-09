@@ -8,10 +8,14 @@ if (!isset($_SESSION['admin_id'])) {
 }
 
 $query = "SELECT p.ProductID, p.ProductName, p.Product_Price, p.Product_Status, 
+                 p.Product_Image, 
                  c.CategoryName, b.BrandName
-          FROM `05_PRODUCT` p
-          LEFT JOIN `04_CATEGORY` c ON p.CategoryID = c.CategoryID
-          LEFT JOIN `03_BRAND` b ON p.BrandID = b.BrandID";
+          FROM 05_PRODUCT p
+          LEFT JOIN 04_CATEGORY c ON p.CategoryID = c.CategoryID
+          LEFT JOIN 03_BRAND b ON p.BrandID = b.BrandID";
+
+          
+
 
 $result = $pdo->query($query);
 ?>
@@ -39,6 +43,7 @@ $result = $pdo->query($query);
             <table id="productTable" class="products-table">
                 <thead>
                     <tr>
+                        <th>Product Image</th>
                         <th>Product Name</th>
                         <th>Price</th>
                         <th>Category</th>
@@ -50,8 +55,14 @@ $result = $pdo->query($query);
                 <tbody>
                     <?php while ($row = $result->fetch(PDO::FETCH_ASSOC)) { ?>
                         <tr>
+
+<td>
+    <img src="admin_addproduct_include/<?= htmlspecialchars($row['Product_Image']) ?>" 
+         alt="Product Image" class="product-image-large">
+</td>
+
                             <td><?= htmlspecialchars($row['ProductName']) ?></td>
-                            <td>$<?= number_format($row['Product_Price'], 2) ?></td>
+                            <td>RM<?= number_format($row['Product_Price'], 2) ?></td>
                             <td><?= htmlspecialchars($row['CategoryName'] ?? 'No Category') ?></td>
                             <td><?= htmlspecialchars($row['BrandName'] ?? 'No Brand') ?></td>
                             <td>

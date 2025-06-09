@@ -52,7 +52,6 @@
                     <option value="15days">Last 15 days</option>
                     <option value="30days">Last 30 days</option>
                 </select>
-                <button type="button" class="btn green" id="downloadButton">Download All Orders</button>
             </div>
 
             <div class="row">
@@ -124,9 +123,11 @@
                                 <?php else: ?>
 
                                 <form method="GET" action="admin_verify_payment.php">
-        <input type="hidden" name="order_id" value="<?= $order['OrderID'] ?>">
-        <button type="submit" class="btn green">View Payment Details</button>
-    </form>
+                                    <input type="hidden" name="order_id" value="<?= $order['OrderID'] ?>">
+                                    <button type="submit" class="btn <?= $order['Admin_Payment_Confirmation'] === 'Confirmed' ? 'green' : '' ?>">
+                                        <?= $order['Admin_Payment_Confirmation'] === 'Confirmed' ? '✅ Confirm Payment' : 'View Payment Details' ?>
+                                    </button>
+                                </form>
 
                                 <?php endif; ?>
                             </td>
