@@ -488,7 +488,14 @@ $current_page = basename($_SERVER['PHP_SELF']);
                     <a href="product_details.php?id=<?= $row['ProductID']; ?>" class="product-link">
                         <img src="admin_addproduct_include/<?= htmlspecialchars($row['Product_Image']); ?>" alt="<?= htmlspecialchars($row['ProductName']); ?>">
                         <h3><?= htmlspecialchars($row['ProductName']); ?></h3>
-                        <p><?= htmlspecialchars($row['Product_Description']); ?></p>
+                        <?php
+                        $description_lines = explode("\n", $row['Product_Description']);
+                        ?>
+                        <p>
+                            <?= nl2br(htmlspecialchars($description_lines[0] ?? '')) ?><br>
+                            <?= nl2br(htmlspecialchars($description_lines[1] ?? '')) ?><br>
+                            <?= nl2br(htmlspecialchars($description_lines[2] ?? '')) ?>
+                        </p>
                         <p class="product-price">Price: RM <?= number_format($row['Product_Price'], 2); ?></p>
                         <p>Stock: <?= $row['Product_Stock_Quantity']; ?></p>
                     </a>
