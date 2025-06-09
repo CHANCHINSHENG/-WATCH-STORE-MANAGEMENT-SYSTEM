@@ -54,58 +54,59 @@ if (session_status() === PHP_SESSION_NONE)
               
               <li class="nav-item px-2 dropdown brands-dropdown position-relative">
                 <a class="nav-link fw-bold" href="#" id="brandDropdown">BRANDS</a>
-                <div class="brand-dropdown-content" style="display: none;">
-                  <a href="customer_products.php?brand=Alain Delon" class="brand-item">
-                    <img src="uploads/brand_picture/AD_Logo-01.jpg" alt="Alain Delon">
-                    <span>Alain Delon</span>
-                  </a>
-                  <a href="customer_products.php?brand=Bonia" class="brand-item">
-                    <img src="uploads/brand_picture/BONIA.jpg" alt="Bonia">
-                    <span>Bonia</span>
-                  </a>
-                  <a href="customer_products.php?brand=Casio" class="brand-item">
-                    <img src="uploads/brand_picture/CASIO.jpg" alt="Casio">
-                    <span>Casio</span>
-                  </a>
-                  <a href="customer_products.php?brand=Hummer" class="brand-item">
-                    <img src="uploads/brand_picture/HUMMER.jpg" alt="Hummer">
-                    <span>Hummer</span>
-                  </a>
-                  <a href="customer_products.php?brand=iGear" class="brand-item">
-                    <img src="uploads/brand_picture/iGear.jpg" alt="iGear">
-                    <span>iGear</span>
-                  </a>
-                  <a href="customer_products.php?brand=Suunto" class="brand-item">
-                    <img src="uploads/brand_picture/SUUNTO.jpg" alt="Suunto">
-                    <span>Suunto</span>
-                  </a>
-                  <a href="customer_products.php?brand=Timex" class="brand-item">
-                    <img src="uploads/brand_picture/Timex.jpg" alt="Timex">
-                    <span>Timex</span>
-                  </a>
+                <div class="brand-dropdown-content">
+                  <?php
+                  require_once 'db.php'; 
+                  
+                  $sql = "SELECT BrandName, BrandImage FROM `03_brand` ORDER BY BrandName ASC";
+                  $result = $conn->query($sql);
+
+                  if ($result && $result->num_rows > 0) {
+                    while ($row = $result->fetch_assoc()) {
+                      $brandName = htmlspecialchars($row['BrandName']);
+                      $brandImage = htmlspecialchars($row['BrandImage']);
+                      echo '
+                        <a href="customer_products.php?brand=' . urlencode($brandName) . '" class="brand-item">
+                          <img src="uploads/' . $brandImage . '" alt="' . $brandName . '" style="width: 50px; height: auto;">
+                          <span>' . $brandName . '</span>
+                        </a>
+                      ';
+                    }
+                  } else {
+                    echo "<p style='color: #ccc;'>No brands found.</p>";
+                  }
+                  ?>
                 </div>
               </li>
 
               <li class="nav-item px-2 dropdown brands-dropdown position-relative">
                 <a class="nav-link fw-bold" href="#" id="categoriesDropdown">CATEGORIES</a>
-                <div class="brand-dropdown-content" style="display: none;">
+                <div class="brand-dropdown-content">
                   <a href="customer_products.php" class="brand-item">
                     <span>All Watches</span>
                   </a>
-                  <a href="customer_products.php?category=Analogue" class="brand-item">
-                    <span>Analogue</span>
-                  </a>
-                  <a href="customer_products.php?category=Digital" class="brand-item">
-                    <span>Digital</span>
-                  </a>
-                  <a href="customer_products.php?category=Smart Watches" class="brand-item">
-                    <span>Smart Watches</span>
-                  </a>
-                  <a href="customer_products.php?category=Perfomance" class="brand-item">
-                    <span>Perfomance</span>
-                  </a>
+                  <?php
+                  require_once 'db.php'; 
+                  
+                  $categoryQuery = "SELECT CategoryName FROM `04_category` ORDER BY CategoryName ASC";
+                  $categoryResult = $conn->query($categoryQuery);
+
+                  if ($categoryResult && $categoryResult->num_rows > 0) {
+                    while ($cat = $categoryResult->fetch_assoc()) {
+                      $categoryName = htmlspecialchars($cat['CategoryName']);
+                      echo '
+                        <a href="customer_products.php?category=' . urlencode($categoryName) . '" class="brand-item">
+                          <span>' . $categoryName . '</span>
+                        </a>
+                      ';
+                    }
+                  } else {
+                    echo "<p style='color: #ccc; padding-left: 10px;'>No categories found.</p>";
+                  }
+                  ?>
                 </div>
               </li>
+
 
               <li class="nav-item px-2"><a class="nav-link fw-bold" href="cart.php"><img src="img/Cart_icon.png" alt="Cart" style="width:24px; height:24px;"></a></li>
               
@@ -199,269 +200,90 @@ if (session_status() === PHP_SESSION_NONE)
           </div>
         </div>
       </section>
-      <section class="py-0 pb-6" id="collections">
-        <div class="container">
-          <div class="row h-100">
-            <div class="col-lg-7 mt-7">
-              <h5 class="fs-3 fs-lg-5 lh-sm mb-0 text-uppercase">Collections</h5>
-            </div>
-            <div class="col-12">
-              <nav>
-                <div class="nav nav-tabs watch-tabs mb-4 justify-content-end" id="nav-tab" role="tablist">
-                  <button class="nav-link active" id="nav-latest-tab" data-bs-toggle="tab" data-bs-target="#nav-latest" type="button" role="tab" aria-controls="nav-latest" aria-selected="true">LATEST </button>
-                  <button class="nav-link" id="nav-popular-tab" data-bs-toggle="tab" data-bs-target="#nav-popular" type="button" role="tab" aria-controls="nav-popular" aria-selected="false">POPULAR</button>
-                </div>
-              </nav>
-              <div class="tab-content" id="nav-tabContent">
-                <div class="tab-pane fade show active" id="nav-latest" role="tabpanel" aria-labelledby="nav-latest-tab">
-                  <div class="carousel slide" id="carouselLatest" data-bs-ride="carousel">
-                    <div class="carousel-inner">
-                      <div class="carousel-item active" data-bs-interval="10000">
-                        <div class="row h-100 align-items-center">
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="img/p1.webp" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">RM398.00</h6>
-                                <h4 class="text-light">HUMMER</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="img/p2.webp" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">RM374.00</h6>
-                                <h4 class="text-light">ALAIN DELON</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="img/p3.webp" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">RM455.00</h6>
-                                <h4 class="text-light">HUMMER</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="carousel-item" data-bs-interval="5000">
-                        <div class="row h-100 align-items-center">
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="img/p1.webp" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">RM398.00</h6>
-                                <h4 class="text-light">HUMMER</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="img/p2.webp" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">RM374.00</h6>
-                                <h4 class="text-light">ALAIN DELON</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="img/p3.webp" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">RM455.00</h6>
-                                <h4 class="text-light">HUMMER</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="carousel-item" data-bs-interval="3000">
-                        <div class="row h-100 align-items-center">
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="img/p1.webp" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">RM398.00</h6>
-                                <h4 class="text-light">HUMMER</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="img/p2.webp" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">RM374.00</h6>
-                                <h4 class="text-light">ALAIN DELON</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="img/p3.webp" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">RM455.00</h6>
-                                <h4 class="text-light">HUMMER</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="carousel-item">
-                        <div class="row h-100 align-items-center">
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="assets/img/gallery/watch-2.png" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">$650.00</h6>
-                                <h4 class="text-light">ADRIATICA ADR</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="assets/img/gallery/watch-3.png" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">$126.00</h6>
-                                <h4 class="text-light">SEIKO SNZGO7K1</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="assets/img/gallery/watch-1.png" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">$250.00</h6>
-                                <h4 class="text-light">ROAMER RM 220837</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="row">
-                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselLatest" data-bs-slide="prev"><span class="carousel-control-prev-icon" aria-hidden="true"></span><span class="visually-hidden">Previous</span></button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#carouselLatest" data-bs-slide="next"><span class="carousel-control-next-icon" aria-hidden="true"></span><span class="visually-hidden">Next </span></button>
-                      </div>
+      <?php
+require_once 'db.php';
+
+// 获取库存最多的产品（POPULAR）
+$popular_query = "SELECT * FROM `05_product` ORDER BY Product_Stock_Quantity DESC LIMIT 6";
+$popular_result = mysqli_query($conn, $popular_query);
+
+// 获取浏览记录或随机产品（YOU MAY ALSO LIKE）
+$customer_id = $_SESSION['customer_id'] ?? null;
+if ($customer_id) {
+    $like_query = "SELECT p.*
+                   FROM `15_view_history` vh
+                   JOIN `05_product` p ON vh.ProductID = p.ProductID
+                   WHERE vh.CustomerID = $customer_id
+                   GROUP BY p.ProductID
+                   ORDER BY MAX(vh.Viewed_At) DESC
+                   LIMIT 6";
+} else {
+    $like_query = "SELECT * FROM `05_product` ORDER BY RAND() LIMIT 6";
+}
+$like_result = mysqli_query($conn, $like_query);
+?>
+
+<section class="py-0 pb-6" id="collections">
+  <div class="container">
+    <div class="row h-100">
+      <div class="col-lg-7 mt-7">
+        <h5 class="fs-3 fs-lg-5 lh-sm mb-0 text-uppercase">Collections</h5>
+      </div>
+      <div class="col-12">
+        <nav>
+          <div class="nav nav-tabs watch-tabs mb-4 justify-content-end" id="nav-tab" role="tablist">
+            <button class="nav-link active" id="nav-popular-tab" data-bs-toggle="tab" data-bs-target="#nav-popular" type="button" role="tab" aria-selected="true">POPULAR</button>
+            <button class="nav-link" id="nav-like-tab" data-bs-toggle="tab" data-bs-target="#nav-like" type="button" role="tab" aria-selected="false">YOU MAY ALSO LIKE</button>
+          </div>
+        </nav>
+        <div class="tab-content" id="nav-tabContent">
+          <!-- POPULAR SECTION -->
+          <div class="tab-pane fade show active" id="nav-popular" role="tabpanel">
+            <div class="row">
+              <?php while ($row = mysqli_fetch_assoc($popular_result)) { ?>
+                <div class="col-sm-6 col-md-4 mb-3">
+                  <div class="card bg-black text-white p-6 pb-8">
+                    <div style="background-color: white; padding: 10px; border-radius: 8px;">
+                    <img class="card-img" src="admin_addproduct_include/<?= htmlspecialchars($row['Product_Image']); ?>" alt="<?= htmlspecialchars($row['ProductName']); ?>">
                     </div>
+                    <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center text-center">
+                      <h6 class="text-primary">RM<?= number_format($row['Product_Price'], 2) ?></h6>
+                      <h4 class="text-light mb-2"><?= htmlspecialchars($row['ProductName']); ?></h4>
+                    </div>
+                    <a class="stretched-link" href="product_details.php?id=<?= $row['ProductID']; ?>"></a>
                   </div>
                 </div>
-                <div class="tab-pane fade" id="nav-popular" role="tabpanel" aria-labelledby="nav-popular-tab">
-                  <div class="carousel slide" id="carouselPopular" data-bs-ride="carousel">
-                    <div class="carousel-inner">
-                      <div class="carousel-item active" data-bs-interval="10000">
-                        <div class="row h-100 align-items-center">
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="img/p1.webp" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">RM398.00</h6>
-                                <h4 class="text-light">HUMMER</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="img/p2.webp" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">RM374.00</h6>
-                                <h4 class="text-light">ALAN DELON</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="img/p3.webp" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">RM455.00</h6>
-                                <h4 class="text-light">HUMMER</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="carousel-item" data-bs-interval="5000">
-                        <div class="row h-100 align-items-center">
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="img/p1.webp" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">RM398.00</h6>
-                                <h4 class="text-light">HUMMER</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="img/p2.webp" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">RM374.00</h6>
-                                <h4 class="text-light">ALAN DELON</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="img/p3.webp" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">RM455.00</h6>
-                                <h4 class="text-light">HUMMER</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="carousel-item" data-bs-interval="3000">
-                        <div class="row h-100 align-items-center">
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="assets/img/gallery/watch-2.png" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">$650.00</h6>
-                                <h4 class="text-light">ADRIATICA ADR</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="assets/img/gallery/watch-3.png" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">$126.00</h6>
-                                <h4 class="text-light">SEIKO SNZGO7K1</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="assets/img/gallery/watch-1.png" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">$250.00</h6>
-                                <h4 class="text-light">ROAMER RM 220837</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="carousel-item">
-                        <div class="row h-100 align-items-center">
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="assets/img/gallery/watch-2.png" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">$650.00</h6>
-                                <h4 class="text-light">ADRIATICA ADR</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="assets/img/gallery/watch-3.png" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">$126.00</h6>
-                                <h4 class="text-light">SEIKO SNZGO7K1</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="assets/img/gallery/watch-1.png" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">$250.00</h6>
-                                <h4 class="text-light">ROAMER RM 220837</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="row">
-                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselPopular" data-bs-slide="prev"><span class="carousel-control-prev-icon" aria-hidden="true"></span><span class="visually-hidden">Previous</span></button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#carouselPopular" data-bs-slide="next"><span class="carousel-control-next-icon" aria-hidden="true"></span><span class="visually-hidden">Next </span></button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <?php } ?>
             </div>
           </div>
+
+
+          <!-- YOU MAY ALSO LIKE SECTION -->
+          <div class="tab-pane fade" id="nav-like" role="tabpanel">
+            <div class="row">
+              <?php while ($row = mysqli_fetch_assoc($like_result)) { ?>
+                <div class="col-sm-6 col-md-4 mb-3">
+                  <div class="card bg-black text-white p-6 pb-8">
+                    <div style="background-color: white; padding: 10px; border-radius: 8px;">
+                    <img class="card-img" src="admin_addproduct_include/<?= htmlspecialchars($row['Product_Image']); ?>" alt="<?= htmlspecialchars($row['ProductName']); ?>">
+                    </div>
+                    <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
+                      <h6 class="text-primary">RM<?= number_format($row['Product_Price'], 2) ?></h6>
+                      <h4 class="text-light mb-2"><?= htmlspecialchars($row['ProductName']); ?></h4>
+                    </div>
+                    <a class="stretched-link" href="product_details.php?id=<?= $row['ProductID']; ?>"></a>
+                  </div>
+                </div>
+              <?php } ?>
+            </div>
+          </div>
+
         </div>
-      </section>
+      </div>
+    </div>
+  </div>
+</section>
+
 
 
       <!-- ============================================-->
@@ -700,6 +522,32 @@ if (session_status() === PHP_SESSION_NONE)
     <script src="assets/js/theme.js"></script>
     <!-- Bootstrap JS Bundle (with Popper) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+    // BRAND dropdown
+    const brandDropdown = document.querySelector('.brands-dropdown');
+    const brandContent = brandDropdown.querySelector('.brand-dropdown-content');
+
+    brandDropdown.addEventListener('mouseenter', () => {
+      brandContent.style.display = 'block';
+    });
+    brandDropdown.addEventListener('mouseleave', () => {
+      brandContent.style.display = 'none';
+    });
+
+    // CATEGORY dropdown (you can give it a separate class if you want)
+    const categoryDropdown = document.querySelector('#categoriesDropdown').parentElement;
+    const categoryContent = categoryDropdown.querySelector('.brand-dropdown-content');
+
+    categoryDropdown.addEventListener('mouseenter', () => {
+      categoryContent.style.display = 'block';
+    });
+    categoryDropdown.addEventListener('mouseleave', () => {
+      categoryContent.style.display = 'none';
+    });
+  });
+
+    </script>
 
 <style>
 .brands-dropdown {
