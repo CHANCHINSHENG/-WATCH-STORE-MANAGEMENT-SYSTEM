@@ -44,6 +44,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_payment']) &&
     {
         $error = "Please enter your Account Number."; 
     }
+     elseif (strlen($account_number) < 14 || strlen($account_number) > 16)
+    {
+        $error = "Account Number must be between 14 and 16 digits.";
+    }
 
     if (empty($error)) 
     { 
@@ -433,7 +437,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_payment']) &&
             <form method="post">
                 <div class="input-group">
                     <label for="account_number">Account Number: </label>
-                    <input type="text" id="account_number" name="account_number" placeholder="e.g., 1234567890" required>
+                    <input type="text" id="account_number" name="account_number" placeholder="e.g., 1234567890" required minlength="14" maxlength="16" pattern="\d{14,16}" title="Please enter between 14 to 16 digits.">
                 </div>
                 <div class="input-group">
                     <label for="password">Password: </label>
