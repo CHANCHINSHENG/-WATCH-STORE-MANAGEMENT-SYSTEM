@@ -91,7 +91,7 @@
         <main class="main-content">
             <!-- Top Header -->
             <header class="top-header">
-                <h1>HI,ADMIN  <?= htmlspecialchars($admin['Admin_Username']) ?>!, WELCOME BACK</h1>
+                <h1>HI,ADMIN <?= htmlspecialchars($admin['Admin_Username']) ?>!, WELCOME BACK</h1>
                 <div class="header-actions">
     <div class="notifications">
     <i data-lucide="bell"></i>

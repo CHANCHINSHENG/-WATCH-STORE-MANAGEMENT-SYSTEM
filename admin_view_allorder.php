@@ -1,24 +1,39 @@
-    <?php
-    require_once 'admin_login_include/config_session.php';
-    require_once 'admin_login_include/db.php';
+<?php
+require_once 'admin_login_include/config_session.php';
+require_once 'admin_login_include/db.php';
 
-    if (!isset($_SESSION['admin_id'])) {
-        header("Location: admin_login.php");
-        exit();
-    }
+if (!isset($_SESSION['admin_id'])) {
+    header("Location: admin_login.php");
+    exit();
+}
 
-    $stmt = $pdo->prepare("SELECT o.OrderID, o.OrderDate, o.OrderStatus, o.Total_Price,
-                                o.Admin_Payment_Confirmation,
-                                c.Cust_Username, t.Tracking_Number, t.Delivery_Status,
-                                pm.Payment_Method_Type
-                        FROM 07_order o
-                        JOIN 02_customer c ON o.CustomerID = c.CustomerID
-                        LEFT JOIN 06_tracking t ON o.TrackingID = t.TrackingID
-                        LEFT JOIN 14_order_payment_method pm ON o.OrderID = pm.OrderID
-                        ORDER BY o.OrderDate DESC");
-    $stmt->execute();
-    $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    ?>
+// Pagination logic
+$limit = 10;
+$page = isset($_GET['pagenum']) && is_numeric($_GET['pagenum']) ? (int)$_GET['pagenum'] : 1;
+$offset = ($page - 1) * $limit;
+
+// Count total records
+$total_stmt = $pdo->query("SELECT COUNT(*) FROM 07_order");
+$total_orders = $total_stmt->fetchColumn();
+$total_pages = ceil($total_orders / $limit);
+
+// Fetch paginated orders
+$stmt = $pdo->prepare("SELECT o.OrderID, o.OrderDate, o.OrderStatus, o.Total_Price,
+                              o.Admin_Payment_Confirmation,
+                              c.Cust_Username, t.Tracking_Number, t.Delivery_Status,
+                              pm.Payment_Method_Type
+                      FROM 07_order o
+                      JOIN 02_customer c ON o.CustomerID = c.CustomerID
+                      LEFT JOIN 06_tracking t ON o.TrackingID = t.TrackingID
+                      LEFT JOIN 14_order_payment_method pm ON o.OrderID = pm.OrderID
+                      ORDER BY o.OrderDate DESC
+                      LIMIT ? OFFSET ?");
+$stmt->bindValue(1, $limit, PDO::PARAM_INT);
+$stmt->bindValue(2, $offset, PDO::PARAM_INT);
+$stmt->execute();
+$orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
+?>
+
 
     <link rel="stylesheet" href="admin_view_allorder.css">
 
@@ -87,7 +102,8 @@
                 </thead>
                 <tbody>
                     <?php foreach ($orders as $order): ?>
-                        <tr>
+                    <tr id="order<?= $order['OrderID'] ?>">
+
                             <td><?= htmlspecialchars($order['OrderDate']) ?></td>
                             <td><?= htmlspecialchars($order['Cust_Username']) ?></td>
                             <td>
@@ -147,5 +163,27 @@
                     <?php endforeach; ?>
                 </tbody>
             </table>
+            <?php
+$total_pages = ceil($total_orders / $limit);
+if ($total_pages > 1) {
+    echo '<div class="pagination">';
+    
+    if ($page  > 1) {
+        echo '<a class="page-btn" href="admin_layout.php?page=admin_view_allorder&pagenum=' . ($page  - 1) . '">« Prev</a>';
+    }
+
+    for ($i = 1; $i <= $total_pages; $i++) {
+        echo '<a class="page-btn' . ($page  == $i ? ' active' : '') . '" href="admin_layout.php?page=admin_view_allorder&pagenum=' . $i . '">' . $i . '</a>';
+    }
+
+    if ($page  < $total_pages) {
+        echo '<a class="page-btn" href="admin_layout.php?page=admin_view_allorder&pagenum=' . ($page  + 1) . '">Next »</a>';
+    }
+
+    echo '</div>';
+}
+?>
         <?php endif; ?>
     </div>
+
+

@@ -2,6 +2,21 @@ document.addEventListener('DOMContentLoaded', function () {
   lucide.createIcons();
   let isDropdownOpen = false;
 
+ const hash = window.location.hash;
+if (hash.startsWith('#order')) {
+    const row = document.querySelector(hash);
+    if (row) {
+        row.classList.add('highlight-order');
+        row.scrollIntoView({ behavior: "smooth", block: "center" });
+
+        // ✅ 2 秒後自動移除高亮
+        setTimeout(() => {
+            row.classList.remove('highlight-order');
+        }, 2000);
+    }
+}
+
+
   function showToast(message, type = 'success') {
     Swal.fire({
       toast: true,
@@ -39,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function () {
         li.innerHTML = ` 
           <div class="notif-title">🛒 <strong>${order.Cust_Username}</strong> placed an order of ${order.Total_Price}</div>
           <div class="notif-time">${dateTime}</div>
-          <a href="admin_layout.php?page=admin_view_allorder" class="notif-view">View</a>
+          <a href="admin_viewnoti_tocorrecorder.php?cid=${order.CustomerID}" class="notif-view">View</a>
         `;
         list.appendChild(li);
       });
@@ -386,7 +401,7 @@ let show = true;
 
   // 🟣 Initialize all
   function initializePageFeatures() {
-    if (document.getElementById('productTable')) setupTableSearch('productTable', [0, 1, 2, 3]);
+    if (document.getElementById('productTable')) setupTableSearch('productTable', [1, 2, 3, 4]);
     if (document.getElementById('customerTable')) setupTableSearch('customerTable', [1, 2, 3]);
     if (document.getElementById('brandTable')) setupTableSearch('brandTable', [1]);
     if (document.getElementById('categoryTable')) setupTableSearch('categoryTable', [1]);

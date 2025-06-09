@@ -7,12 +7,26 @@ if (!isset($_SESSION['admin_id'])) {
     exit();
 }
 
-$stmt = $pdo->prepare("SELECT * FROM 02_customer");
+// Pagination settings
+$limit = 10;
+$page = isset($_GET['pagenum']) && is_numeric($_GET['pagenum']) ? (int)$_GET['pagenum'] : 1;
+$offset = ($page - 1) * $limit;
+
+// Count total customers
+$total_stmt = $pdo->query("SELECT COUNT(*) FROM 02_customer");
+$total_customers = $total_stmt->fetchColumn();
+$total_pages = ceil($total_customers / $limit);
+
+// Fetch paginated customers
+$stmt = $pdo->prepare("SELECT * FROM 02_customer ORDER BY CustomerID ASC LIMIT :limit OFFSET :offset");
+$stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+$stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 $stmt->execute();
 $customers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <link rel="stylesheet" href="admin_view_customer.css">
+
 <div class="page-wrapper">
     <div class="content-container">
         <div class="header">
@@ -58,5 +72,21 @@ $customers = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <?php endforeach; ?>
             </tbody>
         </table>
+
+        <?php if ($total_pages > 1): ?>
+            <div class="pagination">
+                <?php if ($page > 1): ?>
+                    <a class="page-btn" href="admin_layout.php?page=admin_view_customer&pagenum=<?= $page - 1 ?>">« Prev</a>
+                <?php endif; ?>
+                
+                <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                    <a class="page-btn <?= $page == $i ? 'active' : '' ?>" href="admin_layout.php?page=admin_view_customer&pagenum=<?= $i ?>"><?= $i ?></a>
+                <?php endfor; ?>
+
+                <?php if ($page < $total_pages): ?>
+                    <a class="page-btn" href="admin_layout.php?page=admin_view_customer&pagenum=<?= $page + 1 ?>">Next »</a>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
     </div>
 </div>
