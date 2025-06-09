@@ -50,11 +50,18 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  const savedData = sessionStorage.getItem('notifData');
-  if (savedData) {
-    const parsed = JSON.parse(savedData);
-    updateNotificationUI(parsed);
-  }
+ const savedData = sessionStorage.getItem('notifData');
+if (savedData) {
+  const parsed = JSON.parse(savedData);
+  updateNotificationUI(parsed);
+}
+
+fetch('admin_check_new_orders.php')
+  .then(res => res.json())
+  .then(data => {
+    sessionStorage.setItem('notifData', JSON.stringify(data));
+    updateNotificationUI(data);
+  });
 
   function pollNewOrders() {
     setInterval(() => {
