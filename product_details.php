@@ -2,6 +2,95 @@
 session_start();
 require_once 'db.php';
 
+// 这边开始 add to cart的function
+$product_added = null; 
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id']))
+{
+    $product_id_from_post = (int)$_POST['product_id']; 
+    $customerID = $_SESSION['customer_id'] ?? null;
+
+    if ($customerID)
+    {
+        $sql_check_customer = "SELECT CustomerID FROM `02_customer` WHERE CustomerID = ?";
+        $stmt_check_customer = $conn->prepare($sql_check_customer);
+        $stmt_check_customer->bind_param("i", $customerID);
+        $stmt_check_customer->execute();
+        $result_check_customer = $stmt_check_customer->get_result();
+
+        if ($result_check_customer->num_rows > 0)
+        {
+            $sql_cart = "SELECT CartID FROM `11_cart` WHERE CustomerID = ?";
+            $stmt_cart = $conn->prepare($sql_cart);
+            $stmt_cart->bind_param("i", $customerID);
+            $stmt_cart->execute();
+            $result_cart = $stmt_cart->get_result();
+
+            if ($result_cart->num_rows > 0)
+            {
+                $cart_row = $result_cart->fetch_assoc();
+                $cartID = $cart_row['CartID'];
+            }
+            else
+            {
+                $sql_create_cart = "INSERT INTO `11_cart` (CustomerID) VALUES (?)";
+                $stmt_create_cart = $conn->prepare($sql_create_cart);
+                $stmt_create_cart->bind_param("i", $customerID);
+                $stmt_create_cart->execute();
+                $cartID = $stmt_create_cart->insert_id;
+            }
+
+            $sql_check = "SELECT Quantity FROM `12_cart_item` WHERE CartID = ? AND ProductID = ?";
+            $stmt_check = $conn->prepare($sql_check);
+            $stmt_check->bind_param("ii", $cartID, $product_id_from_post);
+            $stmt_check->execute();
+            $result_check = $stmt_check->get_result();
+
+            if ($result_check->num_rows > 0)
+            {
+                $row = $result_check->fetch_assoc();
+                $quantity = $row['Quantity'] + 1;
+                $sql_update = "UPDATE `12_cart_item` SET Quantity = ? WHERE CartID = ? AND ProductID = ?";
+                $stmt_update = $conn->prepare($sql_update);
+                $stmt_update->bind_param("iii", $quantity, $cartID, $product_id_from_post);
+                $stmt_update->execute();
+            }
+            else
+            {
+                $quantity = 1;
+                $sql_insert = "INSERT INTO `12_cart_item` (CartID, ProductID, Quantity) VALUES (?, ?, ?)";
+                $stmt_insert = $conn->prepare($sql_insert);
+                $stmt_insert->bind_param("iii", $cartID, $product_id_from_post, $quantity);
+                $stmt_insert->execute();
+            }
+
+            $sql_product_info = "SELECT ProductName, Product_Price, Product_Image FROM `05_product` WHERE ProductID = ?";
+            $stmt_product_info = $conn->prepare($sql_product_info);
+            $stmt_product_info->bind_param("i", $product_id_from_post);
+            $stmt_product_info->execute();
+            $result_product_info = $stmt_product_info->get_result();
+
+            if ($result_product_info->num_rows > 0)
+            {
+                $product_details = $result_product_info->fetch_assoc();
+                $_SESSION['product_added'] = $product_details;
+                $product_added = $product_details; 
+            }
+        }
+        else
+        {
+            header("Location: customer_login.php");
+            exit();
+        }
+    }
+    else
+    {
+        header("Location: customer_login.php");
+        exit();
+    }
+}
+// 这边结束 add to cart 的function
+
 if (isset($_SESSION['customer_id']) && isset($_GET['id'])) {
     $customerID = $_SESSION['customer_id'];
     $productID = intval($_GET['id']);
@@ -40,7 +129,7 @@ if (!$product) {
 <body>
     <nav class="top-nav">
         <button onclick="window.location.href='customermainpage.php'">🏠 Home</button>
-        <button onclick="history.back()">🔙 Back</button>
+        <button onclick="window.location.href='customer_products.php'">🔙 Back</button>
     </nav>
 
     <div class="product-detail-container">
@@ -94,8 +183,39 @@ if (!$product) {
             <p class="product-price">RM <?= number_format($product['Product_Price'], 2); ?></p>
             <p class="product-description"><?= nl2br(htmlspecialchars($product['Product_Description'])); ?></p>
             <p class="product-stock">Stock: <?= $product['Product_Stock_Quantity']; ?></p>
-            <button class="add-to-cart-btn">Add to Cart</button>
+
+            <form action="" method="post">
+                <input type="hidden" name="product_id" value="<?= htmlspecialchars($product['ProductID']); ?>">
+                <button type="submit" class="add-to-cart-btn">add to cart</button>
+            </form>
         </div>
     </div>
+
+    <?php if (isset($product_added)): ?>
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Product added to cart!🛒</h2>
+            </div>
+    </div>
+
+    <script>
+        var modal = document.getElementById("myModal");
+        var span = document.getElementsByClassName("close")[0];
+
+        if (modal) { // 检查 modal 是否存在
+            modal.style.display = "flex"; // 修改为 flex 使其居中
+
+            span.onclick = function () {
+                modal.style.display = "none";
+            }
+            window.onclick = function (event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+        }
+    </script>
+<?php endif; ?>
 </body>
 </html>

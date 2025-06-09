@@ -9,7 +9,6 @@ if (!isset($_GET['order_id'])) {
 
 $orderId = $_GET['order_id'];
 
-// 🟣 1. Fetch order info
 $stmt = $pdo->prepare("
     SELECT o.*, c.Cust_Username, c.Cust_Email, c.Cust_PhoneNumber,
            t.Tracking_Number, t.Delivery_Status, t.Delivery_Address, t.Delivery_City, t.Delivery_Postcode, t.Delivery_State,t.Shipping_Fee
@@ -26,7 +25,6 @@ if (!$order) {
     exit();
 }
 
-// 🟣 2. Fetch order items
 $itemStmt = $pdo->prepare("
     SELECT od.*, p.ProductName
     FROM 08_order_details od
@@ -42,6 +40,8 @@ $items = $itemStmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <title>Invoice #<?= $order['OrderID'] ?></title>
     <link rel="stylesheet" href="admin_view_receipt.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
 </head>
 <body>
     <div class="invoice-container">
@@ -95,5 +95,28 @@ $items = $itemStmt->fetchAll(PDO::FETCH_ASSOC);
             <div><strong>Total:</strong> RM<?= number_format($total + ($order['Shipping_Fee'] ?? 20.00), 2) ?></div>
         </div>
     </div>
+    <button onclick="window.print()" class="floating-print-btn">Print Invoice</button>
+<button onclick="downloadPDF()" class="floating-download-btn">
+  Download PDF
+</button>
+<script>
+function downloadPDF() {
+  const element = document.querySelector('.invoice-container');
+  const opt = {
+    margin:       0.3,
+    filename:     'invoice_<?= $order['OrderID'] ?>.pdf',
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { 
+      scale: 2,
+      backgroundColor: '#ffffff'  
+    },
+    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+  };
+  html2pdf().set(opt).from(element).save();
+}
+
+</script>
+    
 </body>
+
 </html>

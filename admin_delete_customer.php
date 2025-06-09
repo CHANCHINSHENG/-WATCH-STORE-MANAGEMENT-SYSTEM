@@ -7,29 +7,41 @@ if (!isset($_SESSION['admin_id'])) {
     exit();
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id']) && is_numeric($_GET['id'])) {
     $customerId = intval($_GET['id']);
 
-    $stmt = $pdo->prepare("SELECT CartID FROM 11_cart WHERE CustomerID = ?");
-    $stmt->execute([$customerId]);
-    $cartIds = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    try {
+        $pdo->beginTransaction();
 
-    if (!empty($cartIds)) {
-        $inClause = implode(',', array_fill(0, count($cartIds), '?'));
-        $stmt = $pdo->prepare("DELETE FROM 12_cart_item WHERE CartID IN ($inClause)");
-        $stmt->execute($cartIds);
+        $stmt = $pdo->prepare("SELECT CartID FROM 11_cart WHERE CustomerID = ?");
+        $stmt->execute([$customerId]);
+        $cartIds = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+        if (!empty($cartIds)) {
+            $placeholders = implode(',', array_fill(0, count($cartIds), '?'));
+            $stmt = $pdo->prepare("DELETE FROM 12_cart_item WHERE CartID IN ($placeholders)");
+            $stmt->execute($cartIds);
+        }
+
+        $stmt = $pdo->prepare("DELETE FROM 11_cart WHERE CustomerID = ?");
+        $stmt->execute([$customerId]);
+
+        $stmt = $pdo->prepare("DELETE FROM 02_customer WHERE CustomerID = ?");
+        $stmt->execute([$customerId]);
+
+        $pdo->commit();
+
+        header("Location: admin_layout.php?page=admin_view_customer&deletecustomer=success");
+        exit();
+
+    } catch (PDOException $e) {
+        $pdo->rollBack();
+        header("Location: admin_layout.php?page=admin_view_customer&deletecustomer=fail");
+        exit();
     }
 
-    $stmt = $pdo->prepare("DELETE FROM 11_cart WHERE CustomerID = ?");
-    $stmt->execute([$customerId]);
-
-    $stmt = $pdo->prepare("DELETE FROM 02_customer WHERE CustomerID = ?");
-    $stmt->execute([$customerId]);
-
-    header("Location: admin_layout.php?page=admin_view_customer");
-    exit();
 } else {
-    header("Location: admin_layout.php?page=admin_view_customer");
+    header("Location: admin_layout.php?page=admin_view_customer&deletecustomer=fail");
     exit();
 }
 ?>

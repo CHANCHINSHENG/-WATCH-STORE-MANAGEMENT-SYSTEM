@@ -39,7 +39,7 @@
     <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Admin Dashboard</title>
+        <title>Dashboard</title>
         <link rel="stylesheet" href="admin_layout.css">
         <link rel="stylesheet" href="admin_view_products.css"> 
         <link rel="stylesheet" href="admin_view_customer.css">
@@ -56,7 +56,7 @@
             <div class="sidebar-header">
                 <div class="logo">
                     <i data-lucide="package"></i>
-                    <span>AdminPurple</span>
+                    <span>ADMIN PANEL</span>
                 </div>
                 <button class="sidebar-toggle">
                     <i data-lucide="chevron-left"></i>
@@ -78,8 +78,8 @@
                 <a href="admin_layout.php?page=admin_view_customer" class="nav-item"><i data-lucide="users"></i><span>Customers</span></a>
                 <a href="admin_layout.php?page=admin_view_allorder" class="nav-item"><i data-lucide="shopping-cart"></i><span>Orders</span></a>
                 <a href="admin_layout.php?page=admin_view_staff" class="nav-item"><i data-lucide="users"></i><span>Staff</span></a>
-                <a href="admin_layout.php?page=admin_view_inquiries" class="nav-item"><i data-lucide="users"></i><span>Product Review</span></a>
-                <a href="admin_layout.php?page=admin_view_reviews" class="nav-item"><i data-lucide="users"></i><span>DeliveryReview</span></a>
+                <a href="admin_layout.php?page=admin_view_inquiries" class="nav-item"><i data-lucide="star"></i><span>Product Review</span></a>
+                <a href="admin_layout.php?page=admin_view_reviews" class="nav-item"><i data-lucide="truck"></i><span>DeliveryReview</span></a>
                 <a href="admin_layout.php?page=admin_online_store" class="nav-item"><i data-lucide="store"></i><span>Online Store</span></a>
             </nav>
 
@@ -91,7 +91,7 @@
         <main class="main-content">
             <!-- Top Header -->
             <header class="top-header">
-                <h1>Dashboard Overview</h1>
+                <h1>HI,ADMIN <?= htmlspecialchars($admin['Admin_Username']) ?>!, WELCOME BACK</h1>
                 <div class="header-actions">
     <div class="notifications">
     <i data-lucide="bell"></i>

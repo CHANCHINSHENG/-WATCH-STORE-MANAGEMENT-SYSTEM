@@ -69,8 +69,15 @@ $staffs = $staffStmt->fetchAll(PDO::FETCH_ASSOC);
               <td>
                 <?php if ($currentRole === 'super admin'): ?>
                   <div class="action-buttons">
-                    <a href="admin_layout.php?page=superadmin_editstaff&id=<?= $staff['AdminID'] ?>" class="btn edit-btn">Edit</a>
-                  </div>
+                  <a href="admin_layout.php?page=superadmin_editstaff&id=<?= $staff['AdminID'] ?>" class="btn edit-btn">Edit</a>
+                  <button 
+                    class="btn delete-btn btn-delete" 
+                    data-id="<?= $staff['AdminID'] ?>" 
+                    data-name="<?= $staff['Admin_Username'] ?>" 
+                    data-type="staff">
+                    Delete
+                  </button>
+                </div>
                 <?php else: ?>
                   <em>No Access</em>
                 <?php endif; ?>

@@ -93,7 +93,7 @@ if ($method === 'Visa') {
     <p><strong>Order ID:</strong> <?= htmlspecialchars($order['OrderID']) ?></p>
     <p><strong>Username:</strong> <?= htmlspecialchars($order['Cust_Username']) ?></p>
     <p><strong>Payment Method:</strong> <?= htmlspecialchars($method) ?></p>
-    <p><strong>Order Amount:</strong> $<?= number_format($order['Total_Price'], 2) ?></p>
+    <p><strong>Order Amount:</strong> RM<?= number_format($order['Total_Price'], 2) ?></p>
     <p><strong>Order Date:</strong> <?= htmlspecialchars($order['OrderDate']) ?></p>
     <hr>
     <h3>Match Result:</h3>
@@ -101,12 +101,12 @@ if ($method === 'Visa') {
     <?php if ($paymentData): ?>
         <?php if ($method === 'Visa'): ?>
             <p><strong>Card Holder Name:</strong> <?= htmlspecialchars($paymentData['Card_Holder_Name']) ?></p>
-            <p><strong>Payment Amount:</strong> $<?= number_format($paymentData['Amount'], 2) ?></p>
+            <p><strong>Payment Amount:</strong> RM<?= number_format($paymentData['Amount'], 2) ?></p>
             <p><strong>Payment Time:</strong> <?= htmlspecialchars($paymentData['Payment_Date']) ?></p>
             <p><strong>Payment Status:</strong> <?= htmlspecialchars($paymentData['Payment_Status']) ?></p>
         <?php elseif ($method === 'Bank'): ?>
             <p><strong>Bank Name:</strong> <?= htmlspecialchars($paymentData['bank_name']) ?></p>
-            <p><strong>Payment Amount:</strong> $<?= number_format($order['Total_Price'], 2) ?> (from order)</p>
+            <p><strong>Payment Amount:</strong> RM<?= number_format($order['Total_Price'], 2) ?> (from order)</p>
             <p><strong>Payment Time:</strong> <?= htmlspecialchars($paymentData['payment_time']) ?></p>
             <p><strong>Payment Status:</strong> <?= htmlspecialchars($paymentData['payment_status']) ?></p>
         <?php endif; ?>

@@ -15,12 +15,17 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 $product_id = (int)$_GET['id'];
 $product = getProductById($pdo, $product_id);
 
+
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $name = $_POST['ProductName'] ?? '';
     $description = $_POST['Product_Description'] ?? '';
     $price = $_POST['Product_Price'] ?? '';
     $stock = $_POST['Product_Stock_Quantity'] ?? '';
     $status = $_POST['Product_Status'] ?? '';
+    $category_id = $_POST['CategoryID'] ?? null;
+$brand_id = $_POST['BrandID'] ?? null;
+
 
     // Set actual upload directory for saving images
     $upload_dir = '../admin_addproduct_include/uploads/products/';
@@ -55,16 +60,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $img3 = handleImageUpdate('product_image3', $product['Product_Image3']);
 
     try {
-        $stmt = $pdo->prepare("UPDATE 05_product 
-            SET ProductName=?, Product_Description=?, Product_Price=?, 
-                Product_Stock_Quantity=?, Product_Status=?, 
-                Product_Image=?, Product_Image2=?, Product_Image3=? 
-            WHERE ProductID=?");
+        $stock_quantity = (int)$_POST['Product_Stock_Quantity'];
+$status = ($stock_quantity == 0) ? 'Out of Stock' : 'Available';
 
-        $success = $stmt->execute([
-            $name, $description, $price, $stock, $status,
-            $img1, $img2, $img3, $product_id
-        ]);
+
+$stmt = $pdo->prepare("UPDATE 05_product 
+    SET ProductName=?, Product_Description=?, Product_Price=?, 
+        Product_Stock_Quantity=?, Product_Status=?, 
+        Product_Image=?, Product_Image2=?, Product_Image3=?, 
+        CategoryID=?, BrandID=?
+    WHERE ProductID=?");
+
+$success = $stmt->execute([
+    $name, $description, $price, $stock, $status,
+    $img1, $img2, $img3, $category_id, $brand_id, $product_id
+]);
+
+
 
         if ($success) {
             $_SESSION['success'] = "✅ Product updated successfully.";

@@ -12,8 +12,8 @@ $error_message = '';
 
 $sql = "SELECT r.ReviewID, r.Rating, r.Comment, r.ReviewDate, c.Cust_Username
         FROM 18_reviews r
-        JOIN 07_order o ON r.OrderID = o.OrderID
-        JOIN 02_customer c ON o.CustomerID = c.CustomerID
+        LEFT JOIN 07_order o ON r.OrderID = o.OrderID
+        LEFT JOIN 02_customer c ON o.CustomerID = c.CustomerID
         ORDER BY r.ReviewDate DESC";
 
 $result = $pdo->query($sql);
@@ -134,7 +134,7 @@ if ($result) {
                 <tbody>
                     <?php foreach ($reviews as $review): ?>
                         <tr>
-                            <td><?= htmlspecialchars($review['Cust_Username']); ?></td>
+                            <td><?= htmlspecialchars($review['Cust_Username'] ?? 'Unknown User'); ?></td>
                             <td><?= htmlspecialchars($review['Rating']); ?> / 5</td>
                             <td><?= nl2br(htmlspecialchars($review['Comment'])); ?></td>
                             <td><?= htmlspecialchars(date('Y-m-d H:i:s', strtotime($review['ReviewDate']))); ?></td>
