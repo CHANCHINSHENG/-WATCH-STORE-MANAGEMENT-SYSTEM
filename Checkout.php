@@ -371,7 +371,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']))
                 $payment_record_id_for_opm = null;
                 $payment_table_type_for_opm = null;
 
-                $payment_status_for_db = ($payment_method_submitted === 'Visa') ? 'Success' : 'Pending';
+                $payment_status_for_db = 'Success'; 
                 $card_type_for_db = null;
                 $card_number_masked_for_db = null;
                 $card_expiry_month_for_db = null;
@@ -490,7 +490,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']))
                     <option value="">Select a payment method</option>
                     <option value="Visa" <?= ($payment_method == 'Visa') ? 'selected' : '' ?>>Visa</option>
                     <option value="Bank Payment" <?= ($payment_method == 'Bank Payment') ? 'selected' : '' ?>>Bank Payment</option>
-                    <option value="COD" <?= ($payment_method == 'COD') ? 'selected' : '' ?>>Cash On Delivery</option>
                 </select>
 
                 <div id="credit_card_fields" style="display: none;">
