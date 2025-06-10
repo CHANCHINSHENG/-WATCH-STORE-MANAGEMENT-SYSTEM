@@ -44,7 +44,7 @@ if ($method === 'Visa') {
         $foundMatch = true;
     }
 
-} elseif ($method === 'Bank') {
+} elseif ($method === 'Bank Payment') {
 
 
    $stmt = $pdo->prepare("SELECT * FROM 13_bank_payment WHERE order_id = ?");
