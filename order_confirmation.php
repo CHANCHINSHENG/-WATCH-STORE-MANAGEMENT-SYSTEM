@@ -148,7 +148,7 @@ if ($trackingID > 0)
                     <h2>Items Purchased:</h2>
                     <?php foreach ($products as $product): ?>
                         <div class="product-item">
-                            <img src="<?php echo htmlspecialchars($product['Product_Image']); ?>" alt="<?php echo htmlspecialchars($product['ProductName']); ?>" class="product-image-confirm"> <div class="product-item-details">
+                            <img src="admin_addproduct_include/<?php echo htmlspecialchars($product['Product_Image']); ?>" alt="<?php echo htmlspecialchars($product['ProductName']); ?>" class="product-image-confirm"> <div class="product-item-details">
                                 <h4><?php echo htmlspecialchars($product['ProductName']); ?></h4>
                                 <p>Quantity: <?php echo htmlspecialchars($product['Order_Quantity']); ?></p>
                             </div>
