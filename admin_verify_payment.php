@@ -40,14 +40,8 @@ if ($method === 'Visa') {
     $stmt->execute([$orderID]);
     $paymentData = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($paymentData) {
-        $paymentName = strtolower(trim($paymentData['Card_Holder_Name']));
-        if (
-            $paymentName === $customerFullName &&
-    abs($paymentData['Amount'] - $order['Total_Price']) < 0.01
-        ) {
-            $foundMatch = true;
-        }
+    if ($paymentData && strtolower($paymentData['Payment_Status']) === 'success') {
+        $foundMatch = true;
     }
 
 } elseif ($method === 'Bank') {
