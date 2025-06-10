@@ -36,7 +36,6 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <table class="products-table" id="categoryTable">
             <thead>
                 <tr>
-                    <th>Category ID</th>
                     <th>Category Name</th>
                     <th>Actions</th>
                 </tr>
@@ -44,7 +43,6 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <tbody>
                 <?php foreach ($categories as $category): ?>
                     <tr>
-                        <td><?= htmlspecialchars($category['CategoryID']) ?></td>
                         <td><?= htmlspecialchars($category['CategoryName']) ?></td>
                         <td>
                               <div class="action-buttons">

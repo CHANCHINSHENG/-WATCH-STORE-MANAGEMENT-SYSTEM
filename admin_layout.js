@@ -404,7 +404,7 @@ let show = true;
     if (document.getElementById('productTable')) setupTableSearch('productTable', [1, 2, 3, 4]);
     if (document.getElementById('customerTable')) setupTableSearch('customerTable', [1, 2, 3]);
     if (document.getElementById('brandTable')) setupTableSearch('brandTable', [1]);
-    if (document.getElementById('categoryTable')) setupTableSearch('categoryTable', [1]);
+    if (document.getElementById('categoryTable')) setupTableSearch('categoryTable', [0]);
         if (document.getElementById('staffTable')) setupTableSearch('staffTable', [1,2]);
     if (document.getElementById('ordertable')) setupAdvancedOrderFilter();
     if (document.getElementById('editSidebar')) setupEditSidebar();
