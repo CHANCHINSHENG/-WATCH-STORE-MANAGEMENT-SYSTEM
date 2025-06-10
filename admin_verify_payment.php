@@ -44,17 +44,13 @@ if ($method === 'Visa') {
         $paymentName = strtolower(trim($paymentData['Card_Holder_Name']));
         if (
             $paymentName === $customerFullName &&
-            abs($paymentData['Amount'] - $order['Total_Price']) < 0.01 &&
-            strtotime($paymentData['Payment_Date']) >= strtotime($order['OrderDate'])
+    abs($paymentData['Amount'] - $order['Total_Price']) < 0.01
         ) {
             $foundMatch = true;
         }
     }
 
 } elseif ($method === 'Bank') {
-    $stmt = $pdo->prepare("SELECT * FROM 13_bank_payment WHERE order_id = ?");
-    $stmt->execute([$orderID]);
-    $paymentData = $stmt->fetch(PDO::FETCH_ASSOC);
 
 
    $stmt = $pdo->prepare("SELECT * FROM 13_bank_payment WHERE order_id = ?");
