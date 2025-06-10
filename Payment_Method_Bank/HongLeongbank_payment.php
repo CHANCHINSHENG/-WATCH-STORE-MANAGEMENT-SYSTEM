@@ -44,6 +44,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_payment']) &&
     {
         $error = "Please enter your Account Number."; 
     }
+    elseif (strlen($account_number) < 10 || strlen($account_number) > 11) 
+    {
+        $error = "Hong Leong Bank account number must be 10 or 11 digits.";
+    }
 
     if (empty($error)) 
     { 
@@ -432,7 +436,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_payment']) &&
             <form method="post">
                 <div class="input-group">
                     <label for="account_number">Account Number: </label>
-                    <input type="text" id="account_number" name="account_number" placeholder="e.g., 1234567890" required>
+                    <input type="text" id="account_number" name="account_number" placeholder="e.g., 1234567890" required minlength="10" maxlength="11" pattern="\d{10,11}" title="Please enter a 10 or 11-digit Hong Leong Bank account number.">
                 </div>
                 <div class="input-group">
                     <label for="password">Password: </label>

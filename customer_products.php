@@ -188,6 +188,14 @@ $total_price = $product_added['Product_Price'] ?? 0;
     <link rel="stylesheet" href="add_to_cart.css">
 
     <style>
+    .product-info img {
+    width: 100%;
+    max-height: 250px;
+    object-fit: cover;
+    display: block;
+    margin: 0 auto; /* Centering image if its width is less than container */
+    /* Removed hover effect from here as it's specific to modal or product card context */
+}
     .modal 
     {
         display: none;
@@ -255,7 +263,7 @@ $total_price = $product_added['Product_Price'] ?? 0;
         margin-bottom: 1.5rem; 
     }
 
-    modal .product-info img
+    .modal .product-info img
      {
         max-width: 130px; 
         height: auto; 
@@ -486,9 +494,18 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <div class="product-card">
                     <div class="product-info">
                     <a href="product_details.php?id=<?= $row['ProductID']; ?>" class="product-link">
+                        <div style="background-color: white; padding: 10px; border-radius: 8px;">
                         <img src="admin_addproduct_include/<?= htmlspecialchars($row['Product_Image']); ?>" alt="<?= htmlspecialchars($row['ProductName']); ?>">
+                        </div>
                         <h3><?= htmlspecialchars($row['ProductName']); ?></h3>
-                        <p><?= htmlspecialchars($row['Product_Description']); ?></p>
+                        <?php
+                        $description_lines = explode("\n", $row['Product_Description']);
+                        ?>
+                        <p>
+                            <?= nl2br(htmlspecialchars($description_lines[0] ?? '')) ?><br>
+                            <?= nl2br(htmlspecialchars($description_lines[1] ?? '')) ?><br>
+                            <?= nl2br(htmlspecialchars($description_lines[2] ?? '')) ?>
+                        </p>
                         <p class="product-price">Price: RM <?= number_format($row['Product_Price'], 2); ?></p>
                         <p>Stock: <?= $row['Product_Stock_Quantity']; ?></p>
                     </a>

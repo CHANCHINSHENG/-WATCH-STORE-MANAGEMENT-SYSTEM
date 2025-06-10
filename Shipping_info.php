@@ -79,6 +79,7 @@ $shipping_data = [
             color: #333;
             background-color: #f8f9fa;
             padding-top: 50px;
+            padding-bottom: 50px; /* Added padding to the bottom */
         }
         .container {
             max-width: 900px;
@@ -109,7 +110,8 @@ $shipping_data = [
 </head>
 <body>
     <div class="container">
-        <h1>Shipping Info - Standard Delivery (Malaysia)</h1>
+
+    <h1>Shipping Info - Standard Delivery (Malaysia)</h1>
         <p>Below are the standard delivery cost details and estimated delivery date for each state in Malaysia.</p>
 
         <h2 class="mt-4">Shipping Fee Details & Delivery Dates</h2>
@@ -128,7 +130,7 @@ $shipping_data = [
                         echo '<tr>';
                         echo '<td>' . htmlspecialchars($state) . '</td>';
                         echo '<td>RM ' . number_format($details['fee'], 2) . '</td>';
-                        echo '<td>' . htmlspecialchars($details['delivery_days']) . '</td>';
+                        echo '<td>' . htmlspecialchars(trim($details['delivery_days'])) . ' working days</td>'; // I also helped you trim whitespace and add "working days" for clarity
                         echo '</tr>';
                     }
                     ?>
@@ -146,6 +148,9 @@ $shipping_data = [
                 <li>For more detailed shipping calculations or special circumstances, please contact our customer service team.</li>
             </ul>
         </div>
+                
+        <a href="customermainpage.php" class="btn btn-secondary mb-4">🏠 Back to Main Page</a>
+
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

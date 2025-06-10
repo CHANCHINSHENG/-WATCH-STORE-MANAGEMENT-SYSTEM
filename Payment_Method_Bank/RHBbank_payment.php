@@ -44,6 +44,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_payment']) &&
     {
         $error = "Please enter your Account Number."; 
     }
+    elseif (strlen($account_number) != 10) {
+        $error = "RHB Bank account number must be 10 digits.";
+    }
 
     if (empty($error)) 
     { 
@@ -434,7 +437,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_payment']) &&
             <form method="post">
                 <div class="input-group">
                     <label for="account_number">Account Number: </label>
-                    <input type="text" id="account_number" name="account_number" placeholder="e.g., 1234567890" required>
+                    <input type="text" id="account_number" name="account_number" placeholder="e.g., 1234567890" required minlength="10" maxlength="10" pattern="\d{10}" title="Please enter a 10-digit for RHB Bank account number.">
                 </div>
                 <div class="input-group">
                     <label for="password">Password: </label>

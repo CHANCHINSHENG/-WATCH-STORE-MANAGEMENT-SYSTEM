@@ -44,6 +44,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_payment']) &&
     {
         $error = "Please enter your Account Number."; 
     }
+    elseif (strlen($account_number) != 12) {
+        $error = "Maybank account number must be 12 digits.";
+    }
 
     if (empty($error)) 
     { 
@@ -430,7 +433,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_payment']) &&
             <form method="post">
                 <div class="input-group">
                     <label for="account_number">Account Number: </label>
-                    <input type="text" id="account_number" name="account_number" placeholder="e.g., 1234567890" required>
+                    <input type="text" id="account_number" name="account_number" placeholder="e.g., 1234567890" required minlength="12" maxlength="12" pattern="\d{12}" title="Please enter a 12-digit Maybank account number.">
                 </div>
                 <div class="input-group">
                     <label for="password">Password: </label>

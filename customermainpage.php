@@ -1,7 +1,91 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) 
-{
-    session_start();
+session_start();
+require_once 'db.php';
+
+// Fetch brands for dropdown
+$brands = [];
+$sql = "SELECT BrandName, BrandImage FROM `03_brand` ORDER BY BrandName ASC";
+$result = $conn->query($sql);
+if ($result && $result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $brands[] = $row;
+    }
+}
+
+// Fetch categories for dropdown
+$categories = [];
+$categoryQuery = "SELECT CategoryName FROM `04_category` ORDER BY CategoryName ASC";
+$categoryResult = $conn->query($categoryQuery);
+if ($categoryResult && $categoryResult->num_rows > 0) {
+    while ($cat = $categoryResult->fetch_assoc()) {
+        $categories[] = $cat;
+    }
+}
+
+// Get customer information
+$customerName = 'Guest';
+$profileLink = 'customer_login.php';
+if (isset($_SESSION['customer_id'])) {
+    $CustomerID = $_SESSION['customer_id'];
+    $stmt = $conn->prepare("SELECT Cust_First_Name FROM 02_customer WHERE CustomerID = ?");
+    $stmt->bind_param("i", $CustomerID);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($row = $result->fetch_assoc()) {
+        $customerName = 'Hello, ' . htmlspecialchars($row['Cust_First_Name']);
+        $profileLink = 'customer_profile.php';
+    }
+}
+
+// Fetch popular products
+$popular_products = [];
+$popular_query = "SELECT * FROM `05_product` ORDER BY Product_Stock_Quantity DESC LIMIT 6";
+$popular_result = mysqli_query($conn, $popular_query);
+if ($popular_result) {
+    while ($row = mysqli_fetch_assoc($popular_result)) {
+        $popular_products[] = $row;
+    }
+}
+
+// Fetch recommended products
+$like_products = [];
+$customer_id = $_SESSION['customer_id'] ?? null;
+
+if ($customer_id) {
+    $customer_id = (int)$customer_id;
+
+    // 查询最近浏览的产品（最多6个）
+    $like_query = "
+        SELECT p.*
+        FROM (
+            SELECT ProductID, MAX(Viewed_At) AS LastViewed
+            FROM `15_view_history`
+            WHERE CustomerID = $customer_id
+            GROUP BY ProductID
+        ) AS vh
+        JOIN `05_product` p ON vh.ProductID = p.ProductID
+        ORDER BY vh.LastViewed DESC
+        LIMIT 6
+    ";
+
+    $like_result = mysqli_query($conn, $like_query);
+
+    if ($like_result && mysqli_num_rows($like_result) > 0) {
+        while ($row = mysqli_fetch_assoc($like_result)) {
+            $like_products[] = $row;
+        }
+    }
+}
+
+// 如果登录但没浏览记录，或查询失败，则随机推荐
+if (empty($like_products)) {
+    $fallback_query = "SELECT * FROM `05_product` ORDER BY RAND() LIMIT 6";
+    $fallback_result = mysqli_query($conn, $fallback_query);
+    if ($fallback_result) {
+        while ($row = mysqli_fetch_assoc($fallback_result)) {
+            $like_products[] = $row;
+        }
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -54,58 +138,38 @@ if (session_status() === PHP_SESSION_NONE)
               
               <li class="nav-item px-2 dropdown brands-dropdown position-relative">
                 <a class="nav-link fw-bold" href="#" id="brandDropdown">BRANDS</a>
-                <div class="brand-dropdown-content" style="display: none;">
-                  <a href="customer_products.php?brand=Alain Delon" class="brand-item">
-                    <img src="uploads/brand_picture/AD_Logo-01.jpg" alt="Alain Delon">
-                    <span>Alain Delon</span>
-                  </a>
-                  <a href="customer_products.php?brand=Bonia" class="brand-item">
-                    <img src="uploads/brand_picture/BONIA.jpg" alt="Bonia">
-                    <span>Bonia</span>
-                  </a>
-                  <a href="customer_products.php?brand=Casio" class="brand-item">
-                    <img src="uploads/brand_picture/CASIO.jpg" alt="Casio">
-                    <span>Casio</span>
-                  </a>
-                  <a href="customer_products.php?brand=Hummer" class="brand-item">
-                    <img src="uploads/brand_picture/HUMMER.jpg" alt="Hummer">
-                    <span>Hummer</span>
-                  </a>
-                  <a href="customer_products.php?brand=iGear" class="brand-item">
-                    <img src="uploads/brand_picture/iGear.jpg" alt="iGear">
-                    <span>iGear</span>
-                  </a>
-                  <a href="customer_products.php?brand=Suunto" class="brand-item">
-                    <img src="uploads/brand_picture/SUUNTO.jpg" alt="Suunto">
-                    <span>Suunto</span>
-                  </a>
-                  <a href="customer_products.php?brand=Timex" class="brand-item">
-                    <img src="uploads/brand_picture/Timex.jpg" alt="Timex">
-                    <span>Timex</span>
-                  </a>
+                <div class="brand-dropdown-content">
+                  <?php if (!empty($brands)): ?>
+                    <?php foreach ($brands as $brand): ?>
+                      <a href="customer_products.php?brand=<?= urlencode($brand['BrandName']) ?>" class="brand-item">
+                        <img src="uploads/<?= htmlspecialchars($brand['BrandImage']) ?>" alt="<?= htmlspecialchars($brand['BrandName']) ?>" style="width: 50px; height: auto;">
+                        <span><?= htmlspecialchars($brand['BrandName']) ?></span>
+                      </a>
+                    <?php endforeach; ?>
+                  <?php else: ?>
+                    <p style='color: #ccc;'>No brands found.</p>
+                  <?php endif; ?>
                 </div>
               </li>
 
               <li class="nav-item px-2 dropdown brands-dropdown position-relative">
                 <a class="nav-link fw-bold" href="#" id="categoriesDropdown">CATEGORIES</a>
-                <div class="brand-dropdown-content" style="display: none;">
+                <div class="brand-dropdown-content">
                   <a href="customer_products.php" class="brand-item">
                     <span>All Watches</span>
                   </a>
-                  <a href="customer_products.php?category=Analogue" class="brand-item">
-                    <span>Analogue</span>
-                  </a>
-                  <a href="customer_products.php?category=Digital" class="brand-item">
-                    <span>Digital</span>
-                  </a>
-                  <a href="customer_products.php?category=Smart Watches" class="brand-item">
-                    <span>Smart Watches</span>
-                  </a>
-                  <a href="customer_products.php?category=Perfomance" class="brand-item">
-                    <span>Perfomance</span>
-                  </a>
+                  <?php if (!empty($categories)): ?>
+                    <?php foreach ($categories as $category): ?>
+                      <a href="customer_products.php?category=<?= urlencode($category['CategoryName']) ?>" class="brand-item">
+                        <span><?= htmlspecialchars($category['CategoryName']) ?></span>
+                      </a>
+                    <?php endforeach; ?>
+                  <?php else: ?>
+                    <p style='color: #ccc; padding-left: 10px;'>No categories found.</p>
+                  <?php endif; ?>
                 </div>
               </li>
+
 
               <li class="nav-item px-2"><a class="nav-link fw-bold" href="cart.php"><img src="img/Cart_icon.png" alt="Cart" style="width:24px; height:24px;"></a></li>
               
@@ -113,32 +177,13 @@ if (session_status() === PHP_SESSION_NONE)
               <li class="nav-item px-2">
                 <a class="nav-link fw-bold" href="view_history.php">VIEW HISTORY</a>
               </li>
-             <?php endif; ?>
-
-              <?php
-              require_once 'db.php';
-
-              $customerName = 'Guest';
-              $profileLink = 'customer_login.php';
-
-              if (isset($_SESSION['customer_id'])) {
-              $CustomerID = $_SESSION['customer_id'];
-              $stmt = $conn->prepare("SELECT Cust_First_Name FROM 02_customer WHERE CustomerID = ?");
-              $stmt->bind_param("i", $CustomerID);
-              $stmt->execute();
-              $result = $stmt->get_result();
-               if ($row = $result->fetch_assoc()) {
-                 $customerName = 'Hello, ' . htmlspecialchars($row['Cust_First_Name']);
-                 $profileLink = 'customer_profile.php';
-               }
-              }
-              ?>
+              <?php endif; ?>
 
               <li class="nav-item px-2 d-flex align-items-center">
-              <a class="nav-link fw-bold d-flex align-items-center" href="<?= $profileLink ?>">
-              <img src="img/user_icon.png" alt="profile" style="width:24px; height:24px;" class="me-1">
-              <span class="text-white"><?= $customerName ?></span>
-              </a>
+                <a class="nav-link fw-bold d-flex align-items-center" href="<?= $profileLink ?>">
+                  <img src="img/user_icon.png" alt="profile" style="width:24px; height:24px;" class="me-1">
+                  <span class="text-white"><?= $customerName ?></span>
+                </a>
               </li>
             </ul>
           </div>
@@ -200,268 +245,64 @@ if (session_status() === PHP_SESSION_NONE)
         </div>
       </section>
       <section class="py-0 pb-6" id="collections">
-        <div class="container">
-          <div class="row h-100">
-            <div class="col-lg-7 mt-7">
-              <h5 class="fs-3 fs-lg-5 lh-sm mb-0 text-uppercase">Collections</h5>
-            </div>
-            <div class="col-12">
-              <nav>
-                <div class="nav nav-tabs watch-tabs mb-4 justify-content-end" id="nav-tab" role="tablist">
-                  <button class="nav-link active" id="nav-latest-tab" data-bs-toggle="tab" data-bs-target="#nav-latest" type="button" role="tab" aria-controls="nav-latest" aria-selected="true">LATEST </button>
-                  <button class="nav-link" id="nav-popular-tab" data-bs-toggle="tab" data-bs-target="#nav-popular" type="button" role="tab" aria-controls="nav-popular" aria-selected="false">POPULAR</button>
-                </div>
-              </nav>
-              <div class="tab-content" id="nav-tabContent">
-                <div class="tab-pane fade show active" id="nav-latest" role="tabpanel" aria-labelledby="nav-latest-tab">
-                  <div class="carousel slide" id="carouselLatest" data-bs-ride="carousel">
-                    <div class="carousel-inner">
-                      <div class="carousel-item active" data-bs-interval="10000">
-                        <div class="row h-100 align-items-center">
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="img/p1.webp" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">RM398.00</h6>
-                                <h4 class="text-light">HUMMER</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="img/p2.webp" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">RM374.00</h6>
-                                <h4 class="text-light">ALAIN DELON</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="img/p3.webp" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">RM455.00</h6>
-                                <h4 class="text-light">HUMMER</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
+      <div class="container">
+        <div class="row h-100">
+          <div class="col-lg-7 mt-7">
+            <h5 class="fs-3 fs-lg-5 lh-sm mb-0 text-uppercase">Collections</h5>
+          </div>
+          <div class="col-12">
+            <nav>
+              <div class="nav nav-tabs watch-tabs mb-4 justify-content-end" id="nav-tab" role="tablist">
+                <button class="nav-link active" id="nav-popular-tab" data-bs-toggle="tab" data-bs-target="#nav-popular" type="button" role="tab" aria-selected="true">POPULAR</button>
+                <button class="nav-link" id="nav-like-tab" data-bs-toggle="tab" data-bs-target="#nav-like" type="button" role="tab" aria-selected="false">YOU MAY ALSO LIKE</button>
+              </div>
+            </nav>
+            <div class="tab-content" id="nav-tabContent">
+              <!-- Popular Products -->
+              <div class="tab-pane fade show active" id="nav-popular" role="tabpanel">
+                <div class="row">
+                  <?php foreach ($popular_products as $product): ?>
+                    <div class="col-sm-6 col-md-4 mb-3">
+                      <div class="card bg-black text-white p-6 pb-8">
+                        <div style="background-color: white; padding: 10px; border-radius: 8px;">
+                          <img class="card-img" src="admin_addproduct_include/<?= htmlspecialchars($product['Product_Image']) ?>" alt="<?= htmlspecialchars($product['ProductName']) ?>">
                         </div>
-                      </div>
-                      <div class="carousel-item" data-bs-interval="5000">
-                        <div class="row h-100 align-items-center">
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="img/p1.webp" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">RM398.00</h6>
-                                <h4 class="text-light">HUMMER</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="img/p2.webp" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">RM374.00</h6>
-                                <h4 class="text-light">ALAIN DELON</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="img/p3.webp" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">RM455.00</h6>
-                                <h4 class="text-light">HUMMER</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
+                        <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center text-center">
+                          <h6 class="text-primary">RM<?= number_format($product['Product_Price'], 2) ?></h6>
+                          <h4 class="text-light mb-2"><?= htmlspecialchars($product['ProductName']) ?></h4>
                         </div>
-                      </div>
-                      <div class="carousel-item" data-bs-interval="3000">
-                        <div class="row h-100 align-items-center">
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="img/p1.webp" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">RM398.00</h6>
-                                <h4 class="text-light">HUMMER</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="img/p2.webp" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">RM374.00</h6>
-                                <h4 class="text-light">ALAIN DELON</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="img/p3.webp" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">RM455.00</h6>
-                                <h4 class="text-light">HUMMER</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="carousel-item">
-                        <div class="row h-100 align-items-center">
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="assets/img/gallery/watch-2.png" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">$650.00</h6>
-                                <h4 class="text-light">ADRIATICA ADR</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="assets/img/gallery/watch-3.png" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">$126.00</h6>
-                                <h4 class="text-light">SEIKO SNZGO7K1</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="assets/img/gallery/watch-1.png" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">$250.00</h6>
-                                <h4 class="text-light">ROAMER RM 220837</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="row">
-                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselLatest" data-bs-slide="prev"><span class="carousel-control-prev-icon" aria-hidden="true"></span><span class="visually-hidden">Previous</span></button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#carouselLatest" data-bs-slide="next"><span class="carousel-control-next-icon" aria-hidden="true"></span><span class="visually-hidden">Next </span></button>
+                        <a class="stretched-link" href="product_details.php?id=<?= $product['ProductID'] ?>"></a>
                       </div>
                     </div>
-                  </div>
+                  <?php endforeach; ?>
                 </div>
-                <div class="tab-pane fade" id="nav-popular" role="tabpanel" aria-labelledby="nav-popular-tab">
-                  <div class="carousel slide" id="carouselPopular" data-bs-ride="carousel">
-                    <div class="carousel-inner">
-                      <div class="carousel-item active" data-bs-interval="10000">
-                        <div class="row h-100 align-items-center">
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="img/p1.webp" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">RM398.00</h6>
-                                <h4 class="text-light">HUMMER</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="img/p2.webp" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">RM374.00</h6>
-                                <h4 class="text-light">ALAN DELON</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="img/p3.webp" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">RM455.00</h6>
-                                <h4 class="text-light">HUMMER</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
+              </div>
+
+              <!-- Recommended Products -->
+              <div class="tab-pane fade" id="nav-like" role="tabpanel">
+                <div class="row">
+                  <?php foreach ($like_products as $product): ?>
+                    <div class="col-sm-6 col-md-4 mb-3">
+                      <div class="card bg-black text-white p-6 pb-8">
+                        <div style="background-color: white; padding: 10px; border-radius: 8px;">
+                          <img class="card-img" src="admin_addproduct_include/<?= htmlspecialchars($product['Product_Image']) ?>" alt="<?= htmlspecialchars($product['ProductName']) ?>">
                         </div>
-                      </div>
-                      <div class="carousel-item" data-bs-interval="5000">
-                        <div class="row h-100 align-items-center">
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="img/p1.webp" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">RM398.00</h6>
-                                <h4 class="text-light">HUMMER</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="img/p2.webp" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">RM374.00</h6>
-                                <h4 class="text-light">ALAN DELON</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="img/p3.webp" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">RM455.00</h6>
-                                <h4 class="text-light">HUMMER</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
+                        <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
+                          <h6 class="text-primary">RM<?= number_format($product['Product_Price'], 2) ?></h6>
+                          <h4 class="text-light mb-2"><?= htmlspecialchars($product['ProductName']) ?></h4>
                         </div>
-                      </div>
-                      <div class="carousel-item" data-bs-interval="3000">
-                        <div class="row h-100 align-items-center">
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="assets/img/gallery/watch-2.png" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">$650.00</h6>
-                                <h4 class="text-light">ADRIATICA ADR</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="assets/img/gallery/watch-3.png" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">$126.00</h6>
-                                <h4 class="text-light">SEIKO SNZGO7K1</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="assets/img/gallery/watch-1.png" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">$250.00</h6>
-                                <h4 class="text-light">ROAMER RM 220837</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="carousel-item">
-                        <div class="row h-100 align-items-center">
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="assets/img/gallery/watch-2.png" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">$650.00</h6>
-                                <h4 class="text-light">ADRIATICA ADR</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="assets/img/gallery/watch-3.png" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">$126.00</h6>
-                                <h4 class="text-light">SEIKO SNZGO7K1</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                          <div class="col-sm-6 col-md-4 mb-3 mb-md-0">
-                            <div class="card bg-black text-white p-6 pb-8"><img class="card-img" src="assets/img/gallery/watch-1.png" alt="..." />
-                              <div class="card-img-overlay bg-dark-gradient d-flex flex-column-reverse align-items-center">
-                                <h6 class="text-primary">$250.00</h6>
-                                <h4 class="text-light">ROAMER RM 220837</h4>
-                              </div><a class="stretched-link" href="#"></a>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="row">
-                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselPopular" data-bs-slide="prev"><span class="carousel-control-prev-icon" aria-hidden="true"></span><span class="visually-hidden">Previous</span></button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#carouselPopular" data-bs-slide="next"><span class="carousel-control-next-icon" aria-hidden="true"></span><span class="visually-hidden">Next </span></button>
+                        <a class="stretched-link" href="product_details.php?id=<?= $product['ProductID'] ?>"></a>
                       </div>
                     </div>
-                  </div>
+                  <?php endforeach; ?>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
+
 
 
       <!-- ============================================-->
@@ -700,6 +541,32 @@ if (session_status() === PHP_SESSION_NONE)
     <script src="assets/js/theme.js"></script>
     <!-- Bootstrap JS Bundle (with Popper) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+    // BRAND dropdown
+    const brandDropdown = document.querySelector('.brands-dropdown');
+    const brandContent = brandDropdown.querySelector('.brand-dropdown-content');
+
+    brandDropdown.addEventListener('mouseenter', () => {
+      brandContent.style.display = 'block';
+    });
+    brandDropdown.addEventListener('mouseleave', () => {
+      brandContent.style.display = 'none';
+    });
+
+    // CATEGORY dropdown (you can give it a separate class if you want)
+    const categoryDropdown = document.querySelector('#categoriesDropdown').parentElement;
+    const categoryContent = categoryDropdown.querySelector('.brand-dropdown-content');
+
+    categoryDropdown.addEventListener('mouseenter', () => {
+      categoryContent.style.display = 'block';
+    });
+    categoryDropdown.addEventListener('mouseleave', () => {
+      categoryContent.style.display = 'none';
+    });
+  });
+
+    </script>
 
 <style>
 .brands-dropdown {
