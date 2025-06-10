@@ -2,7 +2,7 @@
 $servername = "localhost";
 $username = "root"; 
 $password = ""; 
-$database = "final_watch_store_db"; 
+$database = "watch_store_db"; 
 
 $conn = new mysqli($servername, $username, $password, $database);
 if ($conn->connect_error) {

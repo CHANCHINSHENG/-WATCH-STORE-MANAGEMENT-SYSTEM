@@ -9,6 +9,7 @@ if (!isset($_SESSION['admin_id'])) {
 
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $product_id = $_GET['id'];
+    
 
     try {
         $pdo->beginTransaction();

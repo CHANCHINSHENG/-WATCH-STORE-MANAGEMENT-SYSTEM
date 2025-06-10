@@ -58,7 +58,6 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <option value="">Method</option>
                     <option value="Visa">Visa</option>
                     <option value="Bank">Bank</option>
-                    <option value="COD">COD</option>
                 </select>
                 <select id="orderlimits">
                     <option value="">Order Limits</option>
@@ -132,9 +131,7 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 </select>
                             </td>
                             <td>
-                                <?php if ($order['Payment_Method_Type'] === 'COD'): ?>
-                                    <span style="color:orange;">Cash On Delivery</span>
-                                <?php elseif ($order['Admin_Payment_Confirmation'] === 'Confirmed'): ?>
+                                <?php if ($order['Admin_Payment_Confirmation'] === 'Confirmed'): ?>
                                     <span style="color:green;">✅ Comfirm Payment</span>
                                 <?php else: ?>
 
