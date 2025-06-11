@@ -7,11 +7,11 @@ $response = ['success' => false, 'message' => '', 'new_quantity' => 0, 'total_am
 $customerID = $_SESSION['customer_id'] ?? null;
 if ($customerID) {
     $product_id = $_POST['product_id'] ?? null;
-    $new_quantity = (int)($_POST['quantity'] ?? 0); // 将接收到的quantity重命名为new_quantity，并确保是整数
+    $new_quantity = (int)($_POST['quantity'] ?? 0); 
     $action = $_POST['action'] ?? null; 
 
     if ($product_id && $new_quantity >= 0) 
-    { // 使用 new_quantity
+    { 
         $sql_cart = "SELECT CartID FROM `11_cart` WHERE CustomerID = ?";
         $stmt_cart = $conn->prepare($sql_cart);
         $stmt_cart->bind_param("i", $customerID);
