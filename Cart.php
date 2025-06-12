@@ -27,6 +27,9 @@ if ($customerID)
             SELECT p.ProductID, p.ProductName, p.Product_Price, p.Product_Image, ci.Quantity 
             FROM 12_cart_item ci
             JOIN 05_product p ON ci.ProductID = p.ProductID
+            SELECT p.ProductID, p.ProductName, p.Product_Price, p.Product_Image, p.Product_Stock_Quantity, ci.Quantity 
+            FROM `12_cart_item` ci
+            JOIN `05_product` p ON ci.ProductID = p.ProductID
             WHERE ci.CartID = ?
         ";
 
@@ -52,7 +55,8 @@ if ($customerID)
                 'Product_Price'  => $row['Product_Price'],
                 'Order_Quantity' => $row['Quantity'],
                 'Order_Subtotal' => $subtotal,
-                'Product_Image'  => $row['Product_Image']
+                'Product_Image'  => $row['Product_Image'],
+                'Product_Stock_Quantity' => $row['Product_Stock_Quantity'] 
             ];
 
             $total_amount += $subtotal;
@@ -107,7 +111,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
         <?php else: ?>
             <div class="cart-items">
                 <?php foreach ($cart_items as $item): ?>
-                    <div class="cart-item" data-product-id="<?= $item['ProductID'] ?>">
+                    <div class="cart-item" data-product-id="<?= $item['ProductID'] ?>" data-stock="<?= $item['Product_Stock_Quantity'] ?>">
                         <img src="admin_addproduct_include/<?= htmlspecialchars($item['Product_Image']) ?>" class="cart-item-image" alt="<?= htmlspecialchars($item['ProductName']) ?>">
 
                         <div class="cart-item-details">
@@ -176,7 +180,11 @@ $(document).ready(function()
                     } 
                     else 
                     {
-                        console.error('Error updating cart:', data.message || 'An unknown error occurred.');
+                        alert(data.message || 'Could not update cart.');
+                        if(data.new_quantity !== undefined) 
+                        {
+                           currentQuantityInput.val(data.new_quantity); 
+                        }
                     }
                 } 
                 catch (e) 
@@ -191,19 +199,31 @@ $(document).ready(function()
         });
     }
 
+
      $('.increase-btn').click(function() 
      {
         var parent = $(this).closest('.cart-item');
         var quantityInput = parent.find('.quantity-input');
-        var quantity = parseInt(quantityInput.val()) + 1;
+        var newQuantity = parseInt(quantityInput.val()) + 1;
 
-        if (quantity > 10) 
+        var stock = parseInt(parent.data('stock'));
+        var limit = 10;
+        var effectiveLimit = Math.min(stock, limit); 
+
+        if (newQuantity > effectiveLimit) 
         {
-            alert("You cannot add more than 10 of this product.");
-            return;
+            if (stock < limit) 
+            {
+                alert("Stock is running low! 🚨 We only have " + stock + " of this watch left. You can't add any more!");
+            } 
+            else 
+            {
+                 alert("Oops! 🖐️ This watch is limited to 10 pieces per customer.");
+            }
+            return; 
         }
-
-        updateQuantity(parent, quantity, 'increase');
+        
+        updateQuantity(parent, newQuantity, 'increase');
     });
 
     $('.decrease-btn').click(function() 
@@ -221,25 +241,34 @@ $(document).ready(function()
     $('.quantity-input').on('change', function() 
     {
         var parent = $(this).closest('.cart-item');
-        var productId = parent.data('product-id');
         var newQuantity = parseInt($(this).val()); 
 
         if (isNaN(newQuantity) || newQuantity < 1) 
         {
             newQuantity = 1; 
-            $(this).val(1);
         }
 
-        if (newQuantity > 10) 
-        { 
-            alert("You cannot buy more than 10 of this product.");
-            newQuantity = 10;
-            $(this).val(10);
+        var stock = parseInt(parent.data('stock'));
+        var limit = 10;
+        var effectiveLimit = Math.min(stock, limit);
+
+        if (newQuantity > effectiveLimit) 
+        {
+            if (stock < limit) 
+            {
+                alert("Stock is running low! 🚨 We only have " + stock + " of this watch left.");
+            } 
+            else 
+            {
+                alert("Oops! 🖐️ This watch is limited to 10 pieces per customer.");
+            }
+            newQuantity = effectiveLimit; 
         }
-
-
+        
+        $(this).val(newQuantity); 
         updateQuantity(parent, newQuantity, 'update'); 
     });
+
 
     $('.remove-btn').click(function() 
     {
@@ -250,30 +279,41 @@ $(document).ready(function()
             url: 'update_cart.php',
             method: 'POST',
             data: { product_id: productId, quantity: 0, action: 'remove' },
-            success: function(response) {
-                try {
+            success: function(response) 
+            {
+                try 
+                {
                     var data = JSON.parse(response);
-                    if (data.success) {
-                        parent.fadeOut(300, function() {
+                    if (data.success) 
+                    {
+                        parent.fadeOut(300, function() 
+                        {
                             $(this).remove(); 
-                            if ($('.cart-item').length === 0) {
+                            if ($('.cart-item').length === 0) 
+                            {
                                 $('.cart-container').html('<div class="empty-cart"><h2>Your cart is empty.</h2><a href="customer_products.php" class="continue-shopping-btn">Continue Shopping</a></div>');
                             }
                         });
                         $('#total-amount').text(data.total_amount.toFixed(2));
                         $('#cart-item-count').text(data.total_items);
                         
-                        if (data.message) { 
-                            console.log("Server message for removal:", data.message); // Log messages to console
+                        if (data.message) 
+                        { 
+                            console.log("Server message for removal:", data.message); 
                         }
-                    } else {
+                    } 
+                    else 
+                    {
                         console.error('Error removing item:', data.message || 'An unknown error occurred during removal.');
                     }
-                } catch (e) {
+                } 
+                catch (e) 
+                {
                     console.error("Failed to parse JSON response during removal:", response, e);
                 }
             },
-            error: function(xhr, status, error) {
+            error: function(xhr, status, error) 
+            {
                 console.error("AJAX removal request failed:", status, error, xhr.responseText);
             }
         });
