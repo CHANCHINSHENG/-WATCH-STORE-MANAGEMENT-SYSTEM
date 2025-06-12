@@ -112,7 +112,7 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </td>
                             <td>
                                 <select class="status-dropdown order-dropdown" data-order-id="<?= $order['OrderID'] ?>">
-                                    <?php foreach (["Processing", "Done Processing"] as $status): ?>
+                                    <?php foreach (["Processing", "Done Processing","Cancelled"] as $status): ?>
                                         <option value="<?= $status ?>" <?= $order['OrderStatus'] === $status ? 'selected' : '' ?>><?= $status ?></option>
                                     <?php endforeach; ?>
                                 </select>
