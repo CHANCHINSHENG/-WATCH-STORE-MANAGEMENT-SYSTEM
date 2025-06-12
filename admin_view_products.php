@@ -76,7 +76,6 @@ $result = $stmt;
                             </td>
                             <td>
                                 <a href="admin_layout.php?page=admin_edit_product&id=<?= $row['ProductID'] ?>" class="btn edit-btn">Edit</a>
-                                <a href="#" class="btn delete-btn btn-delete" data-id="<?= $row['ProductID'] ?>" data-name="<?= htmlspecialchars($row['ProductName']) ?>" data-type="product">Delete</a>
                             </td>
                         </tr>
                     <?php } ?>
