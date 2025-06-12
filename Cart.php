@@ -22,16 +22,12 @@ if ($customerID)
         $cart_row = $result_cart->fetch_assoc();
         $cartID = $cart_row['CartID'];
 
-        $sql_items = 
-        "
-            SELECT p.ProductID, p.ProductName, p.Product_Price, p.Product_Image, ci.Quantity 
-            FROM 12_cart_item ci
-            JOIN 05_product p ON ci.ProductID = p.ProductID
-            SELECT p.ProductID, p.ProductName, p.Product_Price, p.Product_Image, p.Product_Stock_Quantity, ci.Quantity 
-            FROM `12_cart_item` ci
-            JOIN `05_product` p ON ci.ProductID = p.ProductID
-            WHERE ci.CartID = ?
-        ";
+    $sql_items = "
+    SELECT p.ProductID, p.ProductName, p.Product_Price, p.Product_Image, p.Product_Stock_Quantity, ci.Quantity 
+    FROM `12_cart_item` ci
+    JOIN `05_product` p ON ci.ProductID = p.ProductID
+    WHERE ci.CartID = ?
+";
 
         $stmt_items = $conn->prepare($sql_items);
         $stmt_items->bind_param("i", $cartID);
