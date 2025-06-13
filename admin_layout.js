@@ -9,7 +9,6 @@ if (hash.startsWith('#order')) {
         row.classList.add('highlight-order');
         row.scrollIntoView({ behavior: "smooth", block: "center" });
 
-        // ✅ 2 秒後自動移除高亮
         setTimeout(() => {
             row.classList.remove('highlight-order');
         }, 2000);
@@ -54,7 +53,8 @@ if (hash.startsWith('#order')) {
         li.innerHTML = ` 
           <div class="notif-title">🛒 <strong>${order.Cust_Username}</strong> placed an order of ${order.Total_Price}</div>
           <div class="notif-time">${dateTime}</div>
-          <a href="admin_viewnoti_tocorrecorder.php?cid=${order.CustomerID}" class="notif-view">View</a>
+          <a href="admin_viewnoti_tocorrecorder.php?cid=${order.CustomerID}&oid=${order.OrderID}" class="notif-view">View</a>
+
         `;
         list.appendChild(li);
       });
@@ -125,7 +125,6 @@ fetch('admin_check_new_orders.php')
           badge.className = `status-badge ${newStatus.toLowerCase().replace(/\s+/g, '-')}`;
         }
 
-        // 🆕 Refresh notification immediately
         fetch('check_new_orders.php')
           .then(res => res.json())
           .then(data => {

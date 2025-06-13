@@ -141,7 +141,7 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </thead>
             <tbody>
                 <?php foreach ($orders as $order): ?>
-                <tr>
+                <tr id="order<?= $order['OrderID'] ?>">
                     <td><?= htmlspecialchars($order['OrderDate']) ?></td>
                     <td><?= htmlspecialchars($order['Cust_Username']) ?></td>
                     <td><span class="status-badge"><?= htmlspecialchars($order['OrderStatus']) ?></span></td>
@@ -184,7 +184,6 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </table>
 
         <?php
-        // 分頁連結，保留所有篩選參數
         $base = "admin_layout.php?page=admin_view_allorder"
               . "&search=" . urlencode($search)
               . "&status=" . urlencode($status)

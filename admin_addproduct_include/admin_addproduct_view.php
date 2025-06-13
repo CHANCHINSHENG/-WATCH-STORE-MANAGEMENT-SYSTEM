@@ -12,3 +12,5 @@ function displayFormMessages() {
         unset($_SESSION['error_signup']);
     }
 }
+
+

@@ -1,21 +1,13 @@
 <?php
 require_once 'admin_login_include/db.php';
 
-if (!isset($_GET['cid']) || !ctype_digit($_GET['cid'])) {
-    die("Invalid or missing customer ID");
+if (!isset($_GET['oid']) || !is_numeric($_GET['oid'])) {
+    die("Invalid or missing order ID");
 }
 
-$customerId = (int)$_GET['cid'];
-$limit = 10; 
+$orderId = (int)$_GET['oid'];
+$limit = 10;
 
-$stmt = $pdo->prepare("SELECT OrderID FROM 07_order WHERE CustomerID = ? ORDER BY OrderDate DESC LIMIT 1");
-$stmt->execute([$customerId]);
-$orderId = $stmt->fetchColumn();
-
-if (!$orderId) {
-    header("Location: admin_layout.php?page=admin_view_allorder");
-    exit();
-}
 $orderIds = $pdo->query("SELECT OrderID FROM 07_order ORDER BY OrderDate DESC")->fetchAll(PDO::FETCH_COLUMN);
 $index = array_search($orderId, $orderIds);
 $page = floor($index / $limit) + 1;

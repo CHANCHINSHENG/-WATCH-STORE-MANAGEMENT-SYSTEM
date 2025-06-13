@@ -48,11 +48,11 @@ $brands = getAllBrands($pdo);
         </div>
         <div class="input-group">
             <label>Price</label>
-            <input type="number" name="Product_Price" step="0.01" value="<?= htmlspecialchars($product['Product_Price']); ?>" required>
+            <input type="number" name="Product_Price" step="0.01" value="<?= htmlspecialchars($product['Product_Price']); ?>" required  >
         </div>
         <div class="input-group">
             <label>Stock Quantity</label>
-            <input type="number" name="Product_Stock_Quantity" value="<?= htmlspecialchars($product['Product_Stock_Quantity']); ?>" required>
+            <input type="number" name="Product_Stock_Quantity" value="<?= htmlspecialchars($product['Product_Stock_Quantity']); ?>" required  >
         </div>
 <div class="input-group">
     <label>Status</label>
