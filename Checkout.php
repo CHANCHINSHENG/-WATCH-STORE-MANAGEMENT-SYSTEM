@@ -2,7 +2,7 @@
 session_start();
 include 'db.php';
 
-if (!isset($_SESSION['customer_id']))
+if (!isset($_SESSION['customer_id'])) 
 {
     header("Location: customer_login.php");
     exit();
@@ -16,13 +16,26 @@ $shipping_fee = 0;
 $total = 0;
 $error = "";
 
+$registered_address = null;
+$stmt_customer_details = $conn->prepare("SELECT Cust_First_Name, Cust_Last_Name, Cust_Address, Cust_City, Cust_Postcode, Cust_State, Cust_PhoneNumber FROM `02_customer` WHERE CustomerID = ?");
+$stmt_customer_details->bind_param("i", $customerID);
+$stmt_customer_details->execute();
+$result_customer_details = $stmt_customer_details->get_result();
+
+if ($row_customer = $result_customer_details->fetch_assoc()) 
+{
+    $registered_address = $row_customer;
+}
+$stmt_customer_details->close();
+
 $shipping_rules = [];
-if (($handle = fopen("shipping_rules.csv", "r")) !== false)
+if (($handle = fopen("shipping_rules.csv", "r")) !== false) 
 {
     fgetcsv($handle); 
-    while (($data = fgetcsv($handle, 1000, ",")) !== false)
+    while (($data = fgetcsv($handle, 1000, ",")) !== false) 
     {
-        $shipping_rules[] = [
+        $shipping_rules[] = 
+        [
             'start' => (int)trim($data[0]),
             'end' => (int)trim($data[1]),
             'state' => trim($data[2]),
@@ -32,36 +45,15 @@ if (($handle = fopen("shipping_rules.csv", "r")) !== false)
     fclose($handle);
 }
 
-function getBankNames()
-{
-    $banks = [];
-    if (file_exists("banks.csv") && ($handle = fopen("banks.csv", "r")) !== FALSE)
-    {
-        fgetcsv($handle); 
-        while (($data = fgetcsv($handle)) !== FALSE)
-        {
-            if (isset($data[0]))
-            {
-                $banks[] = strtolower(trim($data[0]));
-            }
-        }
-        fclose($handle);
-    }
-    return $banks;
-}
-$validBanks = getBankNames();
-
 $stmt_cart = $conn->prepare("SELECT CartID FROM 11_cart WHERE CustomerID = ?");
 $stmt_cart->bind_param("i", $customerID);
 $stmt_cart->execute();
 $result_cart = $stmt_cart->get_result();
-
 if ($row_cart = $result_cart->fetch_assoc()) 
 {
     $cartID = $row_cart['CartID'];
 }
 $stmt_cart->close();
-
 
 if ($cartID) 
 {
@@ -69,7 +61,6 @@ if ($cartID)
     $stmt_cart_items->bind_param("i", $cartID);
     $stmt_cart_items->execute();
     $result_cart_items = $stmt_cart_items->get_result();
-
     if ($result_cart_items->num_rows === 0) 
     {
         $cart_items = []; 
@@ -81,9 +72,7 @@ if ($cartID)
             if ($row_item['Quantity'] > 10) 
             {
                 $error = "Each product can only be bought up to 10! Please adjust your cart.";
-                $cart_items = [];
-                $subtotal = 0;
-                break;
+                break; 
             }
             $row_item['Subtotal'] = $row_item['Product_Price'] * $row_item['Quantity'];
             $subtotal += $row_item['Subtotal'];
@@ -91,18 +80,30 @@ if ($cartID)
         }
     }
     $stmt_cart_items->close();
-}
+} 
 else 
 {
     $cart_items = [];
 }
 
-$name = $_POST['name'] ?? '';
-$address = $_POST['address'] ?? '';
-$city = $_POST['city'] ?? '';
-$postcode = $_POST['postcode'] ?? '';
-$State = $_POST['state'] ?? ''; 
-$phone = $_POST['phone'] ?? '';
+$saved_data = []; 
+
+if (isset($_SESSION['temp_checkout_data']) && isset($_SESSION['temp_checkout_data']['saved_for_customer_id']) && $_SESSION['temp_checkout_data']['saved_for_customer_id'] == $customerID) 
+{
+    $saved_data = $_SESSION['temp_checkout_data'];
+} 
+else 
+{
+    unset($_SESSION['temp_checkout_data']);
+}
+
+$name = $_POST['name'] ?? $saved_data['shipping_name'] ?? '';
+$address = $_POST['address'] ?? $saved_data['shipping_address'] ?? '';
+$city = $_POST['city'] ?? $saved_data['shipping_city'] ?? '';
+$postcode = $_POST['postcode'] ?? $saved_data['shipping_postcode'] ?? '';
+$State = $_POST['state'] ?? $saved_data['shipping_state'] ?? ''; 
+$phone = $_POST['phone'] ?? $saved_data['shipping_phone'] ?? '';
+
 $payment_method = $_POST['payment_method'] ?? '';
 $card_number = $_POST['card_number'] ?? '';
 $card_bank = $_POST['card_bank'] ?? '';
@@ -112,11 +113,13 @@ $card_cvv = $_POST['card_cvv'] ?? '';
 $cardholder_name = $_POST['cardholder_name'] ?? '';
 $fpx_bank_selection = $_POST['fpx_bank_selection'] ?? '';
 
-
-if (!empty($postcode) && empty($error) && !empty($cart_items)) {
+if (!empty($postcode) && empty($error) && !empty($cart_items)) 
+{
     $customer_postcode_int_display = (int)$postcode;
-    foreach ($shipping_rules as $rule) {
-        if ($customer_postcode_int_display >= $rule['start'] && $customer_postcode_int_display <= $rule['end']) {
+    foreach ($shipping_rules as $rule) 
+    {
+        if ($customer_postcode_int_display >= $rule['start'] && $customer_postcode_int_display <= $rule['end']) 
+        {
             $shipping_fee = $rule['fee'];
             break;
         }
@@ -124,51 +127,25 @@ if (!empty($postcode) && empty($error) && !empty($cart_items)) {
 }
 $total = (empty($cart_items) ? 0 : $subtotal) + $shipping_fee;
 
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']))
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) 
 {
     if (empty($cart_items)) 
     { 
         $error = "Your cart is empty. Cannot place order.";
     } 
-    else 
-    { 
-        foreach ($cart_items as $item_check) 
-        {
-            if ($item_check['Quantity'] > 10) {
-                $error = "Each product can only be bought up to 10! Please adjust your cart before placing an order.";
-                break; 
-            }
-        }
-    }
-
-    $name_submitted = trim($_POST['name']);
-    $address_submitted = trim($_POST['address']);
-    $city_submitted = trim($_POST['city']);
-    $postcode_submitted = trim($_POST['postcode']);
-    $state_submitted = trim($_POST['state']); 
-    $phone_submitted = trim($_POST['phone']);
-    $payment_method_submitted = trim($_POST['payment_method']);
-
-    $card_number_submitted = trim($_POST['card_number'] ?? '');
-    $card_bank_submitted = strtolower(trim($_POST['card_bank'] ?? ''));
-    $card_expiry_month_submitted = trim($_POST['card_expiry_month'] ?? '');
-    $card_expiry_year_submitted = trim($_POST['card_expiry_year'] ?? '');
-    $card_cvv_submitted = trim($_POST['card_cvv'] ?? '');
-    $cardholder_name_submitted = trim($_POST['cardholder_name'] ?? '');
-    $fpx_bank_selection_submitted = trim($_POST['fpx_bank_selection'] ?? '');
-
+    
     if (empty($error)) 
     {
-        if (empty($name_submitted) || empty($address_submitted) || empty($city_submitted) || empty($postcode_submitted) || empty($state_submitted) || empty($phone_submitted) || empty($payment_method_submitted)) {
+        if (empty($name) || empty($address) || empty($city) || empty($postcode) || empty($State) || empty($phone) || empty($payment_method)) 
+        {
             $error = "Please fill in all required shipping and payment information.";
         }
     }
 
     $order_shipping_fee = 0; 
-    if (!empty($postcode_submitted) && empty($error)) 
+    if (!empty($postcode) && empty($error)) 
     { 
-        $customer_postcode_int_order = (int)$postcode_submitted;
+        $customer_postcode_int_order = (int)$postcode;
         foreach ($shipping_rules as $rule) 
         {
             if ($customer_postcode_int_order >= $rule['start'] && $customer_postcode_int_order <= $rule['end']) 
@@ -178,132 +155,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']))
             }
         }
     }
-
-    $current_order_subtotal = 0;
-    if (!empty($cart_items) && empty($error)) 
-    { 
-        foreach ($cart_items as $item_for_total) 
-        {
-            $item_subtotal_for_order = $item_for_total['Product_Price'] * $item_for_total['Quantity'];
-            $current_order_subtotal += $item_subtotal_for_order;
-        }
-    } 
-    else if (empty($error)) 
-    {
-        $error = "Your cart is empty. Cannot process the order.";
-    }
-    $order_total_price = $current_order_subtotal + $order_shipping_fee;
-
-
-    $target_bank_redirect_file = ''; 
+    $order_total_price = $subtotal + $order_shipping_fee;
 
     if (empty($error)) 
     {
-        if ($payment_method_submitted === 'Visa') 
-        {
-            $cleaned_card_number = str_replace(' ', '', $card_number_submitted);
-            if (empty($cleaned_card_number) || strlen($cleaned_card_number) !== 16 || !ctype_digit($cleaned_card_number)) 
+        if ($payment_method === 'Visa') {
+            $sql_correct_card = "SELECT * FROM `19_visa_card` LIMIT 1";
+            $result_correct_card = $conn->query($sql_correct_card);
+            
+            if ($result_correct_card && $result_correct_card->num_rows > 0) 
             {
-                $error = "Please enter a valid 16-digit card number.";
-            } 
-            elseif (empty($card_bank_submitted) || !in_array($card_bank_submitted, $validBanks)) 
-            {
-                $error = "Please enter a valid issuing bank name.";
-            } 
-            elseif (empty($card_expiry_month_submitted) || empty($card_expiry_year_submitted) || empty($card_cvv_submitted) || empty($cardholder_name_submitted)) 
-            {
-                $error = "Please fill in complete card details (expiry date, CVV, cardholder name).";
+                $correct_card_details = $result_correct_card->fetch_assoc();
+
+                if (trim($card_number) !== $correct_card_details['card_number']) { $error = "Incorrect card number. Please try again."; } 
+                elseif (strcasecmp(trim($card_bank), $correct_card_details['bank_name']) !== 0) { $error = "Incorrect bank name. Please try again."; } 
+                elseif (trim($card_expiry_month) !== $correct_card_details['expiry_month']) { $error = "Incorrect expiry month. Please try again."; } 
+                elseif (trim($card_expiry_year) !== $correct_card_details['expiry_year']) { $error = "Incorrect expiry year. Please try again."; } 
+                elseif (trim($card_cvv) !== $correct_card_details['cvv']) { $error = "Incorrect CVV. Please try again."; } 
+                elseif (strcasecmp(trim($cardholder_name), $correct_card_details['cardholder_name']) !== 0) { $error = "Incorrect cardholder name. Please try again."; }
             } 
             else 
-            { 
-                $currentYearLastTwoDigits = (int)date('y');
-                $currentMonth = (int)date('m');
-                $inputYearLastTwoDigits = (int)$card_expiry_year_submitted;
-                $inputMonth = (int)$card_expiry_month_submitted;
-
-                if (strlen($card_expiry_month_submitted) !== 2 || $inputMonth < 1 || $inputMonth > 12) 
-                {
-                     $error = "Card expiry month format is incorrect (MM).";
-                } 
-                elseif (strlen($card_expiry_year_submitted) !== 2) 
-                { 
-                    $error = "Card expiry year format is incorrect (YY).";
-                } 
-                elseif ($inputYearLastTwoDigits < $currentYearLastTwoDigits || ($inputYearLastTwoDigits === $currentYearLastTwoDigits && $inputMonth < $currentMonth)) 
-                {
-                    $error = "Bank card has expired.";
-                }
+            {
+                $error = "System error: Correct card details not found. Please contact administrator.";
             }
-             if (empty($error) && (strlen($card_cvv_submitted) < 3 || strlen($card_cvv_submitted) > 4 || !ctype_digit($card_cvv_submitted) )) 
-            { 
-                $error = "CVV format is incorrect (3-4 digits).";
-            }
-
         } 
-        elseif ($payment_method_submitted === 'Bank Payment') 
-        {
-            if (empty($fpx_bank_selection_submitted)) 
-            {
-                $error = "Please select your online bank.";
-            } 
-            else 
-            {
-                switch ($fpx_bank_selection_submitted) 
-                {
-                    case 'Maybank': $target_bank_redirect_file = 'Maybank_payment.php'; break;
-                    case 'CIMB Clicks': $target_bank_redirect_file = 'CIMB_payment.php'; break;
-                    case 'Public Bank': $target_bank_redirect_file = 'Publicbank_payment.php'; break;
-                    case 'RHB Bank': $target_bank_redirect_file = 'RHBbank_payment.php'; break;
-                    case 'Bank Islam': $target_bank_redirect_file = 'Islambank_payment.php'; break;
-                    case 'Hong Leong Bank': $target_bank_redirect_file = 'HongLeongbank_payment.php'; break;
-                    case 'AmBank': $target_bank_redirect_file = 'AmBank_payment.php'; break;
-                    case 'Alliance Bank': $target_bank_redirect_file = 'AllianceBank_payment.php'; break;
-                    case 'BSN': $target_bank_redirect_file = 'BSN_payment.php'; break;
-                    default:
-                        $error = "Invalid bank selected or payment page not available for the selected bank.";
-                        error_log("FPX Error: No redirect file defined for bank: " . htmlspecialchars($fpx_bank_selection_submitted));
-                        break;
-                }
-                if (!empty($target_bank_redirect_file) && empty($error)) 
-                { 
-                    $target_bank_redirect_file = 'Payment_Method_Bank/' . $target_bank_redirect_file;
-                } 
-                elseif (empty($error) && empty($target_bank_redirect_file)) 
-                { 
-                     $error = "Payment page for the selected bank is not configured correctly.";
-                }
-            }
-        }
     }
-
-
-    if (empty($error))
+    
+    if (empty($error)) 
     {
-        if ($payment_method_submitted === 'Bank Payment') 
+        if ($payment_method === 'Bank Payment') 
         {
-            if (!empty($target_bank_redirect_file)) 
+            $target_bank_redirect_file = ''; 
+            if (!empty($fpx_bank_selection)) 
             {
-                $_SESSION['temp_checkout_data'] = 
-                [
-                    'total_amount' => $order_total_price,
-                    'fpx_bank_selection' => $fpx_bank_selection_submitted,
-                    'customer_id' => $customerID,
-                    'shipping_name' => $name_submitted,
-                    'shipping_address' => $address_submitted,
-                    'shipping_city' => $city_submitted,
-                    'shipping_postcode' => $postcode_submitted,
-                    'shipping_state' => $state_submitted,
-                    'shipping_phone' => $phone_submitted,
-                    'shipping_fee' => $order_shipping_fee,
-                    'cart_items' => $cart_items, 
+                $target_bank_redirect_file = 'FPX_payment.php';
+            }
+            
+            if (!empty($target_bank_redirect_file) && empty($error)) 
+            { 
+                $_SESSION['temp_checkout_data'] = [
+                    'saved_for_customer_id' => $customerID,
+                    'total_amount'          => $order_total_price,
+                    'fpx_bank_selection'    => $fpx_bank_selection,
+                    'customer_id'           => $customerID,
+                    'shipping_name'         => $name,
+                    'shipping_address'      => $address,
+                    'shipping_city'         => $city,
+                    'shipping_postcode'     => $postcode,
+                    'shipping_state'        => $State,
+                    'shipping_phone'        => $phone,
+                    'shipping_fee'          => $order_shipping_fee,
+                    'cart_items'            => $cart_items, 
                 ];
-                header("Location: " . $target_bank_redirect_file);
+                header("Location: Payment_Method_Bank/" . $target_bank_redirect_file);
                 exit();
-            } 
-            else 
-            {
-                if(empty($error)) $error = "Could not determine bank page for redirection. Please contact support.";
-                error_log("FPX Redirection Critical Error: target_bank_redirect_file was empty before redirection attempt for bank: " . htmlspecialchars($fpx_bank_selection_submitted));
             }
         } 
         else 
@@ -314,148 +219,70 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']))
                 $tracking_number = substr(str_shuffle("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"), 0, 11);
                 $tracking_query = "INSERT INTO 06_tracking (Tracking_Number, Delivery_Status, Delivery_Address, Delivery_City, Delivery_Postcode, Delivery_State, Shipping_Fee) VALUES (?, 'pending', ?, ?, ?, ?, ?)";
                 $stmt_tracking = $conn->prepare($tracking_query);
-
-                if (!$stmt_tracking) throw new Exception("Tracking statement preparation failed: " . $conn->error);
-                $stmt_tracking->bind_param("sssssi", $tracking_number, $address_submitted, $city_submitted, $postcode_submitted, $state_submitted, $order_shipping_fee);
+                $stmt_tracking->bind_param("sssssi", $tracking_number, $address, $city, $postcode, $State, $order_shipping_fee);
                 $stmt_tracking->execute();
                 $trackingID = $conn->insert_id;
-
-                if (!$trackingID) throw new Exception("Failed to create tracking record. SQL Error: " . $stmt_tracking->error);
+                if (!$trackingID) throw new Exception("Failed to create tracking record.");
                 $stmt_tracking->close();
 
-                $order_status_for_db = 'pending'; 
+                $order_status_for_db = 'Processing'; 
                 $order_query = "INSERT INTO 07_order (CustomerID, TrackingID, OrderDate, OrderStatus, Shipping_Method, Shipping_Name, Shipping_Address, Shipping_City, Shipping_Postcode, Shipping_State, Shipping_Phone, Total_Price) VALUES (?, ?, NOW(), ?, 'Standard Delivery (Malaysia)', ?, ?, ?, ?, ?, ?, ?)";
                 $stmt_order = $conn->prepare($order_query);
-
-                if (!$stmt_order) throw new Exception("Order statement preparation failed: " . $conn->error);
-                $stmt_order->bind_param("iisssssssd", $customerID, $trackingID, $order_status_for_db, $name_submitted, $address_submitted, $city_submitted, $postcode_submitted, $state_submitted, $phone_submitted, $order_total_price);
+                $stmt_order->bind_param("iisssssssd", $customerID, $trackingID, $order_status_for_db, $name, $address, $city, $postcode, $State, $phone, $order_total_price);
                 $stmt_order->execute();
                 $orderID = $conn->insert_id;
-
-                if (!$orderID) throw new Exception("Failed to create order record. SQL Error: " . $stmt_order->error);
+                if (!$orderID) throw new Exception("Failed to create order record.");
                 $stmt_order->close();
 
                 foreach ($cart_items as $item) 
                 {
-                    $item_subtotal_for_db = $item['Product_Price'] * $item['Quantity']; // Recalculate for safety
                     $item_query = "INSERT INTO 08_order_details (OrderID, ProductID, Order_Quantity, Order_Subtotal) VALUES (?, ?, ?, ?)";
                     $stmt_item = $conn->prepare($item_query);
-
-                    if (!$stmt_item) throw new Exception("Order detail statement preparation failed for ProductID " . $item['ProductID'] . ": " . $conn->error);
-                    $stmt_item->bind_param("iiid", $orderID, $item['ProductID'], $item['Quantity'], $item_subtotal_for_db);
+                    $stmt_item->bind_param("iiid", $orderID, $item['ProductID'], $item['Quantity'], $item['Subtotal']);
                     $stmt_item->execute();
-
-                    if ($stmt_item->affected_rows === 0) throw new Exception("Failed to insert order detail for ProductID: " . $item['ProductID'] . ". SQL Error: " . $stmt_item->error);
+                    if ($stmt_item->affected_rows === 0) throw new Exception("Failed to insert order detail for ProductID: " . $item['ProductID']);
                     $stmt_item->close();
 
                     $sql_decrease_stock = "UPDATE 05_product SET Product_Stock_Quantity = Product_Stock_Quantity - ? WHERE ProductID = ? AND Product_Stock_Quantity >= ?";
                     $stmt_decrease_stock = $conn->prepare($sql_decrease_stock);
-
-                    if (!$stmt_decrease_stock) throw new Exception("Stock update statement preparation failed for ProductID " . $item['ProductID'] . ": " . $conn->error);
                     $stmt_decrease_stock->bind_param("iii", $item['Quantity'], $item['ProductID'], $item['Quantity']);
                     $stmt_decrease_stock->execute();
-
-                    if ($stmt_decrease_stock->affected_rows === 0) 
-                    {
-                        $check_stock_stmt = $conn->prepare("SELECT Product_Stock_Quantity FROM 05_product WHERE ProductID = ?");
-                        $check_stock_stmt->bind_param("i", $item['ProductID']);
-                        $check_stock_stmt->execute();
-                        $stock_result = $check_stock_stmt->get_result()->fetch_assoc();
-                        $check_stock_stmt->close();
-                        $current_stock = $stock_result ? $stock_result['Product_Stock_Quantity'] : 'unknown';
-                        throw new Exception("Stock update failed for ProductID: " . $item['ProductID'] . " (Visa/COD). Requested: ".$item['Quantity'].", Available: ".$current_stock.". SQL Error: " . $stmt_decrease_stock->error);
-                    }
+                    if ($stmt_decrease_stock->affected_rows === 0) throw new Exception("Stock update failed for ProductID: " . $item['ProductID']);
                     $stmt_decrease_stock->close();
                 }
 
-                $payment_record_id_for_opm = null;
-                $payment_table_type_for_opm = null;
-
                 $payment_status_for_db = 'Success'; 
-                $card_type_for_db = null;
-                $card_number_masked_for_db = null;
-                $card_expiry_month_for_db = null;
-                $card_expiry_year_for_db = null;
-                $card_holder_name_for_db = null;
-                $bank_name_for_db = null; 
-
-                if ($payment_method_submitted === 'Visa') 
-                {
-                    $card_type_for_db = 'Visa';
-                    $cleaned_card_num_visa = str_replace(' ', '', $card_number_submitted);
-                    $card_number_masked_for_db = substr($cleaned_card_num_visa, -4);
-                    $card_expiry_month_for_db = $card_expiry_month_submitted;
-                    $card_expiry_year_for_db = $card_expiry_year_submitted;
-                    $card_holder_name_for_db = $cardholder_name_submitted;
-                    $bank_name_for_db = $card_bank_submitted; 
-                }
-
-                $payment_query = "INSERT INTO 09_payment (OrderID, Payment_Type, TransactionID, Amount, Payment_Date, Payment_Status, Card_Type, Card_Number_Masked, Card_Expiry_Month, Card_Expiry_Year, Card_Holder_Name, Bank_Name) VALUES (?, ?, NULL, ?, NOW(), ?, ?, ?, ?, ?, ?, ?)";
+                $payment_query = "INSERT INTO 09_payment (OrderID, Payment_Type, Amount, Payment_Date, Payment_Status) VALUES (?, ?, ?, NOW(), ?)";
                 $stmt_payment = $conn->prepare($payment_query);
-
-                if (!$stmt_payment) throw new Exception("Payment statement preparation failed: " . $conn->error);
-                $stmt_payment->bind_param("isdsssssss", $orderID, $payment_method_submitted, $order_total_price, $payment_status_for_db, $card_type_for_db, $card_number_masked_for_db, $card_expiry_month_for_db, $card_expiry_year_for_db, $card_holder_name_for_db, $bank_name_for_db);
+                $stmt_payment->bind_param("isds", $orderID, $payment_method, $order_total_price, $payment_status_for_db);
                 $stmt_payment->execute();
                 $paymentID = $stmt_payment->insert_id;
-
-                if (!$paymentID) throw new Exception("Failed to create payment record. SQL Error: " . $stmt_payment->error);
+                if (!$paymentID) throw new Exception("Failed to create payment record.");
                 $stmt_payment->close();
-
-                $payment_record_id_for_opm = $paymentID;
-                $payment_table_type_for_opm = '09_payment';
-
-                $order_payment_method_query = "INSERT INTO 14_order_payment_method (OrderID, Payment_Method_Type, Payment_Table_Type, Payment_Record_ID) VALUES (?, ?, ?, ?)";
-                $stmt_opm = $conn->prepare($order_payment_method_query);
-
-                if (!$stmt_opm) throw new Exception("Order payment method link statement preparation failed: " . $conn->error);
-
-                $payment_method_type_for_opm = 'Visa'; 
-                $payment_table_type_for_opm = '09_payment'; 
                 
-                $stmt_opm->bind_param("isss", $orderID, $payment_method_submitted, $payment_table_type_for_opm, $payment_record_id_for_opm);
-                $stmt_opm->execute();
-
-                if ($stmt_opm->affected_rows === 0) throw new Exception("Failed to create order payment method link. SQL Error: " . $stmt_opm->error);
-                $stmt_opm->close();
-
                 if($cartID) 
                 {
                     $clear_cart_query = "DELETE FROM 12_cart_item WHERE CartID = ?";
                     $stmt_clear_cart = $conn->prepare($clear_cart_query);
-
-                    if (!$stmt_clear_cart) 
-                    {
-                        error_log("Cart clearing statement preparation failed: " . $conn->error); 
-                    } 
-                    else 
-                    {
-                        $stmt_clear_cart->bind_param("i", $cartID);
-                        $stmt_clear_cart->execute();
-                        $stmt_clear_cart->close();
-                    }
+                    $stmt_clear_cart->bind_param("i", $cartID);
+                    $stmt_clear_cart->execute();
+                    $stmt_clear_cart->close();
                 }
 
                 $conn->commit(); 
+                unset($_SESSION['temp_checkout_data']); 
                 header("Location: order_confirmation.php?id=$orderID&success=1");
                 exit();
-
             } 
             catch (Exception $e) 
             {
                 $conn->rollback(); 
                 $error = "Order processing failed. Please try again. Details: " . $e->getMessage();
-                error_log("Order Processing Exception (Visa/COD): " . $e->getMessage() . " - SQL State: " . $conn->sqlstate . " - Trace: " . $e->getTraceAsString());
             }
         }
-    } 
-    else 
-    {
-        error_log("Checkout.php: Validation failed during POST. Error: " . htmlspecialchars($error));
     }
 } 
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -463,6 +290,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']))
     <meta charset="UTF-8">
     <title>Checkout</title>
     <link rel="stylesheet" href="Checkout.css">
+    <style>
+        .error-message { 
+            color: #ff5252; 
+            font-size: 0.9em; 
+            padding-left: 5px; 
+            margin-top: -10px;
+            margin-bottom: 10px;
+            display: none; 
+            min-height: 1em; 
+        }
+        .card-expiry-cvv { display: flex; gap: 15px; }
+        .card-expiry-cvv > div { flex: 1; }
+        .address-choice {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            padding: 10px;
+            background-color: #2a2a2a;
+            border-radius: 8px;
+        }
+        .address-choice label {
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            color: #ccc;
+        }
+        .address-choice input[type="radio"] { display: none; }
+        .address-choice input[type="radio"]:checked + label {
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
     <div class="checkout-container">
@@ -472,61 +333,72 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']))
             <?php if (!empty($error)): ?>
                 <p class="error-php" style="color: red; font-weight: bold; margin-bottom: 10px;"><?= htmlspecialchars($error) ?></p>
             <?php endif; ?>
-            <p class="error-js" style="color: red; font-weight: bold; margin-bottom: 10px; display: none;"></p>
-
+            
             <?php if (!empty($cart_items)): ?>
-            <form method="post" class="checkout-form">
+            <form method="post" class="checkout-form" onsubmit="return validateForm()">
                 <h3>Shipping Information</h3>
-                <input type="text" name="name" placeholder="Full Name" value="<?= htmlspecialchars($name ?? '') ?>" required>
-                <input type="text" name="address" placeholder="Address" value="<?= htmlspecialchars($address ?? '') ?>" required>
-                <input type="text" name="city" placeholder="City" value="<?= htmlspecialchars($city ?? '') ?>" required>
-                <input type="text" name="postcode" id="postcode_input" placeholder="Postcode" value="<?= htmlspecialchars($postcode ?? '') ?>" required oninput="validatePostcode()">
-                <span id="postcode_error" class="error-message" style="color: red;"></span>
-                <input type="text" name="state" placeholder="State" value="<?= htmlspecialchars($State ?? '') ?>" required>
-                <input type="text" name="phone" placeholder="Phone Number" value="<?= htmlspecialchars($phone ?? '') ?>" required>
+                
+                <div class="address-choice">
+                    <input type="radio" id="new_address_radio" name="address_option" value="new" checked>
+                    <label for="new_address_radio">Use New Address</label>
+                    
+                    <?php if ($registered_address): ?>
+                    <input type="radio" id="registered_address_radio" name="address_option" value="registered">
+                    <label for="registered_address_radio">Use My Registered Address</label>
+                    <?php endif; ?>
+                </div>
+                
+                <div id="shipping_fields_container">
+                    <input type="text" id="shipping_name" name="name" placeholder="Full Name" value="<?= htmlspecialchars($name) ?>" required>
+                    <div id="name_error" class="error-message"></div>
+
+                    <input type="text" id="shipping_address" name="address" placeholder="Address" value="<?= htmlspecialchars($address) ?>" required>
+                    
+                    <input type="text" id="shipping_city" name="city" placeholder="City" value="<?= htmlspecialchars($city) ?>" required>
+                    <div id="city_error" class="error-message"></div>
+
+                    <input type="text" id="postcode_input" name="postcode" placeholder="Postcode" value="<?= htmlspecialchars($postcode) ?>" required>
+                    <div id="postcode_error" class="error-message"></div>
+
+                    <input type="text" id="shipping_state" name="state" placeholder="State" value="<?= htmlspecialchars($State) ?>" required>
+                    <div id="state_error" class="error-message"></div>
+
+                    <input type="text" id="shipping_phone" name="phone" placeholder="Phone Number (10-12 digits)" value="<?= htmlspecialchars($phone) ?>" required>
+                    <div id="phone_error" class="error-message"></div>
+                </div>
 
                 <h3>Payment Method</h3>
                 <select name="payment_method" id="payment_method_select" required>
                     <option value="">Select a payment method</option>
                     <option value="Visa" <?= ($payment_method == 'Visa') ? 'selected' : '' ?>>Visa</option>
-                    <option value="Bank Payment" <?= ($payment_method == 'Bank Payment') ? 'selected' : '' ?>>Bank Payment</option>
+                    <option value="Bank Payment" <?= ($payment_method == 'Bank Payment') ? 'selected' : '' ?>>Bank Payment (FPX)</option>
                 </select>
 
                 <div id="credit_card_fields" style="display: none;">
-                    <input type="text" name="card_number" id="card_number_input" placeholder="Card Number (16 digits)" value="<?= htmlspecialchars($card_number ?? '') ?>" oninput="validateCardInfo()">
-                    <span id="card_number_error" class="error-message" style="color: red;"></span>
-
+                    <input type="text" name="card_number" id="card_number_input" placeholder="Card Number (16 digits)" value="<?= htmlspecialchars($card_number) ?>">
+                    <div id="card_number_error" class="error-message"></div>
                     <div class="card-expiry-cvv">
-                        <input type="text" name="card_expiry_month" id="card_expiry_month_input" placeholder="MM" maxlength="2" value="<?= htmlspecialchars($card_expiry_month ?? '') ?>" oninput="validateCardInfo()">
-                        <input type="text" name="card_expiry_year" id="card_expiry_year_input" placeholder="YY" maxlength="2" value="<?= htmlspecialchars($card_expiry_year ?? '') ?>" oninput="validateCardInfo()">
+                        <div>
+                            <input type="text" name="card_expiry_month" id="card_expiry_month_input" placeholder="MM" maxlength="2" value="<?= htmlspecialchars($card_expiry_month) ?>">
+                            <div id="card_month_error" class="error-message"></div>
+                        </div>
+                        <div>
+                             <input type="text" name="card_expiry_year" id="card_expiry_year_input" placeholder="YY" maxlength="2" value="<?= htmlspecialchars($card_expiry_year) ?>">
+                             <div id="card_year_error" class="error-message"></div>
+                        </div>
                     </div>
-                    <span id="card_expiry_error" class="error-message" style="color: red;"></span>
-
-                    <input type="text" name="card_cvv" id="card_cvv_input" placeholder="CVV (3-4 digits)" maxlength="4" value="<?= htmlspecialchars($card_cvv ?? '') ?>" onblur="validateCardInfo()">
-                    <span id="card_cvv_error" class="error-message" style="color: red;"></span>
-
-                    <input type="text" name="cardholder_name" id="cardholder_name_input" placeholder="Cardholder Name" value="<?= htmlspecialchars($cardholder_name ?? '') ?>" onblur="validateCardInfo()">
-                    <span id="cardholder_name_error" class="error-message" style="color: red;"></span>
-
-                    <input type="text" name="card_bank" id="card_bank_input" placeholder="Bank Name" value="<?= htmlspecialchars($card_bank ?? '') ?>" onblur="validateBankName()">
-                    <span id="card_bank_error" class="error-message" style="color: red;"></span>
+                    <div id="card_date_error" class="error-message"></div>
+                    <input type="text" name="card_cvv" id="card_cvv_input" placeholder="CVV (3-4 digits)" maxlength="4" value="<?= htmlspecialchars($card_cvv) ?>">
+                    <div id="card_cvv_error" class="error-message"></div>
+                    <input type="text" name="cardholder_name" id="cardholder_name_input" placeholder="Cardholder Name" value="<?= htmlspecialchars($cardholder_name) ?>">
+                    <input type="text" name="card_bank" id="card_bank_input" placeholder="Bank Name" value="<?= htmlspecialchars($card_bank) ?>">
                 </div>
-
+                
                 <div id="bank_payment_fields" style="display: none;">
-                    <h4>Select Your Bank for Online Banking</h4>
-                    <select name="fpx_bank_selection" id="fpx_bank_selection_input">
-                        <option value="">Select Bank</option>
-                        <option value="Maybank" <?= ($fpx_bank_selection == 'Maybank') ? 'selected' : '' ?>>Maybank</option>
-                        <option value="CIMB Clicks" <?= ($fpx_bank_selection == 'CIMB Clicks') ? 'selected' : '' ?>>CIMB Clicks</option>
-                        <option value="Public Bank" <?= ($fpx_bank_selection == 'Public Bank') ? 'selected' : '' ?>>Public Bank Berhad</option>
-                        <option value="RHB Bank" <?= ($fpx_bank_selection == 'RHB Bank') ? 'selected' : '' ?>>RHB Bank</option>
-                        <option value="Bank Islam" <?= ($fpx_bank_selection == 'Bank Islam') ? 'selected' : '' ?>>Bank Islam</option>
-                        <option value="Hong Leong Bank" <?= ($fpx_bank_selection == 'Hong Leong Bank') ? 'selected' : '' ?>>Hong Leong Bank</option>
-                        <option value="AmBank" <?= ($fpx_bank_selection == 'AmBank') ? 'selected' : '' ?>>AmBank</option>
-                        <option value="Alliance Bank" <?= ($fpx_bank_selection == 'Alliance Bank') ? 'selected' : '' ?>>Alliance Bank</option>
-                        <option value="BSN" <?= ($fpx_bank_selection == 'BSN') ? 'selected' : '' ?>>Bank Simpanan Nasional (BSN)</option>
-                    </select>
-                    <p class="payment-instruction">You will be redirected to your selected bank's website to complete your payment. Do not close this window.</p>
+                    <input type="hidden" name="fpx_bank_selection" value="FPX"> 
+                    <p style="padding: 15px; margin-top:10px; background-color: #2a2a2a; border-radius: 8px; color: #ccc; text-align: center;">
+                        You will be redirected to the secure FPX payment gateway to complete your purchase.
+                    </p>
                 </div>
 
                 <button type="submit" name="place_order" class="place-order-button">Place Order</button>
@@ -534,21 +406,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']))
 
             <?php else: ?>
                 <p>Your cart is empty. Please add items to your cart before checking out.</p>
-                 <script>
-                    document.addEventListener('DOMContentLoaded', () => {
-                        const form = document.querySelector('.checkout-form');
-                        if (form) {
-                            Array.from(form.elements).forEach(el => el.disabled = true);
-                        }
-                        const placeOrderButton = document.querySelector('.place-order-button');
-                        if(placeOrderButton) placeOrderButton.disabled = true;
-                    });
-                </script>
             <?php endif; ?>
         </div>
 
         <div class="checkout-right">
-            <h2>Cart Summary</h2>
+             <h2>Cart Summary</h2>
             <?php if (!empty($cart_items)): ?>
             <div class="cart-items">
                 <?php foreach ($cart_items as $item): ?>
@@ -574,350 +436,283 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']))
     </div>
 
     <script>
-        const displayMainError = (message) => {
-            const errorParagraph = document.querySelector('.checkout-left .error-js');
-            const phpErrorParagraph = document.querySelector('.checkout-left .error-php');
+        const registeredAddress = <?php echo json_encode($registered_address); ?>;
+        const shippingRules = <?php echo json_encode($shipping_rules); ?>;
 
-            if (errorParagraph) 
-            {
-                errorParagraph.textContent = message;
-                errorParagraph.style.display = message ? 'block' : 'none';
-                if (message) 
-                {
-                    errorParagraph.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    if (phpErrorParagraph) phpErrorParagraph.style.display = 'none';
-                }
-                else 
-                {
-                    if (phpErrorParagraph && phpErrorParagraph.textContent.trim() !== '') 
-                    {
-                        phpErrorParagraph.style.display = 'block';
-                    }
-                }
-            }
-        };
+        const newAddressRadio = document.getElementById('new_address_radio');
+        const registeredAddressRadio = document.getElementById('registered_address_radio');
+        
+        const nameInput = document.getElementById('shipping_name');
+        const addressInput = document.getElementById('shipping_address');
+        const cityInput = document.getElementById('shipping_city');
+        const postcodeInput = document.getElementById('postcode_input');
+        const stateInput = document.getElementById('shipping_state');
+        const phoneInput = document.getElementById('shipping_phone');
 
-        const clearAllPaymentErrors = () => {
-            if (cardNumberError) cardNumberError.textContent = '';
-            if (expiryError) expiryError.textContent = '';
-            if (cvvError) cvvError.textContent = '';
-            if (cardholderNameError) cardholderNameError.textContent = '';
-            if (cardBankError) cardBankError.textContent = '';
-        };
-
+        const nameError = document.getElementById('name_error');
+        const cityError = document.getElementById('city_error');
+        const postcodeError = document.getElementById('postcode_error');
+        const stateError = document.getElementById('state_error');
+        const phoneError = document.getElementById('phone_error');
+        
         const paymentMethodSelect = document.getElementById('payment_method_select');
         const creditCardFields = document.getElementById('credit_card_fields');
         const bankPaymentFields = document.getElementById('bank_payment_fields');
-        const fpxBankSelectionInput = document.getElementById('fpx_bank_selection_input');
 
-        let initialSubtotal = 0;
-        const subtotalElement = document.querySelector(".subtotal");
-
-        if (subtotalElement) 
+        function handleAddressChoice() 
         {
-            initialSubtotal = parseFloat(subtotalElement.textContent.replace('RM', '').trim().replace(',', '')) || 0;
-        }
-
-        const shippingRules = <?= json_encode($shipping_rules) ?>;
-        const phpValidBankNames = <?= json_encode($validBanks) ?>;
-
-        const postcodeInput = document.getElementById('postcode_input');
-        const cardNumberInput = document.getElementById('card_number_input');
-        const expiryMonthInput = document.getElementById('card_expiry_month_input');
-        const expiryYearInput = document.getElementById('card_expiry_year_input');
-        const cvvInput = document.getElementById('card_cvv_input');
-        const cardholderNameInput = document.getElementById('cardholder_name_input');
-        const cardBankInput = document.getElementById('card_bank_input');
-
-        const postcodeError = document.getElementById('postcode_error');
-        const cardNumberError = document.getElementById('card_number_error');
-        const expiryError = document.getElementById('card_expiry_error');
-        const cvvError = document.getElementById('card_cvv_error');
-        const cardholderNameError = document.getElementById('cardholder_name_error');
-        const cardBankError = document.getElementById('card_bank_error');
-
-        function togglePaymentFields() 
-        {
-            const selectedMethod = paymentMethodSelect.value;
-            creditCardFields.style.display = 'none';
-            bankPaymentFields.style.display = 'none';
-            displayMainError('');
-            clearAllPaymentErrors();
-
-            if (selectedMethod === 'Visa') 
+            const allAddressInputs = [nameInput, addressInput, cityInput, postcodeInput, stateInput, phoneInput];
+            if (registeredAddressRadio && registeredAddressRadio.checked) 
             {
-                creditCardFields.style.display = 'block';
+                if (registeredAddress) 
+                {
+                    nameInput.value = (registeredAddress.Cust_First_Name + ' ' + registeredAddress.Cust_Last_Name).trim();
+                    addressInput.value = registeredAddress.Cust_Address;
+                    cityInput.value = registeredAddress.Cust_City;
+                    postcodeInput.value = registeredAddress.Cust_Postcode;
+                    stateInput.value = registeredAddress.Cust_State;
+                    phoneInput.value = registeredAddress.Cust_PhoneNumber;
+                    allAddressInputs.forEach(input => input.readOnly = true);
+                    updateShippingAndTotalDisplay(postcodeInput.value);
+                }
             } 
-            else if (selectedMethod === 'Bank Payment') 
+            else 
             {
-                bankPaymentFields.style.display = 'block';
+                allAddressInputs.forEach(input => input.readOnly = false);
+                nameInput.value = "<?= htmlspecialchars($saved_data['shipping_name'] ?? '') ?>";
+                addressInput.value = "<?= htmlspecialchars($saved_data['shipping_address'] ?? '') ?>";
+                cityInput.value = "<?= htmlspecialchars($saved_data['shipping_city'] ?? '') ?>";
+                postcodeInput.value = "<?= htmlspecialchars($saved_data['shipping_postcode'] ?? '') ?>";
+                stateInput.value = "<?= htmlspecialchars($saved_data['shipping_state'] ?? '') ?>";
+                phoneInput.value = "<?= htmlspecialchars($saved_data['shipping_phone'] ?? '') ?>";
+                updateShippingAndTotalDisplay(postcodeInput.value);
             }
         }
+        
+        function togglePaymentFields() 
+        {
+             const selectedMethod = paymentMethodSelect.value;
+            creditCardFields.style.display = selectedMethod === 'Visa' ? 'block' : 'none';
+            bankPaymentFields.style.display = selectedMethod === 'Bank Payment' ? 'block' : 'none';
+        }
 
-        function updateShippingAndTotalDisplay(postcodeValue, isPostcodeFieldValid) 
+        function updateShippingAndTotalDisplay(postcodeValue) 
         {
             const shippingFeeDisplay = document.querySelector(".shipping-fee");
             const totalDisplay = document.querySelector(".total-price");
+            const subtotalElement = document.querySelector(".subtotal");
+
+            if (!subtotalElement) return;
+
+            const subtotal = parseFloat(subtotalElement.textContent.replace(/,/g, ''));
             let calculatedShippingFee = 0;
 
-            if (isPostcodeFieldValid && postcodeValue !== '') 
+            if (postcodeValue && postcodeValue.length >= 4) 
             {
                 const customerPostcodeInt = parseInt(postcodeValue, 10);
-                let foundRule = false;
-
                 for (let i = 0; i < shippingRules.length; i++) 
                 {
-                    let rule = shippingRules[i];
-
-                    if (customerPostcodeInt >= rule.start && customerPostcodeInt <= rule.end) 
+                    if (customerPostcodeInt >= shippingRules[i].start && customerPostcodeInt <= shippingRules[i].end) 
                     {
-                        calculatedShippingFee = rule.fee;
-                        foundRule = true;
+                        calculatedShippingFee = shippingRules[i].fee;
                         break;
                     }
                 }
-                if (!foundRule) calculatedShippingFee = 0;
+            }
+            shippingFeeDisplay.textContent = calculatedShippingFee.toFixed(2);
+            totalDisplay.textContent = "RM " + (subtotal + calculatedShippingFee).toFixed(2);
+        }
+        
+        function forceLettersOnly(input, errorDiv) 
+        {
+            const originalValue = input.value;
+            const cleanedValue = originalValue.replace(/[^a-zA-Z\s]/g, '');
+            
+            if (originalValue !== cleanedValue) 
+            {
+                input.value = cleanedValue;
+                errorDiv.textContent = 'Only letters and spaces are allowed.';
+                errorDiv.style.display = 'block';
             } 
             else 
             {
-                calculatedShippingFee = 0;
+                errorDiv.style.display = 'none';
             }
-
-            if (shippingFeeDisplay) shippingFeeDisplay.textContent = calculatedShippingFee.toFixed(2);
-
-            const currentTotal = initialSubtotal + calculatedShippingFee;
-            if (totalDisplay) totalDisplay.textContent = "RM " + currentTotal.toFixed(2);
         }
 
-        function validatePostcode() 
+        function forceNumericOnly(input, errorDiv) 
         {
-            const postcodeValue = postcodeInput.value.trim();
-            let isValid = true;
-            if (postcodeError) postcodeError.textContent = '';
+            const originalValue = input.value;
+            const numericValue = originalValue.replace(/\D/g, '');
 
-            if (postcodeValue === '') 
+            if (originalValue !== numericValue) 
             {
-                if (postcodeError) postcodeError.textContent = "Postcode is required.";
-                isValid = false;
-            } 
-            else if (isNaN(postcodeValue) || !/^\d+$/.test(postcodeValue)) 
-            {
-                if (postcodeError) postcodeError.textContent = "Postcode must be numeric.";
-                isValid = false;
-            } 
-            else if (postcodeValue.length > 6) 
-            {
-                if (postcodeError) postcodeError.textContent = "Postcode cannot exceed 6 digits.";
-                isValid = false;
-            } 
-            else if (postcodeValue.length < 5) 
-            {
-                if (postcodeError) postcodeError.textContent = "Postcode must be at least 5 digits.";
-                isValid = false;
-            }
-            updateShippingAndTotalDisplay(postcodeValue, isValid);
-            return isValid;
-        }
-
-        function validateCardInfo() 
-        {
-            let isValid = true;
-            const cardNumber = cardNumberInput.value.trim();
-            const expiryMonth = expiryMonthInput.value.trim();
-            const expiryYear = expiryYearInput.value.trim();
-            const cvv = cvvInput.value.trim();
-            const cardholderName = cardholderNameInput.value.trim();
-            const cleanedCardNumber = cardNumber.replace(/\s/g, '');
-
-            if (cardNumberError) cardNumberError.textContent = '';
-            if (expiryError) expiryError.textContent = '';
-            if (cvvError) cvvError.textContent = '';
-            if (cardholderNameError) cardholderNameError.textContent = '';
-
-            if (cleanedCardNumber === '') 
-            {
-                if (cardNumberError) cardNumberError.textContent = "Card number is required."; isValid = false;
-            }
-            else if (!/^\d{16}$/.test(cleanedCardNumber)) 
-            {
-                if (cardNumberError) cardNumberError.textContent = "Card number must be 16 digits."; isValid = false;
-            }
-
-            if (expiryMonth === '' || expiryYear === '') 
-            {
-                if (expiryError) expiryError.textContent = "Expiry date is required."; isValid = false;
-            } 
-            else if (!/^\d{2}$/.test(expiryMonth) || parseInt(expiryMonth) < 1 || parseInt(expiryMonth) > 12) 
-            {
-                if (expiryError) expiryError.textContent = "Invalid month (MM)."; isValid = false;
-            } 
-            else if (!/^\d{2}$/.test(expiryYear)) 
-            {
-                if (expiryError) expiryError.textContent = "Invalid year (YY)."; isValid = false;
+                input.value = numericValue;
+                errorDiv.textContent = 'Only numbers are allowed.';
+                errorDiv.style.display = 'block';
             } 
             else 
             {
-                const currentYearLastTwoDigits = new Date().getFullYear() % 100;
+                errorDiv.style.display = 'none';
+            }
+            return numericValue;
+        }
+
+        function validatePhone() 
+        {
+            const value = forceNumericOnly(phoneInput, phoneError);
+
+            if (value.length > 0 && (value.length < 10 || value.length > 12)) 
+            {
+                phoneError.textContent = 'Phone number must be 10-12 digits.';
+                phoneError.style.display = 'block';
+            } 
+            else if (phoneError.textContent === 'Phone number must be 10-12 digits.') 
+            {
+                phoneError.style.display = 'none';
+            }
+        }
+
+        function forceNumeric(inputElement) 
+        {
+            let value = inputElement.value;
+            let numericValue = value.replace(/\D/g, ''); 
+
+            if (value !== numericValue) { inputElement.value = numericValue; }
+            return numericValue;
+        }
+
+        function validateCardNumber() 
+        {
+            const input = document.getElementById('card_number_input');
+            const errorSpan = document.getElementById('card_number_error');
+            const value = forceNumeric(input);
+
+            if (value === '' || value.length === 16) 
+            { 
+                errorSpan.style.display = 'none'; 
+            } 
+            else 
+            {
+                errorSpan.textContent = 'Card number must be 16 digits.'; errorSpan.style.display = 'block';
+            }
+        }
+
+        function validateExpiryMonth() 
+        {
+            const input = document.getElementById('card_expiry_month_input');
+            const errorSpan = document.getElementById('card_month_error');
+            const value = forceNumeric(input);
+
+            if (value === '') 
+            { 
+                errorSpan.style.display = 'none'; 
+            } 
+            else if (parseInt(value) > 12 || parseInt(value) < 1 || value.length > 2 || (value.length === 2 && parseInt(value) === 0)) 
+            {
+                errorSpan.textContent = 'Invalid month (01-12).'; errorSpan.style.display = 'block';
+            } 
+            else 
+            { 
+                errorSpan.style.display = 'none'; 
+            }
+            validateFullExpiryDate();
+        }
+
+        function validateExpiryYear() 
+        {
+            const input = document.getElementById('card_expiry_year_input');
+            const errorSpan = document.getElementById('card_year_error');
+            const value = forceNumeric(input);
+
+            if (value === '') 
+            { 
+                errorSpan.style.display = 'none'; 
+            } 
+            else if (value.length !== 2) 
+            { 
+                errorSpan.textContent = 'Year must be 2 digits (YY).'; errorSpan.style.display = 'block';
+            } 
+            else 
+            { 
+                errorSpan.style.display = 'none'; 
+            }
+            validateFullExpiryDate();
+        }
+
+        function validateCvv() 
+        {
+            const input = document.getElementById('card_cvv_input');
+            const errorSpan = document.getElementById('card_cvv_error');
+            const value = forceNumeric(input);
+
+            if (value === '' || (value.length >= 3 && value.length <= 4)) 
+            { 
+                errorSpan.style.display = 'none';
+            } 
+            else 
+            { 
+                errorSpan.textContent = 'CVV must be 3 or 4 digits.'; errorSpan.style.display = 'block'; 
+            }
+        }
+
+        function validateFullExpiryDate() 
+        {
+            const monthInput = document.getElementById('card_expiry_month_input');
+            const yearInput = document.getElementById('card_expiry_year_input');
+            const monthError = document.getElementById('card_month_error');
+            const yearError = document.getElementById('card_year_error');
+            const dateError = document.getElementById('card_date_error');
+
+            if (monthError.style.display === 'none' && yearError.style.display === 'none' && monthInput.value.length === 2 && yearInput.value.length === 2) 
+            {
+                const currentYear = new Date().getFullYear() % 100;
                 const currentMonth = new Date().getMonth() + 1;
-                const inputYearLastTwoDigits = parseInt(expiryYear);
-                const inputMonth = parseInt(expiryMonth);
+                const inputYear = parseInt(yearInput.value, 10);
+                const inputMonth = parseInt(monthInput.value, 10);
 
-                if (inputYearLastTwoDigits < currentYearLastTwoDigits || (inputYearLastTwoDigits === currentYearLastTwoDigits && inputMonth < currentMonth)) 
+                if (inputYear < currentYear || (inputYear === currentYear && inputMonth < currentMonth)) 
                 {
-                    if (expiryError) expiryError.textContent = "Bank card has expired."; isValid = false;
+                    dateError.textContent = 'This card has expired.'; dateError.style.display = 'block';
+                } 
+                else 
+                { 
+                    dateError.style.display = 'none'; 
                 }
-            }
-
-            if (cvv === '') 
-            {
-                if (cvvError) cvvError.textContent = "CVV is required."; isValid = false;
             } 
-            else if (!/^\d{3,4}$/.test(cvv)) 
-            {
-                if (cvvError) cvvError.textContent = "CVV must be 3 or 4 digits."; isValid = false;
+            else 
+            { 
+                dateError.style.display = 'none'; 
             }
-
-            if (cardholderName === '') 
-            {
-                if (cardholderNameError) cardholderNameError.textContent = "Cardholder name is required."; isValid = false;
-            } 
-            else if (!/^[a-zA-Z\s]+$/.test(cardholderName)) 
-            {
-                if (cardholderNameError) cardholderNameError.textContent = "Cardholder name can only contain letters and spaces."; isValid = false;
-            }
-            return isValid;
         }
 
-        function validateBankName() 
+        if (newAddressRadio) newAddressRadio.addEventListener('change', handleAddressChoice);
+        if (registeredAddressRadio) registeredAddressRadio.addEventListener('change', handleAddressChoice);
+        
+        paymentMethodSelect.addEventListener('change', togglePaymentFields);
+
+        nameInput.addEventListener('input', () => forceLettersOnly(nameInput, nameError));
+        cityInput.addEventListener('input', () => forceLettersOnly(cityInput, cityError));
+        stateInput.addEventListener('input', () => forceLettersOnly(stateInput, stateError));
+        
+        postcodeInput.addEventListener('input', () => 
         {
-            let isValid = true;
-            const bankName = cardBankInput.value.trim();
-            if (cardBankError) cardBankError.textContent = '';
-
-            if (bankName === '') 
-            {
-                if (cardBankError) cardBankError.textContent = "Bank name is required."; isValid = false;
-            } 
-            else if (!/^[a-zA-Z\s]+$/.test(bankName)) 
-            {
-                if (cardBankError) cardBankError.textContent = "Bank name can only contain letters and spaces."; isValid = false;
-            } 
-            else if (!phpValidBankNames.includes(bankName.toLowerCase())) 
-            {
-                if (cardBankError) cardBankError.textContent = "Invalid bank name. Please ensure it matches an accepted bank."; isValid = false;
-            }
-            return isValid;
-        }
-
-        if (paymentMethodSelect) paymentMethodSelect.addEventListener('change', togglePaymentFields);
-
-        if (postcodeInput) 
-        {
-             postcodeInput.addEventListener('input', validatePostcode);
-             postcodeInput.addEventListener('blur', validatePostcode);
-        }
-
-        if (cardNumberInput) cardNumberInput.addEventListener('input', validateCardInfo);
-        if (expiryMonthInput) expiryMonthInput.addEventListener('input', validateCardInfo);
-        if (expiryYearInput) expiryYearInput.addEventListener('input', validateCardInfo);
-        if (cvvInput) cvvInput.addEventListener('blur', validateCardInfo);
-        if (cardholderNameInput) cardholderNameInput.addEventListener('blur', validateCardInfo);
-        if (cardBankInput) cardBankInput.addEventListener('blur', validateBankName);
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const initialPaymentMethod = "<?= htmlspecialchars($payment_method ?? '') ?>";
-
-            if (paymentMethodSelect) 
-            {
-                 paymentMethodSelect.value = initialPaymentMethod || '';
-            }
-
-            togglePaymentFields();
-            validatePostcode();
-            clearAllPaymentErrors();
+            forceNumericOnly(postcodeInput, postcodeError);
+            updateShippingAndTotalDisplay(postcodeInput.value);
         });
-
-        const form = document.querySelector('.checkout-form');
-        if (form) 
+        
+        phoneInput.addEventListener('input', validatePhone);
+        
+        document.getElementById('card_number_input').addEventListener('input', validateCardNumber);
+        document.getElementById('card_expiry_month_input').addEventListener('input', validateExpiryMonth);
+        document.getElementById('card_expiry_year_input').addEventListener('input', validateExpiryYear);
+        document.getElementById('card_cvv_input').addEventListener('input', validateCvv);
+        
+        document.addEventListener('DOMContentLoaded', () => 
         {
-            form.addEventListener('submit', function(event) 
-            {
-                let formIsValid = true;
-                displayMainError('');
-                clearAllPaymentErrors();
-
-                const nameInput = document.querySelector("input[name='name']");
-                const addressInput = document.querySelector("input[name='address']");
-                const cityInput = document.querySelector("input[name='city']");
-                const stateInput = document.querySelector("input[name='state']");
-                const phoneInput = document.querySelector("input[name='phone']");
-
-                if (!nameInput.value.trim()) 
-                { 
-                    displayMainError("Please enter your full name."); formIsValid = false; 
-                }
-                else if (!addressInput.value.trim()) 
-                { 
-                    displayMainError("Please enter your address."); formIsValid = false; 
-                }
-                else if (!cityInput.value.trim()) 
-                { 
-                    displayMainError("Please enter your city."); formIsValid = false; 
-                }
-                else if (!stateInput.value.trim()) 
-                { 
-                    displayMainError("Please enter your state/province."); formIsValid = false; 
-                }
-                else if (!phoneInput.value.trim()) 
-                { 
-                    displayMainError("Please enter your phone number."); formIsValid = false; 
-                }
-
-                if (formIsValid && !validatePostcode()) 
-                {
-                    formIsValid = false;
-                }
-
-                const selectedMethod = paymentMethodSelect.value;
-                if (formIsValid && selectedMethod === '') 
-                {
-                    displayMainError("Please select a payment method.");
-                    paymentMethodSelect.focus();
-                    formIsValid = false;
-                }
-
-                if (formIsValid) 
-                {
-                    if (selectedMethod === 'Visa') 
-                    {
-                        const cardInfoValid = validateCardInfo();
-                        const bankNameValid = validateBankName();
-
-                        if (!cardInfoValid || !bankNameValid) 
-                        {
-                            formIsValid = false;
-                            if (!cardInfoValid && !bankNameValid) displayMainError("Please correct your Visa card details and bank name.");
-                            else if (!cardInfoValid) displayMainError("Please correct your Visa card details.");
-                            else if (!bankNameValid) displayMainError("Please correct your bank name.");
-                        }
-                    } 
-                    else if (selectedMethod === 'Bank Payment') 
-                    {
-                        if (fpx_bank_selection_input.value === "") 
-                        {
-                            displayMainError("Please select your online bank.");
-                            fpx_bank_selection_input.focus();
-                            formIsValid = false;
-                        }
-                    }
-                }
-
-                if (!formIsValid) 
-                {
-                    event.preventDefault();
-                }
-            });
-        }
+            handleAddressChoice(); 
+            togglePaymentFields();
+        });
     </script>
 </body>
 </html>
