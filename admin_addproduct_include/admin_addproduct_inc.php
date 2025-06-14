@@ -21,7 +21,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         $allowed = array("jpg", "jpeg", "png", "webp");
 
-        // Upload main image
+   
+
+        $errors = [];
+
+        if (emptyerrorsaddproduct($name, $description, $status, $category, $brand)) {
+            $errors["empty_input"] = "Fill in all fields.";
+        }
+        if (hasNegativePriceOrStock($price, $stock)) {
+            $errors["negative_value"] = "❌ Price and stock must be valid non-negative numbers.";
+        }
+        
+    
+        if ($errors) {
+          $_SESSION["formdata"] = $_POST;  
+            $_SESSION["error_signup"] = $errors;
+            header("Location: ../admin_layout.php?page=admin_add_product");
+            die();
+        }
+         // Upload main image
         $image_path = '';
         if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] === UPLOAD_ERR_OK) {
             $filename = $_FILES["product_image"]["name"];
@@ -66,26 +84,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         }
 
-        $errors = [];
-
-        if (emptyerrorsaddproduct($name, $description, $status, $category, $brand)) {
-            $errors["empty_input"] = "Fill in all fields.";
-        }
-        if (hasNegativePriceOrStock($price, $stock)) {
-            $errors["negative_value"] = "❌ Price and stock must be valid non-negative numbers.";
-        }
-
-        if ($errors) {
-            $_SESSION["error_signup"] = $errors;
-            header("Location: ../admin_layout.php?page=admin_add_product");
-            die();
-        }
-
-        // ❗ Update insertalldetails to accept 3 images!
         $message = insertalldetails($pdo, $name, $description, $price, $stock, $status, $category, $brand, $image_path, $image_path2, $image_path3);
 
         if (str_starts_with($message, "✅")) {
             $_SESSION['success'] = $message;
+            unset($_SESSION['formdata']);
+    unset($_SESSION['error_signup']);
         } else {
             $_SESSION['error_signup']['db'] = $message;
         }
