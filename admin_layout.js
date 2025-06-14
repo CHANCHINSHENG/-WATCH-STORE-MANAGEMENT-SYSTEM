@@ -436,12 +436,12 @@ if (deleteResult) {
     });
   }
 
-  // 🔄 Remove ?delete=xxx from URL after showing message
+  // Remove ?delete=xxx from URL after showing message
   const cleanUrl = window.location.pathname + window.location.search.replace(/([?&])delete=([^&]*)/, '');
   window.history.replaceState({}, document.title, cleanUrl);
 }
 
-// ✅ Show delete result feedback for product
+// Show delete result feedback for product
 const deleteproduct = new URLSearchParams(window.location.search).get('deleteproduct');
 if (deleteproduct === 'success') {
   Swal.fire({

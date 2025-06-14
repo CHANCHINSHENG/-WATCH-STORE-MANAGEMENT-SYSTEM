@@ -57,7 +57,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 <body>
 <div class="container">
     <?php if (!$category): ?>
-        <h2>❌ Cannot find Category</h2>
+        <h2>Cannot find Category</h2>
         <a href="admin_layout.php?page=admin_view_category" class="btn-cancel">Back</a>
     <?php else: ?>
         <h2>Delete Category: <?= htmlspecialchars($category['CategoryName']) ?></h2>

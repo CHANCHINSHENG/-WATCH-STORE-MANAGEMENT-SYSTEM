@@ -69,7 +69,6 @@ $count_stmt->execute($params);
 $total_orders = (int)$count_stmt->fetchColumn();
 $total_pages  = ceil($total_orders / $limit);
 
-// 查詢當前頁資料
 $query = "
     SELECT o.OrderID, o.OrderDate, o.OrderStatus, o.Total_Price,
            o.Admin_Payment_Confirmation,

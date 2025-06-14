@@ -7,15 +7,12 @@ if (!isset($_SESSION['admin_id'])) {
     exit();
 }
 
-// 分頁設定
 $page = isset($_GET['pagenum']) && is_numeric($_GET['pagenum']) ? (int)$_GET['pagenum'] : 1;
 $limit = 10;
 $offset = ($page - 1) * $limit;
 
-// 搜尋關鍵字
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 
-// 建立 SQL 查詢條件
 $baseQuery = "FROM 05_PRODUCT p
               LEFT JOIN 04_CATEGORY c ON p.CategoryID = c.CategoryID
               LEFT JOIN 03_BRAND b ON p.BrandID = b.BrandID";
@@ -28,12 +25,10 @@ if ($search !== '') {
     $params[':search'] = '%' . $search . '%';
 }
 
-// 獲取總資料筆數（給分頁用）
 $countStmt = $pdo->prepare("SELECT COUNT(*) $baseQuery $whereClause");
 $countStmt->execute($params);
 $total_products = $countStmt->fetchColumn();
 
-// 獲取當前頁的資料
 $query = "SELECT p.ProductID, p.ProductName, p.Product_Price, p.Product_Status, 
                  p.Product_Image, c.CategoryName, b.BrandName
           $baseQuery $whereClause
@@ -41,7 +36,6 @@ $query = "SELECT p.ProductID, p.ProductName, p.Product_Price, p.Product_Status,
 
 $stmt = $pdo->prepare($query);
 
-// 綁定參數
 foreach ($params as $key => $value) {
     $stmt->bindValue($key, $value, PDO::PARAM_STR);
 }
@@ -104,21 +98,43 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </tbody>
             </table>
 
-            <?php
-            $total_pages = ceil($total_products / $limit);
-            if ($total_pages > 1): ?>
-                <div class="pagination">
-                    <?php if ($page > 1): ?>
-                        <a class="page-btn" href="admin_layout.php?page=admin_view_products&pagenum=<?= $page - 1 ?>&search=<?= urlencode($search) ?>">« Prev</a>
-                    <?php endif; ?>
-                    <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                        <a class="page-btn<?= $i === $page ? ' active' : '' ?>" href="admin_layout.php?page=admin_view_products&pagenum=<?= $i ?>&search=<?= urlencode($search) ?>"><?= $i ?></a>
-                    <?php endfor; ?>
-                    <?php if ($page < $total_pages): ?>
-                        <a class="page-btn" href="admin_layout.php?page=admin_view_products&pagenum=<?= $page + 1 ?>&search=<?= urlencode($search) ?>">Next »</a>
-                    <?php endif; ?>
-                </div>
-            <?php endif; ?>
+ <?php
+$total_pages = ceil($total_products / $limit);
+?>
+
+<div class="pagination">
+    <?php if ($page > 1): ?>
+        <a class="page-btn" href="admin_layout.php?page=admin_view_products&pagenum=<?= $page - 1 ?>&search=<?= urlencode($search) ?>">« Prev</a>
+    <?php endif; ?>
+
+    <?php
+    // Always show first page
+    if ($page > 3) {
+        echo '<a class="page-btn" href="admin_layout.php?page=admin_view_products&pagenum=1&search=' . urlencode($search) . '">1</a>';
+        echo '<span class="page-btn dots">...</span>';
+    }
+
+    // Determine start and end range
+    $start = max(1, $page - 1);
+    $end = min($total_pages, $page + 1);
+
+    for ($i = $start; $i <= $end; $i++) {
+        $activeClass = ($i == $page) ? ' active' : '';
+        echo '<a class="page-btn' . $activeClass . '" href="admin_layout.php?page=admin_view_products&pagenum=' . $i . '&search=' . urlencode($search) . '">' . $i . '</a>';
+    }
+
+    // Show last page if not already shown
+    if ($page < $total_pages - 2) {
+        echo '<span class="page-btn dots">...</span>';
+        echo '<a class="page-btn" href="admin_layout.php?page=admin_view_products&pagenum=' . $total_pages . '&search=' . urlencode($search) . '">' . $total_pages . '</a>';
+    }
+    ?>
+
+    <?php if ($page < $total_pages): ?>
+        <a class="page-btn" href="admin_layout.php?page=admin_view_products&pagenum=<?= $page + 1 ?>&search=<?= urlencode($search) ?>">Next »</a>
+    <?php endif; ?>
+</div>
+
 
         <?php else: ?>
             <div class="empty-state">

@@ -27,7 +27,7 @@ if($_SERVER['REQUEST_METHOD'] === "POST") {
             exit();
         }
 
-        // ✅ Set the correct session variable to protect admin pages
+        // Set the correct session variable to protect admin pages
         $_SESSION['admin_id'] = $result['AdminID']; // This is important!
         $_SESSION['admin_name'] = $result['Admin_Username'];
 

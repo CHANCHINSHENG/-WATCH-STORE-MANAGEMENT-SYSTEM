@@ -17,7 +17,7 @@ if (!$order_id || !$order_status) {
     exit();
 }
 
-// ✅ Validate status against allowed values
+// Validate status against allowed values
 $allowed_statuses = ['Processing', 'Done Processing'];
 if (!in_array($order_status, $allowed_statuses)) {
     http_response_code(400);
@@ -25,7 +25,7 @@ if (!in_array($order_status, $allowed_statuses)) {
     exit();
 }
 
-// ✅ Update the order
+//  Update the order
 $stmt = $pdo->prepare("UPDATE 07_order SET OrderStatus = ? WHERE OrderID = ?");
 if ($stmt->execute([$order_status, $order_id])) {
     echo "success";

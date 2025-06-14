@@ -1,4 +1,3 @@
-/* admin_invoice.css */
 
 body {
   margin: 0;
@@ -131,7 +130,6 @@ body {
     color: #000 !important;
   }
 
-  /* 隱藏 admin layout 包起來的非 invoice 區域 */
   header,
   .sidebar,
   .topbar,
@@ -144,7 +142,6 @@ body {
     display: none !important;
   }
 
-  /* 讓 invoice 全頁列印 */
   .invoice-container {
     margin: 0 !important;
     padding: 0 !important;
@@ -157,7 +154,7 @@ body {
 .floating-download-btn {
           position: fixed;
         bottom: 30px;
-        left: calc(260px + 20px); /* ⬅ 假設 sidebar 寬度是 260px */
+        left: calc(260px + 20px); 
         background-color: #1abc9c;
         color: white;
         border: none;
