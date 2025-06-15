@@ -117,6 +117,47 @@ $product = $result->fetch_assoc();
 if (!$product) {
     die("❌ Product not found.");
 }
+
+// Fetch recommended products
+$like_products = [];
+$customer_id = $_SESSION['customer_id'] ?? null;
+
+if ($customer_id) {
+    $customer_id = (int)$customer_id;
+
+    // 查询最近浏览的产品（最多6个）
+    $like_query = "
+        SELECT p.*
+        FROM (
+            SELECT ProductID, MAX(Viewed_At) AS LastViewed
+            FROM `15_view_history`
+            WHERE CustomerID = $customer_id
+            GROUP BY ProductID
+        ) AS vh
+        JOIN `05_product` p ON vh.ProductID = p.ProductID
+        ORDER BY vh.LastViewed DESC
+        LIMIT 3
+    ";
+
+    $like_result = mysqli_query($conn, $like_query);
+
+    if ($like_result && mysqli_num_rows($like_result) > 0) {
+        while ($row = mysqli_fetch_assoc($like_result)) {
+            $like_products[] = $row;
+        }
+    }
+}
+
+// 如果登录但没浏览记录，或查询失败，则随机推荐
+if (empty($like_products)) {
+    $fallback_query = "SELECT * FROM `05_product` ORDER BY RAND() LIMIT 6";
+    $fallback_result = mysqli_query($conn, $fallback_query);
+    if ($fallback_result) {
+        while ($row = mysqli_fetch_assoc($fallback_result)) {
+            $like_products[] = $row;
+        }
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -190,6 +231,76 @@ if (!$product) {
             </form>
         </div>
     </div>
+    <?php if (!empty($like_products)): ?>
+    <div class="recommended-section">
+        <h2>Recommended For You</h2>
+        <div class="recommended-products">
+            <?php foreach ($like_products as $rec): ?>
+                <div class="recommended-card">
+                    <a href="customer_product.php?id=<?= $rec['ProductID']; ?>">
+                        <img src="admin_addproduct_include/<?= htmlspecialchars($rec['Product_Image']); ?>" alt="<?= htmlspecialchars($rec['ProductName']); ?>">
+                        <h3><?= htmlspecialchars($rec['ProductName']); ?></h3>
+                        <p>RM <?= number_format($rec['Product_Price'], 2); ?></p>
+                    </a>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <style>
+    .recommended-section {
+        margin-top: 50px;
+        padding: 30px;
+        background-color: #f4f4f4;
+        text-align: center;
+    }
+
+    .recommended-section h2 {
+        font-size: 28px;
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+    .recommended-products {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .recommended-card {
+        background-color: white;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 15px;
+        width: 200px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: transform 0.2s ease;
+    }
+
+    .recommended-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .recommended-card img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        border-radius: 5px;
+    }
+
+    .recommended-card h3 {
+        font-size: 18px;
+        margin: 10px 0 5px;
+        color: #333;
+    }
+
+    .recommended-card p {
+        font-size: 16px;
+        color: #666;
+    }
+    </style>
 
     <?php if (isset($product_added)): ?>
     <div id="myModal" class="modal">
