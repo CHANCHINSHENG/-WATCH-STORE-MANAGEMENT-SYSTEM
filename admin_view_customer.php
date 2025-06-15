@@ -42,20 +42,26 @@ $customers = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <table class="customer-table" id="customerTable">
             <thead>
                 <tr>
-                    <th>ID</th>
                     <th>Customer Name</th>
                     <th>Email</th>
                     <th>Phone</th>
+                     <th>Status</th> 
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($customers as $customer): ?>
                     <tr>
-                        <td><?= htmlspecialchars($customer['CustomerID']) ?></td>
                         <td><?= htmlspecialchars($customer['Cust_Username']) ?></td>
                         <td><?= htmlspecialchars($customer['Cust_Email']) ?></td>
                         <td><?= htmlspecialchars($customer['Cust_PhoneNumber']) ?></td>
+                        <td>
+                <?php if ($customer['Is_Deleted'] == 1): ?>
+                    <span style="color: red; font-weight: bold;">Inactive</span>
+                <?php else: ?>
+                    <span style="color: green; font-weight: bold;">Active</span>
+                <?php endif; ?>
+            </td>
                         <td>
                             <div class="action-buttons">
                                 <a href="admin_layout.php?page=admin_edit_customer&id=<?= $customer['CustomerID'] ?>" class="btn edit-btn">Edit</a>

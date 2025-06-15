@@ -67,6 +67,7 @@ $customer = $customer_stmt->get_result()->fetch_assoc();
         <p><strong>Phone:</strong> <?= htmlspecialchars($customer['Cust_PhoneNumber']) ?></p>
         <p><strong>Address:</strong> <?= htmlspecialchars($customer['Cust_Address'] . ' ' .$customer['Cust_Postcode'] . ', ' . $customer['Cust_City'] . ' ' .$customer['Cust_State'] ) ?></p>
         <a href="edit_profile.php" class="btn btn-warning mt-3">Edit Profile</a>
+        <button class="btn btn-danger mt-3" onclick="confirmDeleteAccount()">Delete Account</button>
     </div>
 
     <div class="section">
@@ -178,6 +179,32 @@ function cancelOrder(orderId) {
                 }).then(() => {
                     if (data.status === 'success') {
                         location.reload();
+                    }
+                });
+            });
+        }
+    });
+}
+function confirmDeleteAccount() {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'Your account will be deactivated and you will be logged out.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#aaa',
+        confirmButtonText: 'Yes, delete it'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('delete_account.php')
+            .then(response => response.json())
+            .then(data => {
+                Swal.fire({
+                    icon: data.status === 'success' ? 'success' : 'error',
+                    title: data.message
+                }).then(() => {
+                    if (data.status === 'success') {
+                        window.location.href = 'customer_login.php';
                     }
                 });
             });

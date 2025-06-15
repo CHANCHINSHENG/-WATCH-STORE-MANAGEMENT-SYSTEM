@@ -6,7 +6,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
     $username = $_POST['Cust_Username'];
     $password = $_POST['Cust_Password'];
 
-    $stmt = $conn->prepare("SELECT CustomerID, Cust_Password FROM `02_customer` WHERE Cust_Username = ?");
+    $stmt = $conn->prepare("SELECT CustomerID, Cust_Password FROM `02_customer` WHERE Cust_Username = ? AND Is_Deleted = 0");
     $stmt->bind_param("s", $username);
     $stmt->execute();
     $stmt->store_result();
@@ -68,7 +68,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
     } 
     else 
     {
-        $error = "❌ Username not found.";
+        $error = "❌ Username not found, or account has been deactivated.";
+
     }
     $stmt->close();
     $conn->close();

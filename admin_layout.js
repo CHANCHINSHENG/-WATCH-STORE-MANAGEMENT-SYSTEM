@@ -329,7 +329,7 @@ let show = true;
 
         Swal.fire({
           title: '🗑️ Are you sure?',
-          html: `Delete <strong style="color:#dc3545;">${itemName}</strong>?<br><small>You can't recover this after!</small>`,
+          html: `Delete <strong style="color:#dc3545;">${itemName}</strong>?<br>`,
           icon: 'warning',
           showCancelButton: true,
           confirmButtonText: 'Yes, delete it!',

@@ -46,7 +46,6 @@ $orders = $stmt_orders->fetchAll(PDO::FETCH_ASSOC);
         <table class="order-table">
             <thead>
                 <tr>
-                    <th>Order ID</th>
                     <th>Date</th>
                     <th>Order Status</th>
                     <th>Change Order</th>
@@ -59,7 +58,6 @@ $orders = $stmt_orders->fetchAll(PDO::FETCH_ASSOC);
             <tbody>
                 <?php foreach ($orders as $order): ?>
                     <tr>
-                        <td><?= htmlspecialchars($order['OrderID']) ?></td>
                         <td><?= htmlspecialchars($order['OrderDate']) ?></td>
                         <td>
     <span class="status-badge <?= strtolower(str_replace(' ', '-', $order['OrderStatus'])) ?>">
