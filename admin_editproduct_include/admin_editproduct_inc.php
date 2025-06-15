@@ -2,6 +2,8 @@
 require_once '../admin_login_include/config_session.php';
 require_once '../admin_login_include/db.php';
 require_once 'admin_editproduct_model.php';
+require_once 'admin_editproduct_con.php';
+
 
 if (!isset($_SESSION['admin_id'])) {
     header("Location: ../admin_login.php");
@@ -58,6 +60,18 @@ $brand_id = $_POST['BrandID'] ?? null;
     $img1 = handleImageUpdate('product_image', $product['Product_Image']);
     $img2 = handleImageUpdate('product_image2', $product['Product_Image2']);
     $img3 = handleImageUpdate('product_image3', $product['Product_Image3']);
+
+    if (emptyerrorsaddproduct($name, $description, $status, $category_id, $brand_id)) {
+        $_SESSION['error_signup'] = ["❌ Please fill in all required fields."];
+        header("Location: ../admin_layout.php?page=admin_edit_product&id=$product_id");
+        exit();
+    }
+
+    if (hasNegativePriceOrStock($price, $stock)) {
+        $_SESSION['error_signup'] = ["❌ Price and Stock must be valid non-negative numbers."];
+        header("Location: ../admin_layout.php?page=admin_edit_product&id=$product_id");
+        exit();
+    }
 
     try {
         $stock_quantity = (int)$_POST['Product_Stock_Quantity'];

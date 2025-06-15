@@ -3,6 +3,8 @@ session_start();
 include 'db.php';
 
 $product_added = null;
+$stock_error = null; 
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id'])) 
 {
     $product_id = (int)$_POST['product_id'];
@@ -18,11 +20,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id']))
 
         if ($result_check_customer->num_rows > 0) 
         {
+            $sql_stock = "SELECT Product_Stock_Quantity, ProductName FROM `05_product` WHERE ProductID = ?";
+            $stmt_stock = $conn->prepare($sql_stock);
+            $stmt_stock->bind_param("i", $product_id);
+            $stmt_stock->execute();
+            $result_stock = $stmt_stock->get_result();
+            $product_stock_data = $result_stock->fetch_assoc();
+            $available_stock = $product_stock_data['Product_Stock_Quantity'];
+            $productNameForError = $product_stock_data['ProductName'];
+
             $sql_cart = "SELECT CartID FROM `11_cart` WHERE CustomerID = ?";
             $stmt_cart = $conn->prepare($sql_cart);
             $stmt_cart->bind_param("i", $customerID);
             $stmt_cart->execute();
             $result_cart = $stmt_cart->get_result();
+            $cartID = null;
 
             if ($result_cart->num_rows > 0) 
             {
@@ -38,41 +50,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id']))
                 $cartID = $stmt_create_cart->insert_id;
             }
 
-            $sql_check = "SELECT Quantity FROM `12_cart_item` WHERE CartID = ? AND ProductID = ?";
-            $stmt_check = $conn->prepare($sql_check);
-            $stmt_check->bind_param("ii", $cartID, $product_id);
-            $stmt_check->execute();
-            $result_check = $stmt_check->get_result();
-
-            if ($result_check->num_rows > 0) 
+            $quantity_in_cart = 0;
+            if ($cartID) 
             {
-                $row = $result_check->fetch_assoc();
-                $quantity = $row['Quantity'] + 1; 
-                $sql_update = "UPDATE `12_cart_item` SET Quantity = ? WHERE CartID = ? AND ProductID = ?";
-                $stmt_update = $conn->prepare($sql_update);
-                $stmt_update->bind_param("iii", $quantity, $cartID, $product_id);
-                $stmt_update->execute();
+                $sql_check = "SELECT Quantity FROM `12_cart_item` WHERE CartID = ? AND ProductID = ?";
+                $stmt_check = $conn->prepare($sql_check);
+                $stmt_check->bind_param("ii", $cartID, $product_id);
+                $stmt_check->execute();
+                $result_check = $stmt_check->get_result();
+                if ($result_check->num_rows > 0) 
+                {
+                    $row = $result_check->fetch_assoc();
+                    $quantity_in_cart = $row['Quantity'];
+                }
+            }
+            
+
+            if ($quantity_in_cart >= 10) 
+            {
+                $stock_error = "Oops! " . htmlspecialchars($productNameForError) . " <br><br>This watch is limited to 10 pieces per customer! No more!";
+            }
+            else if (($quantity_in_cart + 1) > $available_stock) 
+            {
+                $stock_error = "Oops！" . htmlspecialchars($productNameForError) . " This watch is out of stock!";
             } 
             else 
             {
-                $quantity = 1; 
-                $sql_insert = "INSERT INTO `12_cart_item` (CartID, ProductID, Quantity) VALUES (?, ?, ?)";
-                $stmt_insert = $conn->prepare($sql_insert);
-                $stmt_insert->bind_param("iii", $cartID, $product_id, $quantity);
-                $stmt_insert->execute();
-            }
+                if ($quantity_in_cart > 0) 
+                {
+                    $quantity = $quantity_in_cart + 1; 
+                    $sql_update = "UPDATE `12_cart_item` SET Quantity = ? WHERE CartID = ? AND ProductID = ?";
+                    $stmt_update = $conn->prepare($sql_update);
+                    $stmt_update->bind_param("iii", $quantity, $cartID, $product_id);
+                    $stmt_update->execute();
+                } 
+                else 
+                {
+                    $quantity = 1; 
+                    $sql_insert = "INSERT INTO `12_cart_item` (CartID, ProductID, Quantity) VALUES (?, ?, ?)";
+                    $stmt_insert = $conn->prepare($sql_insert);
+                    $stmt_insert->bind_param("iii", $cartID, $product_id, $quantity);
+                    $stmt_insert->execute();
+                }
 
-            $sql_product_info = "SELECT ProductName, Product_Price, Product_Image FROM `05_product` WHERE ProductID = ?";
-            $stmt_product_info = $conn->prepare($sql_product_info);
-            $stmt_product_info->bind_param("i", $product_id);
-            $stmt_product_info->execute();
-            $result_product_info = $stmt_product_info->get_result();
+                $sql_product_info = "SELECT ProductName, Product_Price, Product_Image FROM `05_product` WHERE ProductID = ?";
+                $stmt_product_info = $conn->prepare($sql_product_info);
+                $stmt_product_info->bind_param("i", $product_id);
+                $stmt_product_info->execute();
+                $result_product_info = $stmt_product_info->get_result();
 
-            if ($result_product_info->num_rows > 0) 
-            {
-                $product_details = $result_product_info->fetch_assoc();
-                $_SESSION['product_added'] = $product_details;
-                $product_added = $product_details;
+                if ($result_product_info->num_rows > 0) 
+                {
+                    $product_details = $result_product_info->fetch_assoc();
+                    $_SESSION['product_added'] = $product_details;
+                    $product_added = $product_details;
+                }
             }
         } 
         else 
@@ -87,6 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id']))
         exit();
     }
 }
+
 
 $brand_id = $_GET['brand_id'] ?? '';
 $category_id = $_GET['category_id'] ?? '';
@@ -193,9 +226,9 @@ $total_price = $product_added['Product_Price'] ?? 0;
     max-height: 250px;
     object-fit: cover;
     display: block;
-    margin: 0 auto; /* Centering image if its width is less than container */
-    /* Removed hover effect from here as it's specific to modal or product card context */
-}
+    margin: 0 auto;     
+    }
+
     .modal 
     {
         display: none;
@@ -340,88 +373,99 @@ $total_price = $product_added['Product_Price'] ?? 0;
         box-shadow: 0 4px 10px rgba(255, 105, 180, 0.3); 
     }
 
-    .filter-form {
+    .filter-form 
+    {
         display: flex;
-        flex-wrap: wrap; /* Allows items to wrap to the next line on smaller screens */
-        gap: 1rem; /* Space between form elements */
-        margin-bottom: 2rem; /* Space below the form */
+        flex-wrap: wrap; 
+        gap: 1rem;
+        margin-bottom: 2rem; /
         padding: 1.5rem;
-        background-color: #2a2a2a; /* Slightly lighter than product card for differentiation */
+        background-color: #2a2a2a;
         border-radius: 15px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
 
     .filter-form select,
-    .filter-form input[type="text"] {
+    .filter-form input[type="text"] 
+    {
         padding: 0.75rem 1rem;
-        background-color: #333; /* Dark background for inputs */
-        color: #f0f0f0; /* Light text color */
-        border: 1px solid #555; /* Subtle border */
+        background-color: #333; 
+        color: #f0f0f0; 
+        border: 1px solid #555; 
         border-radius: 8px;
         font-size: 0.95rem;
-        flex-grow: 1; /* Allows input fields to grow and fill available space */
-        min-width: 180px; /* Minimum width for select and input fields */
-        box-sizing: border-box; /* Ensures padding and border don't add to the width */
+        flex-grow: 1; 
+        min-width: 180px;
+        box-sizing: border-box; 
     }
 
-    .filter-form select {
+    .filter-form select 
+    {
         cursor: pointer;
     }
 
-    .filter-form input[type="text"]::placeholder {
-        color: #888; /* Lighter placeholder text */
+    .filter-form input[type="text"]::placeholder 
+    {
+        color: #888; 
     }
 
     .filter-form button[type="submit"],
-    .filter-form .reset-btn {
+    .filter-form .reset-btn 
+    {
         padding: 0.75rem 1.5rem;
-        color: #121212; /* Dark text for contrast on bright button */
-        background-color: #ffd700; /* Gold color to match headers */
+        color: #121212; 
+        background-color: #ffd700; 
         border: none;
         border-radius: 8px;
         cursor: pointer;
         font-weight: bold;
         font-size: 0.95rem;
-        text-decoration: none; /* For the reset link styled as a button */
-        display: inline-flex; /* Aligns icon and text if an icon was present */
+        text-decoration: none; 
+        display: inline-flex; 
         align-items: center;
         justify-content: center;
         transition: background-color 0.3s ease, transform 0.2s ease;
-        flex-grow: 0; /* Buttons don't grow as much as input fields */
+        flex-grow: 0; 
     }
 
-    .filter-form .reset-btn {
-        background-color: #555; /* Different color for reset button */
+    .filter-form .reset-btn 
+    {
+        background-color: #555; 
         color: #f0f0f0;
     }
 
-    .filter-form button[type="submit"]:hover {
-        background-color: #e6c300; /* Darker gold on hover */
+    .filter-form button[type="submit"]:hover 
+    {
+        background-color: #e6c300; 
         transform: translateY(-2px);
     }
 
-    .filter-form .reset-btn:hover {
-        background-color: #666; /* Darker grey on hover for reset */
+    .filter-form .reset-btn:hover 
+    {
+        background-color: #666; 
         transform: translateY(-2px);
     }
 
     .filter-form button[type="submit"]:active,
-    .filter-form .reset-btn:active {
-        transform: translateY(0); /* Click effect */
+    .filter-form .reset-btn:active 
+    {
+        transform: translateY(0); 
     }
 
-    /* Responsive adjustments for smaller screens */
-    @media (max-width: 768px) {
-        .filter-form {
-            flex-direction: column; /* Stack elements vertically */
+    @media (max-width: 768px) 
+    {
+        .filter-form 
+        {
+            flex-direction: column;
         }
 
         .filter-form select,
         .filter-form input[type="text"],
         .filter-form button[type="submit"],
-        .filter-form .reset-btn {
-            width: 100%; /* Make all form elements full width */
-            min-width: 0; /* Reset min-width */
+        .filter-form .reset-btn 
+        {
+            width: 100%; 
+            min-width: 0; 
         }
     }
     </style>
@@ -511,7 +555,9 @@ $current_page = basename($_SERVER['PHP_SELF']);
                     </a>
                     <form action="" method="post">
                         <input type="hidden" name="product_id" value="<?= $row['ProductID']; ?>">
-                        <button type="submit" class="add-to-cart-btn">Add to Cart</button>
+                        <button type="submit" class="add-to-cart-btn" <?= $row['Product_Stock_Quantity'] == 0 ? 'disabled' : '' ?>>
+                            <?= $row['Product_Stock_Quantity'] == 0 ? 'Out of Stock' : 'Add to Cart' ?>
+                        </button>
                     </form>
                     </div>
                 </div>
@@ -520,7 +566,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
     </div>
 </div>
 
-<?php if (isset($product_added)): ?>
+
+<?php if (isset($product_added) && $product_added): ?>
     <div id="myModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
@@ -539,20 +586,57 @@ $current_page = basename($_SERVER['PHP_SELF']);
             </div>
         </div>
     </div>
-
     <script>
         var modal = document.getElementById("myModal");
-        var span = document.getElementsByClassName("close")[0];
-        modal.style.display = "block";
-        span.onclick = function () {
+        modal.style.display = "block"; 
+        modal.getElementsByClassName("close")[0].onclick = function () 
+        {
             modal.style.display = "none";
         }
-        window.onclick = function (event) {
-            if (event.target == modal) {
+        window.onclick = function (event) 
+        {
+            if (event.target == modal) 
+            {
                 modal.style.display = "none";
             }
         }
     </script>
 <?php endif; ?>
+
+
+<?php if (isset($stock_error)): ?>
+    <div id="errorModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 style="color: #ef5350;">Oops, something went wrong!</h2>
+            <div class="product-info">
+                 <p style="font-size: 2.5rem; margin: 10px 0;">😟</p>
+                <p style="font-size: 1.1rem; color: #ffcdd2; padding: 10px 0;">
+                    <?= $stock_error; ?>
+                </p>
+                <p>Check out other styles!</p>
+            </div>
+            <div class="button-container" style="justify-content: center;">
+                <button onclick="document.getElementById('errorModal').style.display='none'" style="background-color: #777;">Okay</button>
+            </div>
+        </div>
+    </div>
+     <script>
+        var errorModal = document.getElementById("errorModal");
+        errorModal.style.display = "block"; 
+        errorModal.getElementsByClassName("close")[0].onclick = function () 
+        {
+            errorModal.style.display = "none";
+        }
+        window.onclick = function (event) 
+        {
+            if (event.target == errorModal) 
+            {
+                errorModal.style.display = "none";
+            }
+        }
+    </script>
+<?php endif; ?>
+
 </body>
 </html>

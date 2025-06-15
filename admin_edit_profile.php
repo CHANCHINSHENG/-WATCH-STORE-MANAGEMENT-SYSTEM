@@ -27,7 +27,6 @@ if (!$admin) {
             <h2>Edit Profile</h2>
         </div>
 
-        <!-- ✅ Success Message -->
         <?php if (isset($_SESSION['update_success'])): ?>
             <div class="message success">
                 <?= $_SESSION['update_success']; ?>

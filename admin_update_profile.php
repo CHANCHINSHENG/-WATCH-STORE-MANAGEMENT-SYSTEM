@@ -39,10 +39,10 @@ if ($profileImagePath) {
     $stmt->execute([$name, $email, $admin_id]);
 }
 
-// ✅ Correct: Only update display name if needed
+// Correct: Only update display name if needed
 $_SESSION['admin_name'] = $name;
 
-// ✅ Success message
+// Success message
 $_SESSION['update_success'] = "Profile updated successfully.";
 
 header("Location: admin_layout.php?page=admin_edit_profile");

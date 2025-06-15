@@ -30,7 +30,10 @@ $brands = getAllBrands($pdo);
                 <h2>Add New Product</h2>
                 <div class="watch-icon">⌚</div>
             </div>
-
+<?php
+$formdata = $_SESSION['formdata'] ?? [];
+$errors = $_SESSION['error_signup'] ?? [];
+?>
             <?php displayFormMessages(); ?>
 
             
@@ -38,51 +41,55 @@ $brands = getAllBrands($pdo);
                 <div class="form-grid">
                     <div class="input-group">
                         <label for="productName">Product Name</label>
-                        <input type="text" name="ProductName" id="productName" >
+                        <input type="text" name="ProductName" id="productName" value="<?= htmlspecialchars($formdata['ProductName'] ?? '') ?>">
                     </div>
                     <div class="input-group">
                         <label for="price">Price (RM)</label>
-                        <input type="number" name="Product_Price" id="price" min=1 >
+                        <input type="number" name="Product_Price" id="price" value="<?= htmlspecialchars($formdata['Product_Price'] ?? '') ?>">
+
                     </div>
                     <div class="input-group">
                         <label for="stock">Stock Quantity</label>
-                        <input type="number" name="Product_Stock_Quantity" min=1>
+                        <input type="number" name="Product_Stock_Quantity" value="<?= htmlspecialchars($formdata['Product_Stock_Quantity'] ?? '') ?>">
+
                     </div>
                     <div class="input-group">
                         <label for="category">Category</label>
-                        <select name="CategoryID" id="category" >
-                            <option value="">Select Category</option>
-                            <?php foreach ($categories as $row): ?>
-                                <option value="<?= htmlspecialchars($row['CategoryID']) ?>">
-                                    <?= htmlspecialchars($row['CategoryName']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                       <select name="CategoryID" id="category">
+    <option value="">Select Category</option>
+    <?php foreach ($categories as $row): ?>
+        <option value="<?= htmlspecialchars($row['CategoryID']) ?>" 
+            <?= ($formdata['CategoryID'] ?? '') == $row['CategoryID'] ? 'selected' : '' ?>>
+            <?= htmlspecialchars($row['CategoryName']) ?>
+        </option>
+    <?php endforeach; ?>
+</select>
                     </div>
                     <div class="input-group">
                         <label for="brand">Brand</label>
-                        <select name="BrandID" id="brand" >
-                            <option value="">Select Brand</option>
-                            <?php foreach ($brands as $row): ?>
-                                <option value="<?= htmlspecialchars($row['BrandID']) ?>">
-                                    <?= htmlspecialchars($row['BrandName']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                      <select name="BrandID" id="brand">
+    <option value="">Select Brand</option>
+    <?php foreach ($brands as $row): ?>
+        <option value="<?= htmlspecialchars($row['BrandID']) ?>" 
+            <?= ($formdata['BrandID'] ?? '') == $row['BrandID'] ? 'selected' : '' ?>>
+            <?= htmlspecialchars($row['BrandName']) ?>
+        </option>
+    <?php endforeach; ?>
+</select>
                     </div>
                     <div class="input-group">
                         <label for="status">Status</label>
-                        <select name="Product_Status" id="status" >
-                            <option value="">Select Status</option>
-                            <option value="Available">In stock</option>
-                            <option value="Out of Stock">Out of Stock</option>
-                        </select>
+                       <select name="Product_Status" id="status">
+    <option value="">Select Status</option>
+    <option value="Available" <?= ($formdata['Product_Status'] ?? '') == 'Available' ? 'selected' : '' ?>>In stock</option>
+    <option value="Out of Stock" <?= ($formdata['Product_Status'] ?? '') == 'Out of Stock' ? 'selected' : '' ?>>Out of Stock</option>
+</select>
                     </div>
                 </div>
 
                 <div class="input-group full-width">
                     <label for="description">Product Description</label>
-                    <textarea name="Product_Description" id="description" rows="4" placeholder="Enter product description"></textarea>
+                    <textarea name="Product_Description" id="description" rows="4" placeholder="Enter product description"><?= htmlspecialchars($formdata['Product_Description'] ?? '') ?></textarea>
                 </div>
 
                 <div class="input-group full-width">
@@ -113,4 +120,8 @@ $brands = getAllBrands($pdo);
 
 
 </body>
+<?php
+unset($_SESSION['formdata']);
+unset($_SESSION['error_signup']);
+?>
 </html>

@@ -10,7 +10,6 @@ if (!isset($_SESSION['admin_id'])) {
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["order_id"])) {
     $orderID = $_POST["order_id"];
 
-    // 更新為 Confirmed 並同步更改 OrderStatus 為 Processing
     $stmt = $pdo->prepare("UPDATE 07_order SET Admin_Payment_Confirmation = 'Confirmed', OrderStatus = 'Done Processing',Customer_Review_Status = 'Eligible' WHERE OrderID = ?");
     $stmt->execute([$orderID]);
 

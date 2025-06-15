@@ -1,56 +1,54 @@
-    <?php
-    require_once 'admin_login_include/config_session.php';
-    require_once 'admin_login_include/db.php';
+<?php
+require_once 'admin_login_include/config_session.php';
+require_once 'admin_login_include/db.php';
 
-    if (!isset($_SESSION['admin_id'])) {
-        header("Location: admin_login.php");
-        exit();
-    }
+if (!isset($_SESSION['admin_id'])) {
+    header("Location: admin_login.php");
+    exit();
+}
 
-    // Total Sales (Exclude Cancelled)
-    $stmt = $pdo->query("SELECT SUM(Total_Price) AS AllTimeSales FROM 07_order WHERE OrderStatus != 'Cancelled'");
-    $allTimeSales = $stmt->fetch(PDO::FETCH_ASSOC)['AllTimeSales'] ?? 0;
+// All-time Sales
+$stmt = $pdo->query("SELECT SUM(Total_Price) AS AllTimeSales FROM 07_order WHERE OrderStatus != 'Cancelled'");
+$allTimeSales = $stmt->fetch(PDO::FETCH_ASSOC)['AllTimeSales'] ?? 0;
 
-    // Order Stats
-    $totalOrders = $pdo->query("SELECT COUNT(*) FROM 07_order")->fetchColumn();
-    $ordersProcessing = $pdo->query("SELECT COUNT(*) FROM 07_order WHERE OrderStatus = 'Processing'")->fetchColumn();
-    $ordersDelivered = $pdo->query("SELECT COUNT(*) FROM 07_order o JOIN 06_tracking t ON o.TrackingID = t.TrackingID WHERE t.Delivery_Status = 'Delivered'")->fetchColumn();
+// Order Stats
+$totalOrders = $pdo->query("SELECT COUNT(*) FROM 07_order")->fetchColumn();
+$ordersProcessing = $pdo->query("SELECT COUNT(*) FROM 07_order WHERE OrderStatus = 'Processing'")->fetchColumn();
+$ordersDelivered = $pdo->query("SELECT COUNT(*) FROM 07_order o JOIN 06_tracking t ON o.TrackingID = t.TrackingID WHERE t.Delivery_Status = 'Delivered'")->fetchColumn();
 
-    // Best Selling Products by Revenue (Top 5)
-    $stmt = $pdo->query("
-        SELECT p.ProductName, SUM(od.Order_Subtotal) AS TotalRevenue
-        FROM 08_order_details od
-        JOIN 05_product p ON od.ProductID = p.ProductID
-        JOIN 07_order o ON o.OrderID = od.OrderID
-        WHERE o.OrderStatus != 'Cancelled'
-        GROUP BY p.ProductID
-        ORDER BY TotalRevenue DESC
-        LIMIT 5
-    ");
-    $productData = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    $productNames = array_column($productData, 'ProductName');
-    $productRevenue = array_column($productData, 'TotalRevenue');
+// Top 5 Best-Selling Products
+$stmt = $pdo->query("
+    SELECT p.ProductName, SUM(od.Order_Quantity) AS TotalSold
+    FROM 08_order_details od
+    JOIN 05_product p ON od.ProductID = p.ProductID
+    JOIN 07_order o ON o.OrderID = od.OrderID
+    WHERE o.OrderStatus != 'Cancelled'
+    GROUP BY p.ProductID
+    ORDER BY TotalSold DESC
+    LIMIT 5
+");
+$productData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$productNames = array_column($productData, 'ProductName');
+$productQuantity = array_column($productData, 'TotalSold');
 
-    // Weekly Sales & Orders
-    $salesData = [];
-    $orderData = [];
-    $labels = [];
-    for ($i = 6; $i >= 0; $i--) {
-        $date = date('Y-m-d', strtotime("-$i days"));
-        $labels[] = $date;
+// Weekly sales/order data
+$salesData = [];
+$orderData = [];
+$labels = [];
+for ($i = 6; $i >= 0; $i--) {
+    $date = date('Y-m-d', strtotime("-$i days"));
+    $labels[] = $date;
 
-        $stmt = $pdo->prepare("SELECT SUM(Total_Price) FROM 07_order WHERE DATE(OrderDate) = ? AND OrderStatus != 'Cancelled'");
-        $stmt->execute([$date]);
-        $salesData[] = (float)($stmt->fetchColumn() ?? 0);
+    $stmt = $pdo->prepare("SELECT SUM(Total_Price) FROM 07_order WHERE DATE(OrderDate) = ? AND OrderStatus != 'Cancelled'");
+    $stmt->execute([$date]);
+    $salesData[] = (float)($stmt->fetchColumn() ?? 0);
 
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM 07_order WHERE DATE(OrderDate) = ? AND OrderStatus != 'Cancelled'");
-        $stmt->execute([$date]);
-        $orderData[] = (int)($stmt->fetchColumn() ?? 0);
-    }
-    ?>
+    $stmt->execute([$date]);
+    $orderData[] = (int)($stmt->fetchColumn() ?? 0);
+}
+?>
 
- 
-  
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -66,11 +64,7 @@
             line-height: 1.6;
         }
 
-        .page-wrapper {
-            min-height: 100vh;
-            padding: 2rem;
-        }
-
+        .page-wrapper { min-height: 100vh; padding: 2rem; }
         .box { background: #1e293b; padding: 20px; margin: 10px 0; border-radius: 8px; }
         .grid { display: flex; flex-wrap: wrap; gap: 10px; }
         .card { flex: 1; min-width: 200px; text-align: center; }
@@ -82,7 +76,7 @@
 </head>
 <body>
 
-<div class="page-wrapper"> <!-- ✅ 這一層非常重要 -->
+<div class="page-wrapper"> 
 
     <h2>Dashboard Overview</h2>
 
@@ -95,7 +89,10 @@
 
     <div class="grid">
         <div class="box" style="flex:1;">
-            <h3>Weekly Sales</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3>Weekly Sales</h3>
+                <button onclick="printWeeklyReport()" style="background: orange; color: white; border: none; padding: 5px 10px; border-radius: 4px;">Print</button>
+            </div>
             <div class="tab-btns">
                 <span id="salesTab" class="active">Sales</span>
                 <span id="ordersTab">Orders</span>
@@ -104,7 +101,10 @@
         </div>
 
         <div class="box" style="flex:1;">
-            <h3>Top 5 Best Selling Products (by Revenue)</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3>Top 5 Best Selling Products (by Quantity)</h3>
+                <button onclick="printTop5Report()" style="background: orange; color: white; border: none; padding: 5px 10px; border-radius: 4px;">Print</button>
+            </div>
             <canvas id="productChart"></canvas>
         </div>
     </div>
@@ -114,7 +114,34 @@
         <div id="recent-orders-container">Loading...</div>
     </div>
 
-</div> <!-- ✅ End of .page-wrapper -->
+   <!-- HIDDEN PRINTABLE BLOCKS -->
+<div style="display: none">
+    <pre id="printable-weekly">
+<?php
+    echo "Weekly Sales Summary\n\n";
+    for ($i = 6; $i >= 0; $i--) {
+        $date = date('Y-m-d', strtotime("-$i days"));
+        $stmt = $pdo->prepare("SELECT SUM(Total_Price) FROM 07_order WHERE DATE(OrderDate) = ? AND OrderStatus != 'Cancelled'");
+        $stmt->execute([$date]);
+        $sales = $stmt->fetchColumn() ?? 0;
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM 07_order WHERE DATE(OrderDate) = ? AND OrderStatus != 'Cancelled'");
+        $stmt->execute([$date]);
+        $orders = $stmt->fetchColumn() ?? 0;
+        echo "$date | Sales: RM " . number_format($sales, 2) . " | Orders: $orders\n";
+    }
+?>
+    </pre>
+    <pre id="printable-top5">
+<?php
+    echo "Top 5 Best-Selling Products\n\n";
+    $stmt = $pdo->query("SELECT p.ProductName, SUM(od.Order_Quantity) AS TotalSold FROM 08_order_details od JOIN 05_product p ON od.ProductID = p.ProductID JOIN 07_order o ON o.OrderID = od.OrderID WHERE o.OrderStatus != 'Cancelled' AND o.OrderDate >= CURDATE() - INTERVAL 6 DAY GROUP BY p.ProductID ORDER BY TotalSold DESC LIMIT 5");
+    $topProducts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($topProducts as $index => $row) {
+        echo ($index + 1) . ". " . $row['ProductName'] . " — " . $row['TotalSold'] . " units\n";
+    }
+?>
+    </pre>
+</div>
 
 <script>
 function loadRecentOrders(page = 1) {
@@ -177,7 +204,7 @@ new Chart(document.getElementById('productChart'), {
     data: {
         labels: <?= json_encode($productNames) ?>,
         datasets: [{
-            data: <?= json_encode($productRevenue) ?>,
+            data: <?= json_encode($productQuantity) ?>,
             backgroundColor: ['#22c55e','#2563eb','#f97316','#e11d48','#7c3aed'],
             borderWidth: 1
         }]
@@ -187,6 +214,49 @@ new Chart(document.getElementById('productChart'), {
         plugins: { legend: { labels: { color: 'white' } } }
     }
 });
+
+function openFormattedReport(title, content) {
+    const logoURL = 'img/tigo.png'; 
+    const win = window.open('', '_blank');
+    win.document.write(`
+        <html>
+        <head>
+            <title>${title}</title>
+            <style>
+                body { font-family: Arial, sans-serif; padding: 40px; line-height: 1.6; }
+                h1 { text-align: center; }
+                .logo { width: 120px; display: block; margin: 0 auto 20px; }
+                .footer { text-align: center; margin-top: 40px; font-size: 0.9em; color: gray; }
+                pre { background: #f3f3f3; padding: 20px; border-radius: 6px; white-space: pre-wrap; }
+            </style>
+        </head>
+        <body>
+            <img src="${logoURL}" class="logo" alt="Company Logo" />
+            <h1>${title}</h1>
+            <pre>${content}</pre>
+            <div class="footer">Generated by Admin Dashboard | Printed on ${new Date().toLocaleDateString()}</div>
+            <script>
+                window.onload = function() {
+                    window.print();
+                    setTimeout(() => window.close(), 100);
+                };
+            <\/script>
+        </body>
+        </html>
+    `);
+    win.document.close();
+}
+
+function printWeeklyReport() {
+    const content = document.getElementById('printable-weekly').innerText;
+    openFormattedReport('Weekly Sales Report', content);
+}
+
+function printTop5Report() {
+    const content = document.getElementById('printable-top5').innerText;
+    openFormattedReport('Top 5 Best-Selling Products', content);
+}
+
 </script>
 </body>
 </html>

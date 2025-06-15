@@ -14,7 +14,7 @@ if (!isset($_GET['order_id'])) {
 
 $orderID = $_GET['order_id'];
 
-// Fetch basic order details
+// Fetch  order details
 $orderStmt = $pdo->prepare("SELECT o.OrderID, o.OrderDate, o.Total_Price, o.Shipping_State,
                             c.Cust_Username, c.Cust_First_Name, c.Cust_Last_Name,
                             pm.Payment_Method_Type
@@ -51,7 +51,6 @@ if ($method === 'Visa') {
     $stmt->execute([$orderID]);
     $paymentData = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // 只有 Bank 需要驗證 payment_status
     if ($paymentData && strtolower($paymentData['payment_status']) === 'success') {
         $foundMatch = true;
     }

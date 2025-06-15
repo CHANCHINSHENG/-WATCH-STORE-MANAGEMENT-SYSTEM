@@ -10,7 +10,7 @@ if (!isset($_SESSION['admin_id'])) {
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $brand_id = $_GET['id'];
 
-    // Step 1: Get image path first
+    // Get image path first
     $stmtImg = $pdo->prepare("SELECT BrandImage FROM 03_BRAND WHERE BrandID = ?");
     $stmtImg->execute([$brand_id]);
     $brand = $stmtImg->fetch(PDO::FETCH_ASSOC);
@@ -19,7 +19,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
         $imagePath = $brand['BrandImage'];
         $fullImagePath = __DIR__ . '/' . $imagePath;
 
-        // Step 2: Delete the brand record
+        //  Delete the brand record
         $stmt = $pdo->prepare("DELETE FROM 03_BRAND WHERE BrandID = ?");
         
         if ($stmt->execute([$brand_id])) {

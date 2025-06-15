@@ -9,7 +9,6 @@ if (hash.startsWith('#order')) {
         row.classList.add('highlight-order');
         row.scrollIntoView({ behavior: "smooth", block: "center" });
 
-        // ✅ 2 秒後自動移除高亮
         setTimeout(() => {
             row.classList.remove('highlight-order');
         }, 2000);
@@ -54,7 +53,8 @@ if (hash.startsWith('#order')) {
         li.innerHTML = ` 
           <div class="notif-title">🛒 <strong>${order.Cust_Username}</strong> placed an order of ${order.Total_Price}</div>
           <div class="notif-time">${dateTime}</div>
-          <a href="admin_viewnoti_tocorrecorder.php?cid=${order.CustomerID}" class="notif-view">View</a>
+          <a href="admin_viewnoti_tocorrecorder.php?cid=${order.CustomerID}&oid=${order.OrderID}" class="notif-view">View</a>
+
         `;
         list.appendChild(li);
       });
@@ -125,7 +125,6 @@ fetch('admin_check_new_orders.php')
           badge.className = `status-badge ${newStatus.toLowerCase().replace(/\s+/g, '-')}`;
         }
 
-        // 🆕 Refresh notification immediately
         fetch('check_new_orders.php')
           .then(res => res.json())
           .then(data => {
@@ -437,12 +436,12 @@ if (deleteResult) {
     });
   }
 
-  // 🔄 Remove ?delete=xxx from URL after showing message
+  // Remove ?delete=xxx from URL after showing message
   const cleanUrl = window.location.pathname + window.location.search.replace(/([?&])delete=([^&]*)/, '');
   window.history.replaceState({}, document.title, cleanUrl);
 }
 
-// ✅ Show delete result feedback for product
+// Show delete result feedback for product
 const deleteproduct = new URLSearchParams(window.location.search).get('deleteproduct');
 if (deleteproduct === 'success') {
   Swal.fire({

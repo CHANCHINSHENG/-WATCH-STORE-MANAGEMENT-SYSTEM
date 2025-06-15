@@ -17,7 +17,6 @@ if (!$order_id || !$delivery_status) {
     exit();
 }
 
-// 根據 order ID 找出 Tracking ID
 $stmt = $pdo->prepare("SELECT TrackingID FROM 07_order WHERE OrderID = ?");
 $stmt->execute([$order_id]);
 $tracking = $stmt->fetch(PDO::FETCH_ASSOC);

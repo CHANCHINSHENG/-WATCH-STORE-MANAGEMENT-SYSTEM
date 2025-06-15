@@ -58,7 +58,7 @@ if ($customer_id) {
     $like_query = "
         SELECT p.*
         FROM (
-            SELECT ProductID, MAX(Viewed_At) AS LastViewed
+            SELECT ProductID, MAX(ViewTime) AS LastViewed
             FROM `15_view_history`
             WHERE CustomerID = $customer_id
             GROUP BY ProductID

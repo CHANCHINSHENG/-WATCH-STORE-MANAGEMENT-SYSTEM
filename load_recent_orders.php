@@ -1,5 +1,4 @@
 <?php
-// load_recent_orders.php
 require_once 'admin_login_include/config_session.php';
 require_once 'admin_login_include/db.php';
 
@@ -21,7 +20,7 @@ $totalPages = ceil($totalRecent / $limit);
     table {
         width: 100%;
         border-collapse: collapse;
-        table-layout: fixed; /* 讓欄位平均分配寬度 */
+        table-layout: fixed; 
         margin-top: 10px;
     }
 
@@ -137,7 +136,7 @@ $totalPages = ceil($totalRecent / $limit);
         </td>
         <td>
             <select class="status-dropdown order-dropdown" data-order-id="<?= $order['OrderID'] ?>">
-                <?php foreach (["Processing", "Done Processing"] as $status): ?>
+                <?php foreach (["Processing", "Done Processing","Cancelled"] as $status): ?>
                     <option value="<?= $status ?>" <?= $order['OrderStatus'] === $status ? 'selected' : '' ?>><?= $status ?></option>
                 <?php endforeach; ?>
             </select>
