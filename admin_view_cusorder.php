@@ -27,7 +27,7 @@ if (!$customer) {
 }
 
 // Fetch orders + tracking data
-$stmt_orders = $pdo->prepare("SELECT o.*, t.Tracking_Number, t.Delivery_Status FROM 07_order o LEFT JOIN 06_tracking t ON o.TrackingID = t.TrackingID WHERE o.CustomerID = ? ORDER BY o.OrderDate DESC");
+$stmt_orders = $pdo->prepare("SELECT o.*, t.Tracking_Number, t.Delivery_Status FROM 08_order o LEFT JOIN 07_tracking t ON o.TrackingID = t.TrackingID WHERE o.CustomerID = ? ORDER BY o.OrderDate DESC");
 $stmt_orders->execute([$customer_id]);
 $orders = $stmt_orders->fetchAll(PDO::FETCH_ASSOC);
 ?>

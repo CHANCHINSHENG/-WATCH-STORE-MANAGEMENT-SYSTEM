@@ -12,9 +12,9 @@ $orderId = $_GET['order_id'];
 $stmt = $pdo->prepare("
     SELECT o.*, c.Cust_Username, c.Cust_Email, c.Cust_PhoneNumber,
            t.Tracking_Number, t.Delivery_Status, t.Delivery_Address, t.Delivery_City, t.Delivery_Postcode, t.Delivery_State,t.Shipping_Fee
-    FROM 07_order o
+    FROM 08_order o
     JOIN 02_customer c ON o.CustomerID = c.CustomerID
-    JOIN 06_tracking t ON o.TrackingID = t.TrackingID
+    JOIN 07_tracking t ON o.TrackingID = t.TrackingID
     WHERE o.OrderID = ?
 ");
 $stmt->execute([$orderId]);
@@ -27,7 +27,7 @@ if (!$order) {
 
 $itemStmt = $pdo->prepare("
     SELECT od.*, p.ProductName
-    FROM 08_order_details od
+    FROM 09_order_details od
     JOIN 05_product p ON od.ProductID = p.ProductID
     WHERE od.OrderID = ?
 ");
@@ -52,7 +52,7 @@ $items = $itemStmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="details-row">
             <div>
                 <strong>Date:</strong> <?= date('d M, Y', strtotime($order['OrderDate'])) ?><br>
-                <strong>Invoice No:</strong> #<?= $order['OrderID'] ?>
+                <strong>Invoice No:</strong> #<?= $order['orderID'] ?>
             </div>
             <div>
                 <strong>Invoice To:</strong><br>

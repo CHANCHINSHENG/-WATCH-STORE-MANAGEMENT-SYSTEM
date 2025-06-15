@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id']))
             $available_stock = $product_stock_data['Product_Stock_Quantity'];
             $productNameForError = $product_stock_data['ProductName'];
 
-            $sql_cart = "SELECT CartID FROM `11_cart` WHERE CustomerID = ?";
+            $sql_cart = "SELECT CartID FROM `12_cart` WHERE CustomerID = ?";
             $stmt_cart = $conn->prepare($sql_cart);
             $stmt_cart->bind_param("i", $customerID);
             $stmt_cart->execute();
@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id']))
             } 
             else 
             {
-                $sql_create_cart = "INSERT INTO `11_cart` (CustomerID) VALUES (?)";
+                $sql_create_cart = "INSERT INTO `12_cart` (CustomerID) VALUES (?)";
                 $stmt_create_cart = $conn->prepare($sql_create_cart);
                 $stmt_create_cart->bind_param("i", $customerID);
                 $stmt_create_cart->execute();
@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id']))
             $quantity_in_cart = 0;
             if ($cartID) 
             {
-                $sql_check = "SELECT Quantity FROM `12_cart_item` WHERE CartID = ? AND ProductID = ?";
+                $sql_check = "SELECT Quantity FROM `13_cart_item` WHERE CartID = ? AND ProductID = ?";
                 $stmt_check = $conn->prepare($sql_check);
                 $stmt_check->bind_param("ii", $cartID, $product_id);
                 $stmt_check->execute();
@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id']))
                 if ($quantity_in_cart > 0) 
                 {
                     $quantity = $quantity_in_cart + 1; 
-                    $sql_update = "UPDATE `12_cart_item` SET Quantity = ? WHERE CartID = ? AND ProductID = ?";
+                    $sql_update = "UPDATE `13_cart_item` SET Quantity = ? WHERE CartID = ? AND ProductID = ?";
                     $stmt_update = $conn->prepare($sql_update);
                     $stmt_update->bind_param("iii", $quantity, $cartID, $product_id);
                     $stmt_update->execute();
@@ -87,13 +87,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id']))
                 else 
                 {
                     $quantity = 1; 
-                    $sql_insert = "INSERT INTO `12_cart_item` (CartID, ProductID, Quantity) VALUES (?, ?, ?)";
+                    $sql_insert = "INSERT INTO `13_cart_item` (CartID, ProductID, Quantity) VALUES (?, ?, ?)";
                     $stmt_insert = $conn->prepare($sql_insert);
                     $stmt_insert->bind_param("iii", $cartID, $product_id, $quantity);
                     $stmt_insert->execute();
                 }
 
-                $sql_product_info = "SELECT ProductName, Product_Price, Product_Image FROM `05_product` WHERE ProductID = ?";
+
+                    $sql_product_info = "
+                        SELECT 
+                            p.ProductName, 
+                            p.Product_Price, 
+                            (
+                                SELECT ImagePath 
+                                FROM 06_product_images 
+                                WHERE ProductID = p.ProductID AND IsPrimary = 1 
+                                LIMIT 1
+                            ) AS Product_Image
+                        FROM 05_product p
+                        WHERE p.ProductID = ?
+                    ";
                 $stmt_product_info = $conn->prepare($sql_product_info);
                 $stmt_product_info->bind_param("i", $product_id);
                 $stmt_product_info->execute();
@@ -156,7 +169,12 @@ if (!empty($category_name))
 $brands = $conn->query("SELECT * FROM `03_brand`");
 $categories = $conn->query("SELECT * FROM `04_category`");
 
-$sql = "SELECT * FROM `05_product` WHERE Product_Status = 'Available'";
+$sql = "SELECT p.*, 
+       (SELECT ImagePath FROM 06_product_images i 
+        WHERE i.ProductID = p.ProductID AND i.IsPrimary = 1 
+        LIMIT 1) AS Product_Image
+        FROM 05_product p
+        WHERE Product_Status = 'Available'";
 $params = [];
 $types = '';
 

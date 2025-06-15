@@ -17,8 +17,7 @@ if (!isset($_GET['order_id'])) {
 
 $order_id = intval($_GET['order_id']);
 
-// 查询订单并验证归属
-$order_query = "SELECT * FROM `07_order` WHERE OrderID = ? AND CustomerID = ?";
+$order_query = "SELECT * FROM `08_order` WHERE OrderID = ? AND CustomerID = ?";
 $stmt = $conn->prepare($order_query);
 $stmt->bind_param("ii", $order_id, $CustomerID);
 $stmt->execute();
@@ -39,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $phone = $_POST['Shipping_Phone'];
 
     $update_query = "
-        UPDATE `07_order` 
+        UPDATE `08_order` 
         SET Shipping_Name = ?, Shipping_Address = ?, Shipping_City = ?, 
             Shipping_Postcode = ?, Shipping_State = ?, Shipping_Phone = ?
         WHERE OrderID = ? AND CustomerID = ?

@@ -18,9 +18,7 @@ function hasNegativePriceOrStock($price, $stock): bool {
 
     return false; 
 }
-function insertalldetails(object $pdo,string $name,string $description,float $price,int $stock,string $status,?int $category,?int $brand,string $image_path,string $image_path2,string $image_path3){
- return insertdetail($pdo, $name, $description, $price, $stock, $status, $category, $brand, $image_path,$image_path2,$image_path3);
-}
+
 
 
 

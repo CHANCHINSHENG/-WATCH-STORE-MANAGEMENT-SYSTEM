@@ -12,7 +12,7 @@ if ($customerID) {
 
     if ($product_id && $new_quantity >= 0) 
     { 
-        $sql_cart = "SELECT CartID FROM `11_cart` WHERE CustomerID = ?";
+        $sql_cart = "SELECT CartID FROM `12_cart` WHERE CustomerID = ?";
         $stmt_cart = $conn->prepare($sql_cart);
         $stmt_cart->bind_param("i", $customerID);
         $stmt_cart->execute();
@@ -24,7 +24,7 @@ if ($customerID) {
             $cartID = $cart_row['CartID'];
 
             // === 增加的逻辑：获取商品在购物车中的当前数量 ===
-            $sql_get_current_cart_quantity = "SELECT Quantity FROM `12_cart_item` WHERE CartID = ? AND ProductID = ?";
+            $sql_get_current_cart_quantity = "SELECT Quantity FROM `13_cart_item` WHERE CartID = ? AND ProductID = ?";
             $stmt_get_current_cart_quantity = $conn->prepare($sql_get_current_cart_quantity);
             $stmt_get_current_cart_quantity->bind_param("ii", $cartID, $product_id);
             $stmt_get_current_cart_quantity->execute();
@@ -61,7 +61,7 @@ if ($customerID) {
                 if ($new_quantity == 0) {
                     $deleted_quantity = $current_cart_quantity; // 使用我们刚刚获取到的当前购物车数量
 
-                    $sql_delete = "DELETE FROM `12_cart_item` WHERE CartID = ? AND ProductID = ?";
+                    $sql_delete = "DELETE FROM `13_cart_item` WHERE CartID = ? AND ProductID = ?";
                     $stmt_delete = $conn->prepare($sql_delete);
                     $stmt_delete->bind_param("ii", $cartID, $product_id);
                     $stmt_delete->execute();
@@ -72,7 +72,7 @@ if ($customerID) {
 
                 } elseif ($new_quantity > 0) { 
                     // 更新商品数量（通过输入框）
-                    $sql_update = "UPDATE `12_cart_item` SET Quantity = ? WHERE CartID = ? AND ProductID = ?";
+                    $sql_update = "UPDATE `13_cart_item` SET Quantity = ? WHERE CartID = ? AND ProductID = ?";
                     $stmt_update = $conn->prepare($sql_update);
                     $stmt_update->bind_param("iii", $new_quantity, $cartID, $product_id);
                     $stmt_update->execute();
@@ -107,7 +107,7 @@ function calculateCartTotal($cartID, &$response) {
 
     $sql_total = "
         SELECT SUM(p.Product_Price * ci.Quantity) AS total_amount, SUM(ci.Quantity) AS total_items
-        FROM `12_cart_item` ci
+        FROM `13_cart_item` ci
         JOIN `05_product` p ON ci.ProductID = p.ProductID
         WHERE ci.CartID = ?
     ";

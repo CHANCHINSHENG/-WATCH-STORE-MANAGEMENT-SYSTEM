@@ -92,8 +92,8 @@ $customer = $customer_stmt->get_result()->fetch_assoc();
                 o.Shipping_Postcode, o.Shipping_State, o.Shipping_Phone,
                 o.Admin_Payment_Confirmation,
                 t.Delivery_Status 
-            FROM `07_order` o
-            LEFT JOIN `06_tracking` t ON o.TrackingID = t.TrackingID 
+            FROM `08_order` o
+            LEFT JOIN `07_tracking` t ON o.TrackingID = t.TrackingID 
             WHERE o.CustomerID = ?
             ORDER BY o.OrderDate DESC
         ";
@@ -141,7 +141,7 @@ $customer = $customer_stmt->get_result()->fetch_assoc();
                 <td>
                     <a href="order_view.php?order_id=<?= $row['OrderID'] ?>" class="btn btn-sm btn-info mb-1">View</a><br>
                     <a href="order_edit_address.php?order_id=<?= $row['OrderID'] ?>" class="btn btn-sm btn-warning mb-1">Edit Address</a><br>
-                    <a href="order_cancel.php?order_id=<?= $row['OrderID'] ?>" class="btn btn-sm btn-danger mb-1" onclick="return confirm('Are you sure you want to cancel this order?');">Cancel</a><br>
+                    <button class="btn btn-sm btn-danger mb-1" onclick="cancelOrder(<?= $row['OrderID'] ?>)">Cancel</button><br>
                     <a href="order_track.php?order_id=<?= $row['OrderID'] ?>" class="btn btn-sm btn-secondary">Track</a>
                 </td>
             </tr>
@@ -155,3 +155,33 @@ $customer = $customer_stmt->get_result()->fetch_assoc();
 </div>
 </body>
 </html>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+function cancelOrder(orderId) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'Do you really want to cancel this order?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#aaa',
+        confirmButtonText: 'Yes, cancel it'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`order_cancel.php?order_id=${orderId}`)
+            .then(response => response.json())
+            .then(data => {
+                Swal.fire({
+                    icon: data.status === 'success' ? 'success' : 'error',
+                    title: data.message
+                }).then(() => {
+                    if (data.status === 'success') {
+                        location.reload();
+                    }
+                });
+            });
+        }
+    });
+}
+</script>

@@ -6,13 +6,13 @@ $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
 $limit = 5;
 $offset = ($page - 1) * $limit;
 
-$stmt = $pdo->prepare("SELECT o.OrderID, o.OrderDate, c.Cust_Username, o.Total_Price, o.OrderStatus FROM 07_order o JOIN 02_customer c ON o.CustomerID = c.CustomerID ORDER BY o.OrderDate DESC LIMIT ? OFFSET ?");
+$stmt = $pdo->prepare("SELECT o.OrderID, o.OrderDate, c.Cust_Username, o.Total_Price, o.OrderStatus FROM 08_order o JOIN 02_customer c ON o.CustomerID = c.CustomerID ORDER BY o.OrderDate DESC LIMIT ? OFFSET ?");
 $stmt->bindValue(1, $limit, PDO::PARAM_INT);
 $stmt->bindValue(2, $offset, PDO::PARAM_INT);
 $stmt->execute();
 $recentOrders = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$totalRecent = $pdo->query("SELECT COUNT(*) FROM 07_order")->fetchColumn();
+$totalRecent = $pdo->query("SELECT COUNT(*) FROM 08_order")->fetchColumn();
 $totalPages = ceil($totalRecent / $limit);
 ?>
 

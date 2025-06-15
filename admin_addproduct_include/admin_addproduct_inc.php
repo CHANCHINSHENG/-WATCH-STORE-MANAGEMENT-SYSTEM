@@ -84,7 +84,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         }
 
-        $message = insertalldetails($pdo, $name, $description, $price, $stock, $status, $category, $brand, $image_path, $image_path2, $image_path3);
+$productId = insertProductOnly($pdo, $name, $description, $price, $stock, $status, $category, $brand);
+
+// 主圖片
+if (!empty($image_path)) {
+    insertProductImage($pdo, $productId, $image_path, true, 1); 
+}
+// 第二張
+if (!empty($image_path2)) {
+    insertProductImage($pdo, $productId, $image_path2, false, 2);
+}
+// 第三張
+if (!empty($image_path3)) {
+    insertProductImage($pdo, $productId, $image_path3, false, 3);
+}
+
+$message = "✅ Product added successfully.";
 
         if (str_starts_with($message, "✅")) {
             $_SESSION['success'] = $message;

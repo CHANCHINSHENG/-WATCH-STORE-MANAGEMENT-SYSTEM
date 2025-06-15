@@ -17,7 +17,7 @@ if (!isset($_GET['order_id'])) {
 
 $order_id = intval($_GET['order_id']);
 
-$order_query = "SELECT TrackingID, OrderDate FROM `07_order` WHERE OrderID = ? AND CustomerID = ?"; // <-- 修改这里：添加 OrderDate
+$order_query = "SELECT TrackingID, OrderDate FROM `08_order` WHERE OrderID = ? AND CustomerID = ?"; // <-- 修改这里：添加 OrderDate
 $stmt = $conn->prepare($order_query);
 $stmt->bind_param("ii", $order_id, $CustomerID);
 $stmt->execute();
@@ -33,7 +33,7 @@ $tracking_id = $order['TrackingID'];
 $order_date = $order['OrderDate']; // <-- 获取订单日期
 
 // 获取追踪信息
-$track_query = "SELECT * FROM `06_tracking` WHERE TrackingID = ?";
+$track_query = "SELECT * FROM `07_tracking` WHERE TrackingID = ?";
 $track_stmt = $conn->prepare($track_query);
 $track_stmt->bind_param("i", $tracking_id);
 $track_stmt->execute();

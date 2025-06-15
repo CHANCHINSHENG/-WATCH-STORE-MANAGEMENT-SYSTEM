@@ -30,18 +30,25 @@ $countStmt->execute($params);
 $total_products = $countStmt->fetchColumn();
 
 $query = "SELECT p.ProductID, p.ProductName, p.Product_Price, p.Product_Status, 
-                 p.Product_Image, c.CategoryName, b.BrandName
-          $baseQuery $whereClause
-          LIMIT :limit OFFSET :offset";
+       (SELECT ImagePath 
+        FROM 06_product_images i 
+        WHERE i.ProductID = p.ProductID 
+        ORDER BY IsPrimary DESC, ImageOrder ASC 
+        LIMIT 1) AS Product_Image,
+       c.CategoryName, b.BrandName
+$baseQuery $whereClause
+LIMIT :limit OFFSET :offset";
+
 
 $stmt = $pdo->prepare($query);
 
 foreach ($params as $key => $value) {
-    $stmt->bindValue($key, $value, PDO::PARAM_STR);
+    $stmt->bindValue($key, $value, PDO::PARAM_STR); 
 }
 $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
 $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 $stmt->execute();
+
 
 $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>

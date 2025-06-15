@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id']))
             $available_stock = $product_stock_data['Product_Stock_Quantity'];
             $productNameForError = $product_stock_data['ProductName'];
 
-            $sql_cart = "SELECT CartID FROM `11_cart` WHERE CustomerID = ?";
+            $sql_cart = "SELECT CartID FROM `12_cart` WHERE CustomerID = ?";
             $stmt_cart = $conn->prepare($sql_cart);
             $stmt_cart->bind_param("i", $customerID);
             $stmt_cart->execute();
@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id']))
             }
             else
             {
-                $sql_create_cart = "INSERT INTO `11_cart` (CustomerID) VALUES (?)";
+                $sql_create_cart = "INSERT INTO `12_cart` (CustomerID) VALUES (?)";
                 $stmt_create_cart = $conn->prepare($sql_create_cart);
                 $stmt_create_cart->bind_param("i", $customerID);
                 $stmt_create_cart->execute();
@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id']))
             $quantity_in_cart = 0;
             if ($cartID) 
             {
-                $sql_check = "SELECT Quantity FROM `12_cart_item` WHERE CartID = ? AND ProductID = ?";
+                $sql_check = "SELECT Quantity FROM `13_cart_item` WHERE CartID = ? AND ProductID = ?";
                 $stmt_check = $conn->prepare($sql_check);
                 $stmt_check->bind_param("ii", $cartID, $product_id);
                 $stmt_check->execute();
@@ -78,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id']))
                 if ($quantity_in_cart > 0)
                 {
                     $quantity = $quantity_in_cart + 1;
-                    $sql_update = "UPDATE `12_cart_item` SET Quantity = ? WHERE CartID = ? AND ProductID = ?";
+                    $sql_update = "UPDATE `13_cart_item` SET Quantity = ? WHERE CartID = ? AND ProductID = ?";
                     $stmt_update = $conn->prepare($sql_update);
                     $stmt_update->bind_param("iii", $quantity, $cartID, $product_id);
                     $stmt_update->execute();
@@ -86,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id']))
                 else
                 {
                     $quantity = 1;
-                    $sql_insert = "INSERT INTO `12_cart_item` (CartID, ProductID, Quantity) VALUES (?, ?, ?)";
+                    $sql_insert = "INSERT INTO `13_cart_item` (CartID, ProductID, Quantity) VALUES (?, ?, ?)";
                     $stmt_insert = $conn->prepare($sql_insert);
                     $stmt_insert->bind_param("iii", $cartID, $product_id, $quantity);
                     $stmt_insert->execute();
@@ -113,7 +113,7 @@ if (isset($_SESSION['customer_id']) && isset($_GET['id']))
     $customerID = $_SESSION['customer_id'];
     $productID = intval($_GET['id']);
 
-    $stmt = $conn->prepare("INSERT INTO `15_view_history` (CustomerID, ProductID, ViewTime) VALUES (?, ?, NOW())");
+    $stmt = $conn->prepare("INSERT INTO `14_view_history` (CustomerID, ProductID, ViewTime) VALUES (?, ?, NOW())");
     $stmt->bind_param("ii", $customerID, $productID);
     $stmt->execute();
 }
@@ -136,6 +136,18 @@ if (!$product)
 {
     die("❌ Product not found.");
 }
+
+// Get images from 06_product_images
+$image_stmt = $conn->prepare("SELECT ImagePath FROM 06_product_images WHERE ProductID = ? ORDER BY ImageOrder ASC");
+$image_stmt->bind_param("i", $product_id);
+$image_stmt->execute();
+$image_result = $image_stmt->get_result();
+
+$product_images = [];
+while ($img_row = $image_result->fetch_assoc()) {
+    $product_images[] = $img_row['ImagePath'];
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -242,46 +254,35 @@ if (!$product)
 
     <div class="product-detail-container">
         <div class="product-gallery">
-            <div class="main-image-container">
-                <button class="arrow left" onclick="prevImage()">&#10094;</button>
-                <img id="mainImage" src="admin_addproduct_include/<?= htmlspecialchars($product['Product_Image']); ?>" alt="Main Image">
-                <button class="arrow right" onclick="nextImage()">&#10095;</button>
-            </div>
-            <div class="thumbnail-container">
-                <?php if (!empty($product['Product_Image'])): ?>
-                    <img class="thumbnail" src="admin_addproduct_include/<?= htmlspecialchars($product['Product_Image']); ?>" onclick="showImage(0)">
-                <?php endif; ?>
-                <?php if (!empty($product['Product_Image2'])): ?>
-                    <img class="thumbnail" src="admin_addproduct_include/<?= htmlspecialchars($product['Product_Image2']); ?>" onclick="showImage(1)">
-                <?php endif; ?>
-                <?php if (!empty($product['Product_Image3'])): ?>
-                    <img class="thumbnail" src="admin_addproduct_include/<?= htmlspecialchars($product['Product_Image3']); ?>" onclick="showImage(2)">
-                <?php endif; ?>
-            </div>
-        </div>
+    <div class="main-image-container">
+        <button class="arrow left" onclick="prevImage()">&#10094;</button>
+        <img id="mainImage" src="admin_addproduct_include/<?= htmlspecialchars($product_images[0] ?? 'no-image.jpg'); ?>" alt="Main Image">
+        <button class="arrow right" onclick="nextImage()">&#10095;</button>
+    </div>
+    <div class="thumbnail-container">
+        <?php foreach ($product_images as $index => $img): ?>
+            <img class="thumbnail" src="admin_addproduct_include/<?= htmlspecialchars($img); ?>" onclick="showImage(<?= $index ?>)">
+        <?php endforeach; ?>
+        <?php if (empty($product_images)): ?>
+    <p style="color: red;">No product images available.</p>
+<?php endif; ?>
+    </div>
+</div>
         <script>
-            const images = 
-            [
-                <?= json_encode($product['Product_Image']); ?>,
-                <?= json_encode($product['Product_Image2']); ?>,
-                <?= json_encode($product['Product_Image3']); ?>
-            ].filter(img => img);
-            let currentIndex = 0;
-            function showImage(index) 
-            {
-                currentIndex = index;
-                document.getElementById("mainImage").src = "admin_addproduct_include/" + images[currentIndex];
-            }
-            function prevImage() 
-            {
-                currentIndex = (currentIndex - 1 + images.length) % images.length;
-                showImage(currentIndex);
-            }
-            function nextImage() 
-            {
-                currentIndex = (currentIndex + 1) % images.length;
-                showImage(currentIndex);
-            }
+            const images = <?= json_encode(array_map(fn($img) => "admin_addproduct_include/" . $img, $product_images)); ?>;
+    let currentIndex = 0;
+    function showImage(index) {
+        currentIndex = index;
+        document.getElementById("mainImage").src = images[currentIndex];
+    }
+    function prevImage() {
+        currentIndex = (currentIndex - 1 + images.length) % images.length;
+        showImage(currentIndex);
+    }
+    function nextImage() {
+        currentIndex = (currentIndex + 1) % images.length;
+        showImage(currentIndex);
+    }
         </script>
 
         <div class="product-info">

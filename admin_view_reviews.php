@@ -11,8 +11,8 @@ $reviews = [];
 $error_message = '';
 
 $sql = "SELECT r.ReviewID, r.Rating, r.Comment, r.ReviewDate, c.Cust_Username
-        FROM 18_reviews r
-        LEFT JOIN 07_order o ON r.OrderID = o.OrderID
+        FROM 16_reviews r
+        LEFT JOIN 08_order o ON r.OrderID = o.OrderID
         LEFT JOIN 02_customer c ON o.CustomerID = c.CustomerID
         ORDER BY r.ReviewDate DESC";
 

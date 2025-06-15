@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['category_id']) && is_
 
     if (!empty($productIDs)) {
         $in = str_repeat('?,', count($productIDs) - 1) . '?';
-        $deleteDetails = $pdo->prepare("DELETE FROM 08_order_details WHERE ProductID IN ($in)");
+        $deleteDetails = $pdo->prepare("DELETE FROM 09_order_details WHERE ProductID IN ($in)");
         $deleteDetails->execute($productIDs);
 
     

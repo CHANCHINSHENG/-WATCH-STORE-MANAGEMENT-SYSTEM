@@ -120,6 +120,11 @@
     color: #22c55e;
 }
 
+.status-badge.cancelled {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+}
+
 .status-badge.delivered {
     background: rgba(74, 20, 140, 0.1);
     color: #22c55e;
