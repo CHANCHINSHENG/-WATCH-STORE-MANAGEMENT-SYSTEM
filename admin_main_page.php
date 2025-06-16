@@ -8,20 +8,20 @@ if (!isset($_SESSION['admin_id'])) {
 }
 
 // All-time Sales
-$stmt = $pdo->query("SELECT SUM(Total_Price) AS AllTimeSales FROM 07_order WHERE OrderStatus != 'Cancelled'");
+$stmt = $pdo->query("SELECT SUM(Total_Price) AS AllTimeSales FROM 08_order WHERE OrderStatus != 'Cancelled'");
 $allTimeSales = $stmt->fetch(PDO::FETCH_ASSOC)['AllTimeSales'] ?? 0;
 
 // Order Stats
-$totalOrders = $pdo->query("SELECT COUNT(*) FROM 07_order")->fetchColumn();
-$ordersProcessing = $pdo->query("SELECT COUNT(*) FROM 07_order WHERE OrderStatus = 'Processing'")->fetchColumn();
-$ordersDelivered = $pdo->query("SELECT COUNT(*) FROM 07_order o JOIN 06_tracking t ON o.TrackingID = t.TrackingID WHERE t.Delivery_Status = 'Delivered'")->fetchColumn();
+$totalOrders = $pdo->query("SELECT COUNT(*) FROM 08_order WHERE OrderStatus != 'Cancelled'")->fetchColumn();
+$ordersProcessing = $pdo->query("SELECT COUNT(*) FROM 08_order WHERE OrderStatus = 'Processing'")->fetchColumn();
+$ordersDelivered = $pdo->query("SELECT COUNT(*) FROM 08_order o JOIN 07_tracking t ON o.TrackingID = t.TrackingID WHERE t.Delivery_Status = 'Delivered'")->fetchColumn();
 
 // Top 5 Best-Selling Products
 $stmt = $pdo->query("
     SELECT p.ProductName, SUM(od.Order_Quantity) AS TotalSold
-    FROM 08_order_details od
+    FROM 09_order_details od
     JOIN 05_product p ON od.ProductID = p.ProductID
-    JOIN 07_order o ON o.OrderID = od.OrderID
+    JOIN 08_order o ON o.OrderID = od.OrderID
     WHERE o.OrderStatus != 'Cancelled'
     GROUP BY p.ProductID
     ORDER BY TotalSold DESC
@@ -39,11 +39,11 @@ for ($i = 6; $i >= 0; $i--) {
     $date = date('Y-m-d', strtotime("-$i days"));
     $labels[] = $date;
 
-    $stmt = $pdo->prepare("SELECT SUM(Total_Price) FROM 07_order WHERE DATE(OrderDate) = ? AND OrderStatus != 'Cancelled'");
+    $stmt = $pdo->prepare("SELECT SUM(Total_Price) FROM 08_order WHERE DATE(OrderDate) = ? AND OrderStatus != 'Cancelled'");
     $stmt->execute([$date]);
     $salesData[] = (float)($stmt->fetchColumn() ?? 0);
 
-    $stmt = $pdo->prepare("SELECT COUNT(*) FROM 07_order WHERE DATE(OrderDate) = ? AND OrderStatus != 'Cancelled'");
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM 08_order WHERE DATE(OrderDate) = ? AND OrderStatus != 'Cancelled'");
     $stmt->execute([$date]);
     $orderData[] = (int)($stmt->fetchColumn() ?? 0);
 }
@@ -121,10 +121,10 @@ for ($i = 6; $i >= 0; $i--) {
     echo "Weekly Sales Summary\n\n";
     for ($i = 6; $i >= 0; $i--) {
         $date = date('Y-m-d', strtotime("-$i days"));
-        $stmt = $pdo->prepare("SELECT SUM(Total_Price) FROM 07_order WHERE DATE(OrderDate) = ? AND OrderStatus != 'Cancelled'");
+        $stmt = $pdo->prepare("SELECT SUM(Total_Price) FROM 08_order WHERE DATE(OrderDate) = ? AND OrderStatus != 'Cancelled'");
         $stmt->execute([$date]);
         $sales = $stmt->fetchColumn() ?? 0;
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM 07_order WHERE DATE(OrderDate) = ? AND OrderStatus != 'Cancelled'");
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM 08_order WHERE DATE(OrderDate) = ? AND OrderStatus != 'Cancelled'");
         $stmt->execute([$date]);
         $orders = $stmt->fetchColumn() ?? 0;
         echo "$date | Sales: RM " . number_format($sales, 2) . " | Orders: $orders\n";
@@ -134,7 +134,7 @@ for ($i = 6; $i >= 0; $i--) {
     <pre id="printable-top5">
 <?php
     echo "Top 5 Best-Selling Products\n\n";
-    $stmt = $pdo->query("SELECT p.ProductName, SUM(od.Order_Quantity) AS TotalSold FROM 08_order_details od JOIN 05_product p ON od.ProductID = p.ProductID JOIN 07_order o ON o.OrderID = od.OrderID WHERE o.OrderStatus != 'Cancelled' AND o.OrderDate >= CURDATE() - INTERVAL 6 DAY GROUP BY p.ProductID ORDER BY TotalSold DESC LIMIT 5");
+    $stmt = $pdo->query("SELECT p.ProductName, SUM(od.Order_Quantity) AS TotalSold FROM 09_order_details od JOIN 05_product p ON od.ProductID = p.ProductID JOIN 08_order o ON o.OrderID = od.OrderID WHERE o.OrderStatus != 'Cancelled' AND o.OrderDate >= CURDATE() - INTERVAL 6 DAY GROUP BY p.ProductID ORDER BY TotalSold DESC LIMIT 5");
     $topProducts = $stmt->fetchAll(PDO::FETCH_ASSOC);
     foreach ($topProducts as $index => $row) {
         echo ($index + 1) . ". " . $row['ProductName'] . " — " . $row['TotalSold'] . " units\n";

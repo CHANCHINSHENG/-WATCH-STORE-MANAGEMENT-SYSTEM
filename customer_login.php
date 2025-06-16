@@ -6,7 +6,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
     $username = $_POST['Cust_Username'];
     $password = $_POST['Cust_Password'];
 
-    $stmt = $conn->prepare("SELECT CustomerID, Cust_Password FROM 02_customer WHERE Cust_Username = ?");
+    $stmt = $conn->prepare("SELECT CustomerID, Cust_Password FROM `02_customer` WHERE Cust_Username = ? AND Is_Deleted = 0");
     $stmt->bind_param("s", $username);
     $stmt->execute();
     $stmt->store_result();
@@ -32,10 +32,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
                 $cartID = $cart_row['CartID'];
 
                 $sql_items = "
-                    SELECT p.ProductID, p.ProductName, ci.Quantity, p.Product_Price, p.Product_Image
-                    FROM `12_cart_item` ci
-                    JOIN `05_product` p ON ci.ProductID = p.ProductID
-                    WHERE ci.CartID = ?
+                SELECT  p.ProductID,  p.ProductName, ci.Quantity, p.Product_Price, 
+                (SELECT ImagePath FROM 06_product_images WHERE ProductID = p.ProductID AND IsPrimary = 1 LIMIT 1) AS Product_Image
+                FROM `12_cart_item` ci
+                JOIN `05_product` p ON ci.ProductID = p.ProductID
+                WHERE ci.CartID = ?
+
                 ";
                 $stmt_items = $conn->prepare($sql_items);
                 $stmt_items->bind_param("i", $cartID);
@@ -66,7 +68,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
     } 
     else 
     {
-        $error = "❌ Username not found.";
+        $error = "❌ Username not found, or account has been deactivated.";
+
     }
     $stmt->close();
     $conn->close();

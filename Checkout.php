@@ -56,8 +56,17 @@ if ($row_cart = $result_cart->fetch_assoc())
 $stmt_cart->close();
 
 if ($cartID) 
-{
-    $stmt_cart_items = $conn->prepare("SELECT p.ProductID, p.ProductName, p.Product_Image, p.Product_Price, ci.Quantity FROM 12_cart_item ci JOIN 05_product p ON ci.ProductID = p.ProductID WHERE ci.CartID = ?");
+{$stmt_cart_items = $conn->prepare("
+    SELECT 
+        p.ProductID, 
+        p.ProductName, 
+        (SELECT ImagePath FROM 06_product_images WHERE ProductID = p.ProductID AND IsPrimary = 1 LIMIT 1) AS Product_Image, 
+        p.Product_Price, 
+        ci.Quantity 
+    FROM 12_cart_item ci 
+    JOIN 05_product p ON ci.ProductID = p.ProductID 
+    WHERE ci.CartID = ?
+");
     $stmt_cart_items->bind_param("i", $cartID);
     $stmt_cart_items->execute();
     $result_cart_items = $stmt_cart_items->get_result();
@@ -160,7 +169,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']))
     if (empty($error)) 
     {
         if ($payment_method === 'Visa') {
-            $sql_correct_card = "SELECT * FROM `19_visa_card` LIMIT 1";
+            $sql_correct_card = "SELECT * FROM `16_visa_card` LIMIT 1";
             $result_correct_card = $conn->query($sql_correct_card);
             
             if ($result_correct_card && $result_correct_card->num_rows > 0) 
@@ -217,7 +226,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']))
             try 
             {
                 $tracking_number = substr(str_shuffle("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"), 0, 11);
-                $tracking_query = "INSERT INTO 06_tracking (Tracking_Number, Delivery_Status, Delivery_Address, Delivery_City, Delivery_Postcode, Delivery_State, Shipping_Fee) VALUES (?, 'pending', ?, ?, ?, ?, ?)";
+                $tracking_query = "INSERT INTO 07_tracking (Tracking_Number, Delivery_Status, Delivery_Address, Delivery_City, Delivery_Postcode, Delivery_State, Shipping_Fee) VALUES (?, 'pending', ?, ?, ?, ?, ?)";
                 $stmt_tracking = $conn->prepare($tracking_query);
                 $stmt_tracking->bind_param("sssssi", $tracking_number, $address, $city, $postcode, $State, $order_shipping_fee);
                 $stmt_tracking->execute();
@@ -226,7 +235,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']))
                 $stmt_tracking->close();
 
                 $order_status_for_db = 'Processing'; 
-                $order_query = "INSERT INTO 07_order (CustomerID, TrackingID, OrderDate, OrderStatus, Shipping_Method, Shipping_Name, Shipping_Address, Shipping_City, Shipping_Postcode, Shipping_State, Shipping_Phone, Total_Price) VALUES (?, ?, NOW(), ?, 'Standard Delivery (Malaysia)', ?, ?, ?, ?, ?, ?, ?)";
+                $order_query = "INSERT INTO 08_order (CustomerID, TrackingID, OrderDate, OrderStatus, Shipping_Method, Shipping_Name, Shipping_Address, Shipping_City, Shipping_Postcode, Shipping_State, Shipping_Phone, Total_Price) VALUES (?, ?, NOW(), ?, 'Standard Delivery (Malaysia)', ?, ?, ?, ?, ?, ?, ?)";
                 $stmt_order = $conn->prepare($order_query);
                 $stmt_order->bind_param("iisssssssd", $customerID, $trackingID, $order_status_for_db, $name, $address, $city, $postcode, $State, $phone, $order_total_price);
                 $stmt_order->execute();
@@ -236,7 +245,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']))
 
                 foreach ($cart_items as $item) 
                 {
-                    $item_query = "INSERT INTO 08_order_details (OrderID, ProductID, Order_Quantity, Order_Subtotal) VALUES (?, ?, ?, ?)";
+                    $item_query = "INSERT INTO 09_order_details (OrderID, ProductID, Order_Quantity, Order_Subtotal) VALUES (?, ?, ?, ?)";
                     $stmt_item = $conn->prepare($item_query);
                     $stmt_item->bind_param("iiid", $orderID, $item['ProductID'], $item['Quantity'], $item['Subtotal']);
                     $stmt_item->execute();
@@ -252,7 +261,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']))
                 }
 
                 $payment_status_for_db = 'Success'; 
-                $payment_query = "INSERT INTO 09_payment (OrderID, Payment_Type, Amount, Payment_Date, Payment_Status) VALUES (?, ?, ?, NOW(), ?)";
+                $payment_query = "INSERT INTO 10_payment (OrderID, Payment_Type, Amount, Payment_Date, Payment_Status) VALUES (?, ?, ?, NOW(), ?)";
                 $stmt_payment = $conn->prepare($payment_query);
                 $stmt_payment->bind_param("isds", $orderID, $payment_method, $order_total_price, $payment_status_for_db);
                 $stmt_payment->execute();

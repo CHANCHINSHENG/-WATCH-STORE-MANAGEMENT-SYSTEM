@@ -11,8 +11,16 @@ if (!isset($_SESSION['customer_id'])) {
 $CustomerID = $_SESSION['customer_id'];
 
 // 获取浏览记录
-$sql = "SELECT vh.ViewTime, p.ProductID, p.ProductName, p.Product_Price, p.Product_Image
-        FROM `15_view_history` vh
+$sql = "SELECT 
+            vh.ViewTime, 
+            p.ProductID, 
+            p.ProductName, 
+            p.Product_Price,
+            (SELECT ImagePath 
+             FROM `06_product_images` 
+             WHERE ProductID = p.ProductID AND IsPrimary = 1 
+             LIMIT 1) AS Product_Image
+        FROM `13_view_history` vh
         JOIN `05_product` p ON vh.ProductID = p.ProductID
         WHERE vh.CustomerID = ?
         ORDER BY vh.ViewTime DESC";

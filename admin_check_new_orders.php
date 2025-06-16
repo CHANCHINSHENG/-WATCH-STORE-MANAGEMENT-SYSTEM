@@ -4,7 +4,7 @@ require_once 'admin_login_include/db.php';
 
 $stmt = $pdo->prepare("SELECT o.OrderID, o.Total_Price, o.OrderDate AS OrderDateTime,
                               c.Cust_Username, c.CustomerID
-                       FROM 07_order o
+                       FROM 08_order o
                        JOIN 02_customer c ON o.CustomerID = c.CustomerID
                        WHERE o.OrderStatus = 'Processing' AND o.Admin_Payment_Confirmation = 'Pending'
                        ORDER BY o.OrderDate DESC");

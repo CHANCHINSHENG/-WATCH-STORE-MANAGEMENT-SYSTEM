@@ -8,7 +8,7 @@ if (!isset($_GET['oid']) || !is_numeric($_GET['oid'])) {
 $orderId = (int)$_GET['oid'];
 $limit = 10;
 
-$orderIds = $pdo->query("SELECT OrderID FROM 07_order ORDER BY OrderDate DESC")->fetchAll(PDO::FETCH_COLUMN);
+$orderIds = $pdo->query("SELECT orderID FROM 08_order ORDER BY OrderDate DESC")->fetchAll(PDO::FETCH_COLUMN);
 $index = array_search($orderId, $orderIds);
 $page = floor($index / $limit) + 1;
 

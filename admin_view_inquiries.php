@@ -12,7 +12,7 @@ $inquiries = [];
 $error_message = '';
 
 $sql = "SELECT id, customer_name, customer_email, message_subject, submission_date, replied_at 
-        FROM 17_customer_inquiries 
+        FROM 14_customer_inquiries 
         ORDER BY submission_date DESC";
 
 $result = $pdo->query($sql);

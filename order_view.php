@@ -1,69 +1,60 @@
 <?php
 session_start();
+require_once 'db.php';
+
 if (!isset($_SESSION['customer_id'])) {
     header("Location: customer_login.php");
     exit();
 }
 
-require_once 'db.php';
-
 $CustomerID = $_SESSION['customer_id'];
+$order_id = isset($_GET['order_id']) ? intval($_GET['order_id']) : 0;
 
-if (!isset($_GET['order_id'])) 
-{
-    echo "Invalid request.";
+if ($order_id <= 0) {
+    echo "❌ Invalid order ID.";
     exit();
 }
 
-$order_id = intval($_GET['order_id']);
+// 查詢訂單主資料
+$order = null;
+$stmt = $conn->prepare("SELECT * FROM `08_order` WHERE OrderID = ? AND CustomerID = ?");
+if ($stmt) {
+    $stmt->bind_param("ii", $order_id, $CustomerID);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $order = $result->fetch_assoc();
+    $stmt->close();
+}
 
-$order_query = "
-SELECT *, Customer_Review_Status FROM `07_order`
-WHERE OrderID = ? AND CustomerID = ?
-";
-
-$stmt = $conn->prepare($order_query);
-$stmt->bind_param("ii", $order_id, $CustomerID);
-$stmt->execute();
-$order = $stmt->get_result()->fetch_assoc();
-
-if (!$order) 
-{
-    echo "Order not found or access denied.";
+if (!$order) {
+    echo "❌ Order not found or access denied.";
     exit();
 }
 
-$order_items = []; 
-if ($order) 
-{ 
-    $order_id_for_items = $order['OrderID']; 
-
-    $stmt_items = $conn->prepare
-    (
-        "SELECT p.ProductID, p.ProductName, p.Product_Image, od.Order_Quantity, od.Order_Subtotal, p.Product_Price
-         FROM `08_order_details` od
-         JOIN `05_product` p ON od.ProductID = p.ProductID
-         WHERE od.OrderID = ?"
-    );
-
-    if ($stmt_items) 
-    {
-        $stmt_items->bind_param("i", $order_id_for_items);
-        $stmt_items->execute();
-        $result_items = $stmt_items->get_result();
-
-        while ($item_row = $result_items->fetch_assoc()) 
-        {
-            $order_items[] = $item_row;
-        }
-        $stmt_items->close();
-    } 
-    else 
-    {
-        error_log("Failed to prepare statement for order items: " . $conn->error);
+// 查詢訂單商品
+$order_items = [];
+$stmt_items = $conn->prepare("
+    SELECT p.ProductID, p.ProductName, 
+           (SELECT ImagePath FROM 06_product_images WHERE ProductID = p.ProductID AND IsPrimary = 1 LIMIT 1) AS Product_Image,
+           od.Order_Quantity, od.Order_Subtotal, p.Product_Price
+    FROM `09_order_details` od
+    JOIN `05_product` p ON od.ProductID = p.ProductID
+    WHERE od.OrderID = ?
+");
+if ($stmt_items) {
+    $stmt_items->bind_param("i", $order_id);
+    $stmt_items->execute();
+    $result_items = $stmt_items->get_result();
+    while ($row = $result_items->fetch_assoc()) {
+        $order_items[] = $row;
     }
+    $stmt_items->close();
+} else {
+    error_log("❌ Failed to prepare statement for order items: " . $conn->error);
 }
+
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -324,7 +315,11 @@ if ($order)
     <div class="order-section">
 
         <div class="order-header-info">
-            <h2>Order #<?= $order['OrderID'] ?></h2>
+            <?php if (isset($order['orderID'])): ?>
+    <h2>Order #<?= htmlspecialchars($order['orderID']) ?></h2>
+<?php else: ?>
+    <h2>Order # Not found</h2>
+<?php endif; ?>
             <p><strong>Date:</strong> <?= $order['OrderDate'] ?></p>
 
             <?php
@@ -382,11 +377,11 @@ if ($order)
             <?php if ($order['Customer_Review_Status'] === 'Eligible'): ?>
                 <div class="review-section">
                     <p class="review-prompt">Your order has been shipped! We'd love to hear your feedback!</p>
-                    <a href="submit_review.php?order_id=<?= $order['OrderID'] ?>" class="review-button">Submit Review</a>
+                    <a href="submit_review.php?order_id=<?= $order['orderID'] ?>" class="review-button">Submit Review</a>
                 </div>
             <?php elseif ($order['Customer_Review_Status'] === 'Reviewed'): ?>
                 <div class="review-section">
-                    <p class="review-prompt">Thank you for your review! You can view it <a href="Submit_Review.php?order_id=<?= $order['OrderID'] ?>">here</a>.</p>
+                    <p class="review-prompt">Thank you for your review! You can view it <a href="Submit_Review.php?order_id=<?= $order['orderID'] ?>">here</a>.</p>
                 </div>  
             <?php endif; ?>
         <?php endif; ?>

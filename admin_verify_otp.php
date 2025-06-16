@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <button type="submit" class="login-btn">Verify</button>
 
                 <div class="links">
-                    <a href="forgot_password.php">← Back to Forgot Password</a>
+                    <a href="admin_forgot_password.php">← Back to Forgot Password</a>
                 </div>
             </form>
         </div>

@@ -27,7 +27,7 @@ if (!$customer) {
 }
 
 // Fetch orders + tracking data
-$stmt_orders = $pdo->prepare("SELECT o.*, t.Tracking_Number, t.Delivery_Status FROM 07_order o LEFT JOIN 06_tracking t ON o.TrackingID = t.TrackingID WHERE o.CustomerID = ? ORDER BY o.OrderDate DESC");
+$stmt_orders = $pdo->prepare("SELECT o.*, t.Tracking_Number, t.Delivery_Status FROM 08_order o LEFT JOIN 07_tracking t ON o.TrackingID = t.TrackingID WHERE o.CustomerID = ? ORDER BY o.OrderDate DESC");
 $stmt_orders->execute([$customer_id]);
 $orders = $stmt_orders->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -46,7 +46,6 @@ $orders = $stmt_orders->fetchAll(PDO::FETCH_ASSOC);
         <table class="order-table">
             <thead>
                 <tr>
-                    <th>Order ID</th>
                     <th>Date</th>
                     <th>Order Status</th>
                     <th>Change Order</th>
@@ -59,7 +58,6 @@ $orders = $stmt_orders->fetchAll(PDO::FETCH_ASSOC);
             <tbody>
                 <?php foreach ($orders as $order): ?>
                     <tr>
-                        <td><?= htmlspecialchars($order['OrderID']) ?></td>
                         <td><?= htmlspecialchars($order['OrderDate']) ?></td>
                         <td>
     <span class="status-badge <?= strtolower(str_replace(' ', '-', $order['OrderStatus'])) ?>">

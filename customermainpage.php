@@ -37,9 +37,21 @@ if (isset($_SESSION['customer_id'])) {
     }
 }
 
-// Fetch popular products
 $popular_products = [];
-$popular_query = "SELECT * FROM `05_product` ORDER BY Product_Stock_Quantity DESC LIMIT 6";
+$popular_query = "
+    SELECT 
+        p.ProductID, 
+        p.ProductName, 
+        p.Product_Price, 
+        (SELECT ImagePath 
+         FROM 06_product_images i 
+         WHERE i.ProductID = p.ProductID AND i.IsPrimary = 1 
+         LIMIT 1) AS Product_Image
+    FROM 05_product p
+    ORDER BY p.Product_Stock_Quantity DESC 
+    LIMIT 6
+";
+
 $popular_result = mysqli_query($conn, $popular_query);
 if ($popular_result) {
     while ($row = mysqli_fetch_assoc($popular_result)) {
@@ -47,26 +59,32 @@ if ($popular_result) {
     }
 }
 
-// Fetch recommended products
 $like_products = [];
 $customer_id = $_SESSION['customer_id'] ?? null;
 
 if ($customer_id) {
     $customer_id = (int)$customer_id;
 
-    // 查询最近浏览的产品（最多6个）
-    $like_query = "
-        SELECT p.*
-        FROM (
-            SELECT ProductID, MAX(ViewTime) AS LastViewed
-            FROM `15_view_history`
-            WHERE CustomerID = $customer_id
-            GROUP BY ProductID
-        ) AS vh
-        JOIN `05_product` p ON vh.ProductID = p.ProductID
-        ORDER BY vh.LastViewed DESC
-        LIMIT 6
-    ";
+   $like_query = "
+    SELECT 
+        p.ProductID, 
+        p.ProductName, 
+        p.Product_Price, 
+        (SELECT ImagePath 
+         FROM 06_product_images i 
+         WHERE i.ProductID = p.ProductID AND i.IsPrimary = 1 
+         LIMIT 1) AS Product_Image
+    FROM (
+        SELECT ProductID, MAX(ViewTime) AS LastViewed
+        FROM 13_view_history
+        WHERE CustomerID = $customer_id
+        GROUP BY ProductID
+    ) AS vh
+    JOIN 05_product p ON vh.ProductID = p.ProductID
+    ORDER BY vh.LastViewed DESC
+    LIMIT 6
+";
+
 
     $like_result = mysqli_query($conn, $like_query);
 
@@ -77,7 +95,6 @@ if ($customer_id) {
     }
 }
 
-// 如果登录但没浏览记录，或查询失败，则随机推荐
 if (empty($like_products)) {
     $fallback_query = "SELECT * FROM `05_product` ORDER BY RAND() LIMIT 6";
     $fallback_result = mysqli_query($conn, $fallback_query);
@@ -107,11 +124,11 @@ if (empty($like_products)) {
     <!--    Favicons-->
     <!-- ===============================================-->
     <link rel="apple-touch-icon" sizes="180x180" href="assets/img/favicons/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicons/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="assets/img/favicons/favicon-16x16.png">
-    <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicons/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicons/tigo.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/img/favicons/tigo.png">
+    <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicons/tigo.png">
     <link rel="manifest" href="assets/img/favicons/manifest.json">
-    <meta name="msapplication-TileImage" content="assets/img/favicons/mstile-150x150.png">
+    <meta name="msapplication-TileImage" content="assets/img/favicons/tigo.png">
     <meta name="theme-color" content="#ffffff">
 
 

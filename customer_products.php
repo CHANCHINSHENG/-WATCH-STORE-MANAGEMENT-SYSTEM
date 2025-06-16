@@ -93,7 +93,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id']))
                     $stmt_insert->execute();
                 }
 
-                $sql_product_info = "SELECT ProductName, Product_Price, Product_Image FROM `05_product` WHERE ProductID = ?";
+
+                    $sql_product_info = "
+                        SELECT 
+                            p.ProductName, 
+                            p.Product_Price, 
+                            (
+                                SELECT ImagePath 
+                                FROM 06_product_images 
+                                WHERE ProductID = p.ProductID AND IsPrimary = 1 
+                                LIMIT 1
+                            ) AS Product_Image
+                        FROM 05_product p
+                        WHERE p.ProductID = ?
+                    ";
                 $stmt_product_info = $conn->prepare($sql_product_info);
                 $stmt_product_info->bind_param("i", $product_id);
                 $stmt_product_info->execute();
@@ -156,7 +169,12 @@ if (!empty($category_name))
 $brands = $conn->query("SELECT * FROM `03_brand`");
 $categories = $conn->query("SELECT * FROM `04_category`");
 
-$sql = "SELECT * FROM `05_product` WHERE Product_Status = 'Available'";
+$sql = "SELECT p.*, 
+       (SELECT ImagePath FROM 06_product_images i 
+        WHERE i.ProductID = p.ProductID AND i.IsPrimary = 1 
+        LIMIT 1) AS Product_Image
+        FROM 05_product p
+        WHERE Product_Status = 'Available'";
 $params = [];
 $types = '';
 

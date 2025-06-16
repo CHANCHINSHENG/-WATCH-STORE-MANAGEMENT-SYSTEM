@@ -17,12 +17,12 @@ if (!$order_id || !$delivery_status) {
     exit();
 }
 
-$stmt = $pdo->prepare("SELECT TrackingID FROM 07_order WHERE OrderID = ?");
+$stmt = $pdo->prepare("SELECT TrackingID FROM 08_order WHERE OrderID = ?");
 $stmt->execute([$order_id]);
 $tracking = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if ($tracking && $tracking['TrackingID']) {
-    $update = $pdo->prepare("UPDATE 06_tracking SET Delivery_Status = ? WHERE TrackingID = ?");
+    $update = $pdo->prepare("UPDATE 07_tracking SET Delivery_Status = ? WHERE TrackingID = ?");
     $update->execute([$delivery_status, $tracking['TrackingID']]);
     echo "success";
 } else {

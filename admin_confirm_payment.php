@@ -10,7 +10,7 @@ if (!isset($_SESSION['admin_id'])) {
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["order_id"])) {
     $orderID = $_POST["order_id"];
 
-    $stmt = $pdo->prepare("UPDATE 07_order SET Admin_Payment_Confirmation = 'Confirmed', OrderStatus = 'Done Processing',Customer_Review_Status = 'Eligible' WHERE OrderID = ?");
+    $stmt = $pdo->prepare("UPDATE 08_order SET Admin_Payment_Confirmation = 'Confirmed', OrderStatus = 'Done Processing',Customer_Review_Status = 'Eligible' WHERE OrderID = ?");
     $stmt->execute([$orderID]);
 
     header("Location: admin_layout.php?page=admin_view_allorder");

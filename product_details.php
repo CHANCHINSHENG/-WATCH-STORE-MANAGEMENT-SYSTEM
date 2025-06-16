@@ -113,7 +113,7 @@ if (isset($_SESSION['customer_id']) && isset($_GET['id']))
     $customerID = $_SESSION['customer_id'];
     $productID = intval($_GET['id']);
 
-    $stmt = $conn->prepare("INSERT INTO `15_view_history` (CustomerID, ProductID, ViewTime) VALUES (?, ?, NOW())");
+    $stmt = $conn->prepare("INSERT INTO `13_view_history` (CustomerID, ProductID, ViewTime) VALUES (?, ?, NOW())");
     $stmt->bind_param("ii", $customerID, $productID);
     $stmt->execute();
 }
@@ -132,51 +132,23 @@ $stmt->execute();
 $result = $stmt->get_result();
 $product = $result->fetch_assoc();
 
-if (!$product) 
-{
+if (!$product) {
     die("❌ Product not found.");
 }
 
-// Fetch recommended products
-$like_products = [];
-$customer_id = $_SESSION['customer_id'] ?? null;
+$product_images = [];
 
-if ($customer_id) {
-    $customer_id = (int)$customer_id;
-
-    // 查询最近浏览的产品（最多6个）
-    $like_query = "
-        SELECT p.*
-        FROM (
-            SELECT ProductID, MAX(Viewed_At) AS LastViewed
-            FROM `15_view_history`
-            WHERE CustomerID = $customer_id
-            GROUP BY ProductID
-        ) AS vh
-        JOIN `05_product` p ON vh.ProductID = p.ProductID
-        ORDER BY vh.LastViewed DESC
-        LIMIT 3
-    ";
-
-    $like_result = mysqli_query($conn, $like_query);
-
-    if ($like_result && mysqli_num_rows($like_result) > 0) {
-        while ($row = mysqli_fetch_assoc($like_result)) {
-            $like_products[] = $row;
-        }
-    }
+$stmt_images = $conn->prepare("SELECT ImagePath FROM `06_product_images` WHERE ProductID = ? ORDER BY ImageOrder ASC");
+if (!$stmt_images) {
+    die("❌ SQL prepare failed: " . $conn->error);
+}
+$stmt_images->bind_param("i", $product_id);
+$stmt_images->execute();
+$res_images = $stmt_images->get_result();
+while ($row_img = $res_images->fetch_assoc()) {
+    $product_images[] = $row_img['ImagePath'];
 }
 
-// 如果登录但没浏览记录，或查询失败，则随机推荐
-if (empty($like_products)) {
-    $fallback_query = "SELECT * FROM `05_product` ORDER BY RAND() LIMIT 6";
-    $fallback_result = mysqli_query($conn, $fallback_query);
-    if ($fallback_result) {
-        while ($row = mysqli_fetch_assoc($fallback_result)) {
-            $like_products[] = $row;
-        }
-    }
-}
 ?>
 
 <!DOCTYPE html>
@@ -283,46 +255,35 @@ if (empty($like_products)) {
 
     <div class="product-detail-container">
         <div class="product-gallery">
-            <div class="main-image-container">
-                <button class="arrow left" onclick="prevImage()">&#10094;</button>
-                <img id="mainImage" src="admin_addproduct_include/<?= htmlspecialchars($product['Product_Image']); ?>" alt="Main Image">
-                <button class="arrow right" onclick="nextImage()">&#10095;</button>
-            </div>
-            <div class="thumbnail-container">
-                <?php if (!empty($product['Product_Image'])): ?>
-                    <img class="thumbnail" src="admin_addproduct_include/<?= htmlspecialchars($product['Product_Image']); ?>" onclick="showImage(0)">
-                <?php endif; ?>
-                <?php if (!empty($product['Product_Image2'])): ?>
-                    <img class="thumbnail" src="admin_addproduct_include/<?= htmlspecialchars($product['Product_Image2']); ?>" onclick="showImage(1)">
-                <?php endif; ?>
-                <?php if (!empty($product['Product_Image3'])): ?>
-                    <img class="thumbnail" src="admin_addproduct_include/<?= htmlspecialchars($product['Product_Image3']); ?>" onclick="showImage(2)">
-                <?php endif; ?>
-            </div>
-        </div>
+    <div class="main-image-container">
+        <button class="arrow left" onclick="prevImage()">&#10094;</button>
+        <img id="mainImage" src="admin_addproduct_include/<?= htmlspecialchars($product_images[0] ?? 'no-image.jpg'); ?>" alt="Main Image">
+        <button class="arrow right" onclick="nextImage()">&#10095;</button>
+    </div>
+    <div class="thumbnail-container">
+        <?php foreach ($product_images as $index => $img): ?>
+            <img class="thumbnail" src="admin_addproduct_include/<?= htmlspecialchars($img); ?>" onclick="showImage(<?= $index ?>)">
+        <?php endforeach; ?>
+        <?php if (empty($product_images)): ?>
+    <p style="color: red;">No product images available.</p>
+<?php endif; ?>
+    </div>
+</div>
         <script>
-            const images = 
-            [
-                <?= json_encode($product['Product_Image']); ?>,
-                <?= json_encode($product['Product_Image2']); ?>,
-                <?= json_encode($product['Product_Image3']); ?>
-            ].filter(img => img);
-            let currentIndex = 0;
-            function showImage(index) 
-            {
-                currentIndex = index;
-                document.getElementById("mainImage").src = "admin_addproduct_include/" + images[currentIndex];
-            }
-            function prevImage() 
-            {
-                currentIndex = (currentIndex - 1 + images.length) % images.length;
-                showImage(currentIndex);
-            }
-            function nextImage() 
-            {
-                currentIndex = (currentIndex + 1) % images.length;
-                showImage(currentIndex);
-            }
+            const images = <?= json_encode(array_map(fn($img) => "admin_addproduct_include/" . $img, $product_images)); ?>;
+    let currentIndex = 0;
+    function showImage(index) {
+        currentIndex = index;
+        document.getElementById("mainImage").src = images[currentIndex];
+    }
+    function prevImage() {
+        currentIndex = (currentIndex - 1 + images.length) % images.length;
+        showImage(currentIndex);
+    }
+    function nextImage() {
+        currentIndex = (currentIndex + 1) % images.length;
+        showImage(currentIndex);
+    }
         </script>
 
         <div class="product-info">

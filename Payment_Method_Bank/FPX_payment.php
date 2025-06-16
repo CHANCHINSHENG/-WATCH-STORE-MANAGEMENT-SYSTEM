@@ -22,7 +22,7 @@ $cartItems = $temp_data['cart_items'] ?? [];
 $error = "";
 
 $supported_banks = [];
-$result_banks = $conn->query("SELECT bank_name FROM `20_bank_details`");
+$result_banks = $conn->query("SELECT bank_name FROM `17_bank_details`");
 if($result_banks) 
 {
     while($row = $result_banks->fetch_assoc()) 
@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_payment']) &&
 
     if(empty($error)) 
     {
-        $stmt_check = $conn->prepare("SELECT account_number, password FROM `20_bank_details` WHERE bank_name = ?");
+        $stmt_check = $conn->prepare("SELECT account_number, password FROM `17_bank_details` WHERE bank_name = ?");
         $stmt_check->bind_param("s", $selected_bank_input);
         $stmt_check->execute();
         $result_check = $stmt_check->get_result();
@@ -78,16 +78,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_payment']) &&
             $conn->begin_transaction();
 
             $tracking_number = substr(str_shuffle("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"), 0, 11);
-            $tracking_query = "INSERT INTO 06_tracking (Tracking_Number, Delivery_Status, Delivery_Address, Delivery_City, Delivery_Postcode, Delivery_State, Shipping_Fee) VALUES (?, 'pending', ?, ?, ?, ?, ?)";
+            $tracking_query = "INSERT INTO 07_tracking (Tracking_Number, Delivery_Status, Delivery_Address, Delivery_City, Delivery_Postcode, Delivery_State, Shipping_Fee) VALUES (?, 'pending', ?, ?, ?, ?, ?)";
             $stmt_tracking = $conn->prepare($tracking_query);
             $stmt_tracking->bind_param("sssssi", $tracking_number, $shippingAddress, $shippingCity, $shippingPostcode, $shippingState, $shippingFee);
             $stmt_tracking->execute();
             $trackingID = $conn->insert_id;
             if (!$trackingID) throw new Exception("Failed to create tracking record.");
             $stmt_tracking->close();
-
-            $order_status_for_db = 'pending';
-            $order_query = "INSERT INTO 07_order (CustomerID, TrackingID, OrderDate, OrderStatus, Shipping_Method, Shipping_Name, Shipping_Address, Shipping_City, Shipping_Postcode, Shipping_State, Shipping_Phone, Total_Price) VALUES (?, ?, NOW(), ?, 'Standard Delivery (Malaysia)', ?, ?, ?, ?, ?, ?, ?)";
+            
+            $order_status_for_db = 'Processing';
+            $order_query = "INSERT INTO 08_order (CustomerID, TrackingID, OrderDate, OrderStatus, Shipping_Method, Shipping_Name, Shipping_Address, Shipping_City, Shipping_Postcode, Shipping_State, Shipping_Phone, Total_Price) VALUES (?, ?, NOW(), ?, 'Standard Delivery (Malaysia)', ?, ?, ?, ?, ?, ?, ?)";
             $stmt_order = $conn->prepare($order_query);
             $stmt_order->bind_param("iisssssssd", $customerID, $trackingID, $order_status_for_db, $shippingName, $shippingAddress, $shippingCity, $shippingPostcode, $shippingState, $shippingPhone, $total);
             $stmt_order->execute();
@@ -97,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_payment']) &&
 
             foreach ($cartItems as $item) 
             { 
-                $item_query = "INSERT INTO 08_order_details (OrderID, ProductID, Order_Quantity, Order_Subtotal) VALUES (?, ?, ?, ?)";
+                $item_query = "INSERT INTO 09_order_details (OrderID, ProductID, Order_Quantity, Order_Subtotal) VALUES (?, ?, ?, ?)";
                 $stmt_item = $conn->prepare($item_query);
                 $stmt_item->bind_param("iiid", $orderID, $item['ProductID'], $item['Quantity'], $item['Subtotal']);
                 $stmt_item->execute();
@@ -118,7 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_payment']) &&
             
             $payment_status_for_db = 'Success'; 
             $payment_type_for_db = 'Bank Payment'; 
-            $payment_query = "INSERT INTO 09_payment (OrderID, Payment_Type, Amount, Payment_Date, Payment_Status) VALUES (?, ?, ?, NOW(), ?)";
+            $payment_query = "INSERT INTO 10_payment (OrderID, Payment_Type, Amount, Payment_Date, Payment_Status) VALUES (?, ?, ?, NOW(), ?)";
             $stmt_payment = $conn->prepare($payment_query);
             $stmt_payment->bind_param("isds", $orderID, $payment_type_for_db, $total, $payment_status_for_db);
             $stmt_payment->execute();

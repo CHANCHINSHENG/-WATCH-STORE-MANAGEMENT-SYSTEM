@@ -15,13 +15,17 @@ if (!isset($_GET['order_id'])) {
 $orderID = $_GET['order_id'];
 
 // Fetch  order details
-$orderStmt = $pdo->prepare("SELECT o.OrderID, o.OrderDate, o.Total_Price, o.Shipping_State,
-                            c.Cust_Username, c.Cust_First_Name, c.Cust_Last_Name,
-                            pm.Payment_Method_Type
-                            FROM 07_order o
-                            JOIN 02_customer c ON o.CustomerID = c.CustomerID
-                            LEFT JOIN 14_order_payment_method pm ON o.OrderID = pm.OrderID
-                            WHERE o.OrderID = ?");
+$orderStmt = $pdo->prepare("
+    SELECT 
+        o.OrderID, o.OrderDate, o.Total_Price, o.Shipping_State,
+        c.Cust_Username, c.Cust_First_Name, c.Cust_Last_Name,
+        p.Payment_Type
+    FROM 08_order o
+    JOIN 02_customer c ON o.CustomerID = c.CustomerID
+    JOIN 10_payment p ON o.OrderID = p.OrderID
+    WHERE o.OrderID = ?
+");
+
 $orderStmt->execute([$orderID]);
 $order = $orderStmt->fetch(PDO::FETCH_ASSOC);
 
@@ -31,12 +35,13 @@ if (!$order) {
 }
 
 $paymentData = [];
-$method = $order['Payment_Method_Type'];
+$method = $order['Payment_Type']; 
+
 $foundMatch = false;
 $customerFullName = strtolower(trim($order['Cust_First_Name'] . ' ' . $order['Cust_Last_Name']));
 
 if ($method === 'Visa') {
-    $stmt = $pdo->prepare("SELECT * FROM 09_payment WHERE OrderID = ?");
+    $stmt = $pdo->prepare("SELECT * FROM 10_payment WHERE OrderID = ?");
     $stmt->execute([$orderID]);
     $paymentData = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -45,13 +50,11 @@ if ($method === 'Visa') {
     }
 
 } elseif ($method === 'Bank Payment') {
-
-
-   $stmt = $pdo->prepare("SELECT * FROM 13_bank_payment WHERE order_id = ?");
+$stmt = $pdo->prepare("SELECT * FROM 10_payment WHERE OrderID = ?");
     $stmt->execute([$orderID]);
     $paymentData = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($paymentData && strtolower($paymentData['payment_status']) === 'success') {
+    if ($paymentData && strtolower($paymentData['Payment_Status']) === 'success') {
         $foundMatch = true;
     }
 }
@@ -89,7 +92,6 @@ if ($method === 'Visa') {
 
     <?php if ($paymentData): ?>
         <?php if ($method === 'Visa'): ?>
-            <p><strong>Card Holder Name:</strong> <?= htmlspecialchars($paymentData['Card_Holder_Name']) ?></p>
             <p><strong>Payment Amount:</strong> RM<?= number_format($paymentData['Amount'], 2) ?></p>
             <p><strong>Payment Time:</strong> <?= htmlspecialchars($paymentData['Payment_Date']) ?></p>
             <p><strong>Payment Status:</strong> <?= htmlspecialchars($paymentData['Payment_Status']) ?></p>
@@ -101,7 +103,7 @@ if ($method === 'Visa') {
         <?php endif; ?>
 
         <?php if ($foundMatch): ?>
-            <p class="status-success">✅ Payment information matches. You may confirm the payment.</p>
+            <p class="status-success">✅ Payment successfully. You may confirm the payment.</p>
             <form method="POST" action="admin_confirm_payment.php" onsubmit="return confirm('Confirm this payment?');">
                 <input type="hidden" name="order_id" value="<?= htmlspecialchars($order['OrderID']) ?>">
                 <button type="submit" class="btn green">Confirm Payment</button>

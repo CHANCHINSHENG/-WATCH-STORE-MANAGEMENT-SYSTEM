@@ -12,8 +12,8 @@ if ($orderID <= 0)
 $stmt_order = $conn->prepare
 ("
     SELECT o.OrderID, o.OrderDate, o.Total_Price, t.Tracking_Number, t.Delivery_State, t.TrackingID
-    FROM `07_order` o
-    JOIN `06_tracking` t ON o.TrackingID = t.TrackingID
+    FROM `08_order` o
+    JOIN `07_tracking` t ON o.TrackingID = t.TrackingID
     WHERE o.OrderID = ?
 ");
 
@@ -40,7 +40,7 @@ $products = [];
 $stmt_products = $conn->prepare
 ("
     SELECT p.ProductName, p.Product_Image, od.Order_Quantity
-    FROM `08_order_details` od
+    FROM `09_order_details` od
     JOIN `05_product` p ON od.ProductID = p.ProductID
     WHERE od.OrderID = ?
 ");
@@ -109,7 +109,7 @@ $trackingID = $order_row['TrackingID'];
 
 if ($trackingID > 0) 
 {
-    $update_tracking_query = "UPDATE `06_tracking` SET `EstimatedDeliveryDate` = ? WHERE `TrackingID` = ?";
+    $update_tracking_query = "UPDATE `07_tracking` SET `EstimatedDeliveryDate` = ? WHERE `TrackingID` = ?";
     $stmt_update_tracking = $conn->prepare($update_tracking_query);
 
     if ($stmt_update_tracking === false) 

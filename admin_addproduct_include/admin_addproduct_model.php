@@ -1,21 +1,19 @@
 <?php
-    function insertdetail(object $pdo,string $name,string $description,float $price,int $stock,string $status,?int $category,?int $brand,string $image_path,string $image_path2,string $image_path3){
-        try{
-            $query="INSERT INTO 05_PRODUCT (ProductName, Product_Price, Product_Description, Product_Stock_Quantity, Product_Status, CategoryID, BrandID, Product_Image,Product_Image2,Product_Image3) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ? )";
+   function insertProductOnly($pdo, $name, $desc, $price, $stock, $status, $category, $brand) {
+    $sql = "INSERT INTO 05_product 
+           (ProductName, Product_Description, Product_Price, Product_Stock_Quantity, Product_Status, CategoryID, BrandID) 
+           VALUES (?, ?, ?, ?, ?, ?, ?)";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$name, $desc, $price, $stock, $status, $category, $brand]);
+    return $pdo->lastInsertId();
+}
 
-        $stmt=$pdo->prepare($query);
-    if (!$stmt) {
-        return "❌ Failed to prepare statement.";
-    }
-    $stmt->execute([$name, $price, $description, $stock, $status, $category, $brand, $image_path,$image_path2,$image_path3]);
-    return "✅ Product added successfully!";
+function insertProductImage($pdo, $productId, $imagePath, $isPrimary = false, $imageOrder = 1) {
+    $sql = "INSERT INTO 06_product_images (ProductID, ImagePath, IsPrimary, ImageOrder) VALUES (?, ?, ?, ?)";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$productId, $imagePath, $isPrimary, $imageOrder]);
+}
 
-    }catch(PDOException $th){
-        return "❌ Error adding product: " . $th->getMessage();
-    }
-             
-    }
 
     function getAllCategories(object $pdo): array {
         $stmt = $pdo->query("SELECT * FROM 04_CATEGORY");

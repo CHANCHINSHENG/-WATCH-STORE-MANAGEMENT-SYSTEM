@@ -10,7 +10,7 @@ require_once 'db.php';
 $CustomerID = $_SESSION['customer_id'];
 $order_id = isset($_GET['order_id']) ? intval($_GET['order_id']) : 0;
 
-$stmt_order = $conn->prepare("SELECT Customer_Review_Status, Admin_Payment_Confirmation FROM `07_order` WHERE OrderID = ? AND CustomerID = ?");
+$stmt_order = $conn->prepare("SELECT Customer_Review_Status, Admin_Payment_Confirmation FROM `08_order` WHERE orderID = ? AND CustomerID = ?");
 $stmt_order->bind_param("ii", $order_id, $CustomerID);
 $stmt_order->execute();
 $order_info = $stmt_order->get_result()->fetch_assoc();
@@ -26,7 +26,7 @@ $review_status = $order_info['Customer_Review_Status'];
 $admin_payment_confirmed = ($order_info['Admin_Payment_Confirmation'] === 'Confirmed');
 
 $existing_review = null;
-$stmt_review_exist = $conn->prepare("SELECT * FROM `18_reviews` WHERE OrderID = ? AND CustomerID = ?");
+$stmt_review_exist = $conn->prepare("SELECT * FROM `15_reviews` WHERE orderID = ? AND CustomerID = ?");
 $stmt_review_exist->bind_param("ii", $order_id, $CustomerID);
 $stmt_review_exist->execute();
 $existing_review = $stmt_review_exist->get_result()->fetch_assoc();
@@ -40,13 +40,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
         if ($existing_review) 
         {
             // delete review
-            $stmt_delete = $conn->prepare("DELETE FROM `18_reviews` WHERE ReviewID = ? AND CustomerID = ? AND OrderID = ?");
-            $stmt_delete->bind_param("iii", $existing_review['ReviewID'], $CustomerID, $order_id);
+            $stmt_delete = $conn->prepare("DELETE FROM `15_reviews` WHERE reviewid = ? AND CustomerID = ? AND OrderID = ?");
+$stmt_delete->bind_param("iii", $existing_review['reviewid'], $CustomerID, $order_id);
+
             $stmt_delete->execute();
             $stmt_delete->close();
 
             // after delete, customer can review again
-            $stmt_update_order_status_after_delete = $conn->prepare("UPDATE `07_order` SET `Customer_Review_Status` = 'Eligible' WHERE OrderID = ?");
+            $stmt_update_order_status_after_delete = $conn->prepare("UPDATE `08_order` SET `Customer_Review_Status` = 'Eligible' WHERE orderID = ?");
             $stmt_update_order_status_after_delete->bind_param("i", $order_id);
             $stmt_update_order_status_after_delete->execute();
             $stmt_update_order_status_after_delete->close();
@@ -68,8 +69,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
 
         if ($existing_review) 
         {
-            $stmt_update = $conn->prepare("UPDATE `18_reviews` SET Rating = ?, Comment = ?, ReviewDate = NOW() WHERE ReviewID = ?");
-            $stmt_update->bind_param("isi", $rating, $comment, $existing_review['ReviewID']);
+            $stmt_update = $conn->prepare("UPDATE `15_reviews` SET Rating = ?, Comment = ?, ReviewDate = NOW() WHERE reviewid = ?");
+            $stmt_update->bind_param("isi", $rating, $comment, $existing_review['reviewid']);
             $stmt_update->execute();
             $stmt_update->close();
             $message = "Comment updated successfully!";
@@ -78,13 +79,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
         {
             if ($review_status === 'Eligible' && $admin_payment_confirmed) 
             {
-                $stmt_insert = $conn->prepare("INSERT INTO `18_reviews` (OrderID, CustomerID, Rating, Comment, ReviewDate) VALUES (?, ?, ?, ?, NOW())");
+                $stmt_insert = $conn->prepare("INSERT INTO `15_reviews` (orderID, CustomerID, Rating, Comment, ReviewDate) VALUES (?, ?, ?, ?, NOW())");
                 $stmt_insert->bind_param("iiis", $order_id, $CustomerID, $rating, $comment); 
                 $stmt_insert->execute();
                 $stmt_insert->close();
                 $message = "Comment submitted successfully!";
 
-                $stmt_update_order_status = $conn->prepare("UPDATE `07_order` SET `Customer_Review_Status` = 'Reviewed' WHERE OrderID = ?");
+                $stmt_update_order_status = $conn->prepare("UPDATE `08_order` SET `Customer_Review_Status` = 'Reviewed' WHERE orderID = ?");
                 $stmt_update_order_status->bind_param("i", $order_id);
                 $stmt_update_order_status->execute();
                 $stmt_update_order_status->close();

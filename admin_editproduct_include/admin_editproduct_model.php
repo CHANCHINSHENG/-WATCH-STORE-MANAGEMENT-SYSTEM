@@ -31,3 +31,20 @@ function getAllBrands($pdo) {
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
+function getProductImages($pdo, $product_id) {
+    $stmt = $pdo->prepare("SELECT ImagePath FROM 06_product_images WHERE ProductID = ? ORDER BY IsPrimary DESC, ImageOrder ASC");
+    $stmt->execute([$product_id]);
+    $result = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+    $images = [null, null, null];
+    foreach ($result as $i => $imgPath) {
+        if ($i < 3) {
+            $images[$i] = $imgPath;
+        }
+    }
+    return $images;
+}
+
+
+
+
