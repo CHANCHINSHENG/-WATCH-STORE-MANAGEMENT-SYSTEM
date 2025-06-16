@@ -11,13 +11,13 @@ $limit = 10;
 $page  = isset($_GET['pagenum']) && is_numeric($_GET['pagenum']) ? (int)$_GET['pagenum'] : 1;
 $offset = ($page - 1) * $limit;
 
-$search         = isset($_GET['search']) ? trim($_GET['search']) : '';
-$status         = isset($_GET['status']) ? $_GET['status'] : '';
-$delivery       = isset($_GET['delivery']) ? $_GET['delivery'] : '';
-$method         = isset($_GET['method']) ? $_GET['method'] : '';
-$payment_status = isset($_GET['payment_status']) ? $_GET['payment_status'] : '';
-$start_date     = isset($_GET['start_date']) ? $_GET['start_date'] : '';
-$end_date       = isset($_GET['end_date']) ? $_GET['end_date'] : '';
+$search         = $_GET['search'] ?? '';
+$status         = $_GET['status'] ?? '';
+$delivery       = $_GET['delivery'] ?? '';
+$method         = $_GET['method'] ?? '';
+$payment_status = $_GET['payment_status'] ?? '';
+$start_date     = $_GET['start_date'] ?? '';
+$end_date       = $_GET['end_date'] ?? '';
 
 $where  = [];
 $params = [];
@@ -40,7 +40,7 @@ if ($method !== '') {
 }
 if ($payment_status !== '') {
     $where[] = "o.Admin_Payment_Confirmation = ?";
-    $params[] = $payment_status;    
+    $params[] = $payment_status;
 }
 if ($start_date !== '') {
     $where[] = "DATE(o.OrderDate) >= ?";
@@ -53,14 +53,11 @@ if ($end_date !== '') {
 
 $where_sql = $where ? 'WHERE ' . implode(' AND ', $where) : '';
 
-$count_stmt = $pdo->prepare("
-    SELECT COUNT(*)
-    FROM 08_order o
+$count_stmt = $pdo->prepare("SELECT COUNT(*) FROM 08_order o
     JOIN 02_customer c ON o.CustomerID = c.CustomerID
     LEFT JOIN 07_tracking t ON o.TrackingID = t.TrackingID
     LEFT JOIN 10_payment pm ON o.OrderID = pm.OrderID
-    $where_sql
-");
+    $where_sql");
 $count_stmt->execute($params);
 $total_orders = (int)$count_stmt->fetchColumn();
 $total_pages  = ceil($total_orders / $limit);
@@ -81,7 +78,19 @@ $query = "
 $stmt = $pdo->prepare($query);
 $stmt->execute($params);
 $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$queryParams = http_build_query([
+    'page' => 'admin_view_allorder',
+    'search' => $search,
+    'status' => $status,
+    'delivery' => $delivery,
+    'method' => $method,
+    'payment_status' => $payment_status,
+    'start_date' => $start_date,
+    'end_date' => $end_date
+]);
 ?>
+
 <link rel="stylesheet" href="admin_view_allorder.css">
 
 <div class="dashboard-container">
@@ -89,14 +98,15 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <form class="filter-panel" method="GET" action="admin_layout.php">
         <input type="hidden" name="page" value="admin_view_allorder">
+          <input type="hidden" name="pagenum" value="1">
         <div class="row">
             <input type="text" name="search" placeholder="Search by Customer Name..." value="<?= htmlspecialchars($search) ?>">
-            <select name="status">
-                <option value="">Order Status</option>
-                <option value="Processing"       <?= $status == 'Processing'       ? 'selected' : '' ?>>Processing</option>
-                <option value="Done Processing" <?= $status == 'Done Processing'  ? 'selected' : '' ?>>Done Processing</option>
-                <option value="Cancelled"       <?= $status == 'Cancelled'       ? 'selected' : '' ?>>Cancelled</option>
-            </select>
+       <select name="status">
+    <option value="">All Status</option>
+    <option value="Processing" <?= $status === 'Processing' ? 'selected' : '' ?>>Processing</option>
+    <option value="Done Processing" <?= $status === 'Done Processing' ? 'selected' : '' ?>>Done Processing</option>
+    <option value="Cancelled" <?= $status === 'Cancelled' ? 'selected' : '' ?>>Cancelled</option>
+  </select>
             <select name="delivery">
                 <option value="">Delivery Status</option>
                 <option value="Pending"   <?= $delivery == 'Pending'   ? 'selected' : '' ?>>Pending</option>
@@ -140,8 +150,9 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <td><?= htmlspecialchars($order['OrderDate']) ?></td>
                     <td><?= htmlspecialchars($order['Cust_Username']) ?></td>
                     <?php
-                        $status = $order['OrderStatus'] ?? 'Unknown';
-                        $status_class = 'status-badge';
+                     $orderStatus = $order['OrderStatus'] ?? 'Unknown';
+                    $status_class = 'status-badge';
+
 
                         switch (strtolower($status)) {
                             case 'done processing':
@@ -157,7 +168,7 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 $status_class .= ' unknown';
                         }
                         ?>
-<td><span class="<?= $status_class ?>"><?= htmlspecialchars($status) ?></span></td>
+<td><span class="<?= $status_class ?>"><?= htmlspecialchars($orderStatus) ?></span></td>
                     <td>
                         <select class="status-dropdown order-dropdown" data-order-id="<?= $order['OrderID'] ?>">
                             <?php foreach (["Processing", "Done Processing", "Cancelled"] as $s): ?>
@@ -212,22 +223,22 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </tbody>
         </table>
 
-        <?php
-        $base = "admin_layout.php?page=admin_view_allorder"
-              . "&search=" . urlencode($search)
-              . "&status=" . urlencode($status)
-              . "&delivery=" . urlencode($delivery)
-              . "&method=" . urlencode($method)
-              . "&payment_status=" . urlencode($payment_status)
-              . "&start_date=" . urlencode($start_date)
-              . "&end_date=" . urlencode($end_date);
-        echo '<div class="pagination">';
-        if ($page > 1) echo '<a class="page-btn" href="'. $base .'&pagenum='.($page-1).'">« Prev</a>';
-        for ($i =1; $i <= $total_pages; $i++) {
-            echo '<a class="page-btn'.($page==$i?' active':'').'" href="'. $base .'&pagenum='.$i.'">'.$i.'</a>';
-        }
-        if ($page < $total_pages) echo '<a class="page-btn" href="'. $base .'&pagenum='.($page+1).'">Next »</a>';
-        echo '</div>';
-        ?>
+       <!-- Pagination Display (below the table) -->
+<?php if ($total_pages > 1): ?>
+  <div class="pagination">
+    <?php if ($page > 1): ?>
+      <a href="admin_layout.php?<?= $queryParams ?>&pagenum=<?= $page - 1 ?>">&laquo; Prev</a>
+    <?php endif; ?>
+
+    <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+      <a href="admin_layout.php?<?= $queryParams ?>&pagenum=<?= $i ?>" <?= $i === $page ? 'class="active"' : '' ?>><?= $i ?></a>
+    <?php endfor; ?>
+
+    <?php if ($page < $total_pages): ?>
+      <a href="admin_layout.php?<?= $queryParams ?>&pagenum=<?= $page + 1 ?>">Next &raquo;</a>
+    <?php endif; ?>
+  </div>
+<?php endif; ?>
+
     <?php endif; ?>
 </div>

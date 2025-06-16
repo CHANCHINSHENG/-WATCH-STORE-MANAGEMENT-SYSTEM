@@ -4,7 +4,7 @@ include 'db.php';
 $errors = [];
 $success = "";
 
-$states = ['Johor', 'Kedah', 'Kelantan', 'Melaka', 'Negeri Sembilan', 'Pahang', 'Perak', 'Perlis', 'Penang', 'Sabah', 'Sarawak', 'Selangor', 'Terengganu'];
+$states = ['Johor', 'Kedah', 'Kelantan', 'Melaka', 'Negeri Sembilan', 'Pahang', 'Perak', 'Perlis', 'Penang', 'Sabah', 'Sarawak', 'Selangor', 'Terengganu','Kuala Lumpur'];
 
 $values = [
     'Cust_First_Name' => '',
@@ -51,8 +51,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $errors['Cust_State'] = "Please select a valid state.";
     }
 
-    if (!filter_var($values['Cust_Email'], FILTER_VALIDATE_EMAIL) || !str_ends_with($values['Cust_Email'], 'email.com')) {
-        $errors['Cust_Email'] = "Email must be valid and end with 'email.com'.";
+    if (!filter_var($values['Cust_Email'], FILTER_VALIDATE_EMAIL) || !str_ends_with($values['Cust_Email'], 'gmail.com')) {
+        $errors['Cust_Email'] = "Email must be valid and end with 'gmail.com'.";
     }
 
     if (empty($values['Cust_Username'])) {
@@ -63,9 +63,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $errors['Cust_PhoneNumber'] = "Phone must follow Malaysian format (e.g., 012-3456789).";
     }
 
-    if (empty($password)) {
-        $errors['Cust_Password'] = "Password is required.";
-    }
+ if (empty($password)) {
+    $errors['Cust_Password'] = "Password is required.";
+} elseif (strlen($password) < 6) {
+    $errors['Cust_Password'] = "Password must be at least 6 characters long.";
+} elseif (!preg_match("/[A-Za-z]/", $password) || !preg_match("/\d/", $password)) {
+    $errors['Cust_Password'] = "Password must contain at least one letter and one number.";
+}
+
 
     if ($password !== $confirm_password) {
         $errors['Confirm_Password'] = "Passwords do not match.";

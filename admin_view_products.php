@@ -39,7 +39,6 @@ $query = "SELECT p.ProductID, p.ProductName, p.Product_Price, p.Product_Status,
 $baseQuery $whereClause
 LIMIT :limit OFFSET :offset";
 
-
 $stmt = $pdo->prepare($query);
 
 foreach ($params as $key => $value) {
@@ -49,8 +48,13 @@ $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
 $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 $stmt->execute();
 
-
 $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$queryParams = [
+    'page' => 'admin_view_products',
+    'search' => $search
+];
+$baseUrl = 'admin_layout.php?' . http_build_query($queryParams);
 ?>
 
 <link rel="stylesheet" href="admin_view_products.css">
@@ -105,43 +109,36 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </tbody>
             </table>
 
- <?php
-$total_pages = ceil($total_products / $limit);
-?>
+            <?php $total_pages = ceil($total_products / $limit); ?>
 
-<div class="pagination">
-    <?php if ($page > 1): ?>
-        <a class="page-btn" href="admin_layout.php?page=admin_view_products&pagenum=<?= $page - 1 ?>&search=<?= urlencode($search) ?>">« Prev</a>
-    <?php endif; ?>
+            <div class="pagination">
+                <?php if ($page > 1): ?>
+                    <a class="page-btn" href="<?= $baseUrl ?>&pagenum=<?= $page - 1 ?>">« Prev</a>
+                <?php endif; ?>
 
-    <?php
-    // Always show first page
-    if ($page > 3) {
-        echo '<a class="page-btn" href="admin_layout.php?page=admin_view_products&pagenum=1&search=' . urlencode($search) . '">1</a>';
-        echo '<span class="page-btn dots">...</span>';
-    }
+                <?php
+                if ($page > 3) {
+                    echo '<a class="page-btn" href="' . $baseUrl . '&pagenum=1">1</a>';
+                    echo '<span class="page-btn dots">...</span>';
+                }
 
-    // Determine start and end range
-    $start = max(1, $page - 1);
-    $end = min($total_pages, $page + 1);
+                $start = max(1, $page - 1);
+                $end = min($total_pages, $page + 1);
+                for ($i = $start; $i <= $end; $i++) {
+                    $activeClass = ($i == $page) ? ' active' : '';
+                    echo '<a class="page-btn' . $activeClass . '" href="' . $baseUrl . '&pagenum=' . $i . '">' . $i . '</a>';
+                }
 
-    for ($i = $start; $i <= $end; $i++) {
-        $activeClass = ($i == $page) ? ' active' : '';
-        echo '<a class="page-btn' . $activeClass . '" href="admin_layout.php?page=admin_view_products&pagenum=' . $i . '&search=' . urlencode($search) . '">' . $i . '</a>';
-    }
+                if ($page < $total_pages - 2) {
+                    echo '<span class="page-btn dots">...</span>';
+                    echo '<a class="page-btn" href="' . $baseUrl . '&pagenum=' . $total_pages . '">' . $total_pages . '</a>';
+                }
+                ?>
 
-    // Show last page if not already shown
-    if ($page < $total_pages - 2) {
-        echo '<span class="page-btn dots">...</span>';
-        echo '<a class="page-btn" href="admin_layout.php?page=admin_view_products&pagenum=' . $total_pages . '&search=' . urlencode($search) . '">' . $total_pages . '</a>';
-    }
-    ?>
-
-    <?php if ($page < $total_pages): ?>
-        <a class="page-btn" href="admin_layout.php?page=admin_view_products&pagenum=<?= $page + 1 ?>&search=<?= urlencode($search) ?>">Next »</a>
-    <?php endif; ?>
-</div>
-
+                <?php if ($page < $total_pages): ?>
+                    <a class="page-btn" href="<?= $baseUrl ?>&pagenum=<?= $page + 1 ?>">Next »</a>
+                <?php endif; ?>
+            </div>
 
         <?php else: ?>
             <div class="empty-state">
@@ -150,4 +147,3 @@ $total_pages = ceil($total_products / $limit);
         <?php endif; ?>
     </div>
 </div>
-

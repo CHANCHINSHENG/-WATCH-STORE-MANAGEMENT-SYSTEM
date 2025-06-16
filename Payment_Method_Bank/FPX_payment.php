@@ -85,8 +85,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_payment']) &&
             $trackingID = $conn->insert_id;
             if (!$trackingID) throw new Exception("Failed to create tracking record.");
             $stmt_tracking->close();
-
-            $order_status_for_db = 'pending';
+            
+            $order_status_for_db = 'Processing';
             $order_query = "INSERT INTO 08_order (CustomerID, TrackingID, OrderDate, OrderStatus, Shipping_Method, Shipping_Name, Shipping_Address, Shipping_City, Shipping_Postcode, Shipping_State, Shipping_Phone, Total_Price) VALUES (?, ?, NOW(), ?, 'Standard Delivery (Malaysia)', ?, ?, ?, ?, ?, ?, ?)";
             $stmt_order = $conn->prepare($order_query);
             $stmt_order->bind_param("iisssssssd", $customerID, $trackingID, $order_status_for_db, $shippingName, $shippingAddress, $shippingCity, $shippingPostcode, $shippingState, $shippingPhone, $total);

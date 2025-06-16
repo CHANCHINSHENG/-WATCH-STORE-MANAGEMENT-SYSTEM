@@ -1,5 +1,4 @@
-/* Reset & Base */
-* {
+    * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -136,7 +135,7 @@ body {
 }
 
 .links a {
-    color: #10b981; /* 綠色，與你的 login button 一致 */
+    color: #10b981; 
     text-decoration: none;
     display: inline-block;
     margin-top: 8px;
@@ -145,7 +144,7 @@ body {
 
 .links a:hover {
     text-decoration: underline;
-    color: #059669; /* hover 深一點的綠色 */
+    color: #059669; /
 }
 .success-message {
     background-color: #d1fae5;
@@ -175,5 +174,23 @@ body {
         opacity: 1;
         transform: translateY(0);
     }
+}
+.password-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-container input {
+    width: 100%;
+    padding-right: 40px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    cursor: pointer;
+    user-select: none;
+    font-size: 1.1rem;
 }
 

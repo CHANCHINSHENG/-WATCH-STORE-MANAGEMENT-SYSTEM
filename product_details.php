@@ -132,10 +132,23 @@ $stmt->execute();
 $result = $stmt->get_result();
 $product = $result->fetch_assoc();
 
-if (!$product) 
-{
+if (!$product) {
     die("❌ Product not found.");
 }
+
+$product_images = [];
+
+$stmt_images = $conn->prepare("SELECT ImagePath FROM `06_product_images` WHERE ProductID = ? ORDER BY ImageOrder ASC");
+if (!$stmt_images) {
+    die("❌ SQL prepare failed: " . $conn->error);
+}
+$stmt_images->bind_param("i", $product_id);
+$stmt_images->execute();
+$res_images = $stmt_images->get_result();
+while ($row_img = $res_images->fetch_assoc()) {
+    $product_images[] = $row_img['ImagePath'];
+}
+
 ?>
 
 <!DOCTYPE html>
