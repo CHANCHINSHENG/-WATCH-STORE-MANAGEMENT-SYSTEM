@@ -20,7 +20,7 @@ $sql = "SELECT
              FROM `06_product_images` 
              WHERE ProductID = p.ProductID AND IsPrimary = 1 
              LIMIT 1) AS Product_Image
-        FROM `14_view_history` vh
+        FROM `13_view_history` vh
         JOIN `05_product` p ON vh.ProductID = p.ProductID
         WHERE vh.CustomerID = ?
         ORDER BY vh.ViewTime DESC";

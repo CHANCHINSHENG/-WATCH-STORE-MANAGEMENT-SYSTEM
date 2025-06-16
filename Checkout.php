@@ -45,7 +45,7 @@ if (($handle = fopen("shipping_rules.csv", "r")) !== false)
     fclose($handle);
 }
 
-$stmt_cart = $conn->prepare("SELECT CartID FROM 12_cart WHERE CustomerID = ?");
+$stmt_cart = $conn->prepare("SELECT CartID FROM 11_cart WHERE CustomerID = ?");
 $stmt_cart->bind_param("i", $customerID);
 $stmt_cart->execute();
 $result_cart = $stmt_cart->get_result();
@@ -63,7 +63,7 @@ if ($cartID)
         (SELECT ImagePath FROM 06_product_images WHERE ProductID = p.ProductID AND IsPrimary = 1 LIMIT 1) AS Product_Image, 
         p.Product_Price, 
         ci.Quantity 
-    FROM 13_cart_item ci 
+    FROM 12_cart_item ci 
     JOIN 05_product p ON ci.ProductID = p.ProductID 
     WHERE ci.CartID = ?
 ");
@@ -169,7 +169,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']))
     if (empty($error)) 
     {
         if ($payment_method === 'Visa') {
-            $sql_correct_card = "SELECT * FROM `17_visa_card` LIMIT 1";
+            $sql_correct_card = "SELECT * FROM `16_visa_card` LIMIT 1";
             $result_correct_card = $conn->query($sql_correct_card);
             
             if ($result_correct_card && $result_correct_card->num_rows > 0) 
@@ -271,7 +271,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']))
                 
                 if($cartID) 
                 {
-                    $clear_cart_query = "DELETE FROM 13_cart_item WHERE CartID = ?";
+                    $clear_cart_query = "DELETE FROM 12_cart_item WHERE CartID = ?";
                     $stmt_clear_cart = $conn->prepare($clear_cart_query);
                     $stmt_clear_cart->bind_param("i", $cartID);
                     $stmt_clear_cart->execute();

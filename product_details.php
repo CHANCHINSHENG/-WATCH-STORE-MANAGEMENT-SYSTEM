@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id']))
             $available_stock = $product_stock_data['Product_Stock_Quantity'];
             $productNameForError = $product_stock_data['ProductName'];
 
-            $sql_cart = "SELECT CartID FROM `12_cart` WHERE CustomerID = ?";
+            $sql_cart = "SELECT CartID FROM `11_cart` WHERE CustomerID = ?";
             $stmt_cart = $conn->prepare($sql_cart);
             $stmt_cart->bind_param("i", $customerID);
             $stmt_cart->execute();
@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id']))
             }
             else
             {
-                $sql_create_cart = "INSERT INTO `12_cart` (CustomerID) VALUES (?)";
+                $sql_create_cart = "INSERT INTO `11_cart` (CustomerID) VALUES (?)";
                 $stmt_create_cart = $conn->prepare($sql_create_cart);
                 $stmt_create_cart->bind_param("i", $customerID);
                 $stmt_create_cart->execute();
@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id']))
             $quantity_in_cart = 0;
             if ($cartID) 
             {
-                $sql_check = "SELECT Quantity FROM `13_cart_item` WHERE CartID = ? AND ProductID = ?";
+                $sql_check = "SELECT Quantity FROM `12_cart_item` WHERE CartID = ? AND ProductID = ?";
                 $stmt_check = $conn->prepare($sql_check);
                 $stmt_check->bind_param("ii", $cartID, $product_id);
                 $stmt_check->execute();
@@ -78,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id']))
                 if ($quantity_in_cart > 0)
                 {
                     $quantity = $quantity_in_cart + 1;
-                    $sql_update = "UPDATE `13_cart_item` SET Quantity = ? WHERE CartID = ? AND ProductID = ?";
+                    $sql_update = "UPDATE `12_cart_item` SET Quantity = ? WHERE CartID = ? AND ProductID = ?";
                     $stmt_update = $conn->prepare($sql_update);
                     $stmt_update->bind_param("iii", $quantity, $cartID, $product_id);
                     $stmt_update->execute();
@@ -86,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id']))
                 else
                 {
                     $quantity = 1;
-                    $sql_insert = "INSERT INTO `13_cart_item` (CartID, ProductID, Quantity) VALUES (?, ?, ?)";
+                    $sql_insert = "INSERT INTO `12_cart_item` (CartID, ProductID, Quantity) VALUES (?, ?, ?)";
                     $stmt_insert = $conn->prepare($sql_insert);
                     $stmt_insert->bind_param("iii", $cartID, $product_id, $quantity);
                     $stmt_insert->execute();
@@ -113,7 +113,7 @@ if (isset($_SESSION['customer_id']) && isset($_GET['id']))
     $customerID = $_SESSION['customer_id'];
     $productID = intval($_GET['id']);
 
-    $stmt = $conn->prepare("INSERT INTO `14_view_history` (CustomerID, ProductID, ViewTime) VALUES (?, ?, NOW())");
+    $stmt = $conn->prepare("INSERT INTO `13_view_history` (CustomerID, ProductID, ViewTime) VALUES (?, ?, NOW())");
     $stmt->bind_param("ii", $customerID, $productID);
     $stmt->execute();
 }

@@ -22,7 +22,7 @@ $cartItems = $temp_data['cart_items'] ?? [];
 $error = "";
 
 $supported_banks = [];
-$result_banks = $conn->query("SELECT bank_name FROM `18_bank_details`");
+$result_banks = $conn->query("SELECT bank_name FROM `17_bank_details`");
 if($result_banks) 
 {
     while($row = $result_banks->fetch_assoc()) 
@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_payment']) &&
 
     if(empty($error)) 
     {
-        $stmt_check = $conn->prepare("SELECT account_number, password FROM `18_bank_details` WHERE bank_name = ?");
+        $stmt_check = $conn->prepare("SELECT account_number, password FROM `17_bank_details` WHERE bank_name = ?");
         $stmt_check->bind_param("s", $selected_bank_input);
         $stmt_check->execute();
         $result_check = $stmt_check->get_result();
@@ -126,14 +126,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_payment']) &&
             if (!$paymentID) throw new Exception("Failed to create payment record.");
             $stmt_payment->close();
 
-            $stmt_get_cartID = $conn->prepare("SELECT CartID FROM 12_cart WHERE CustomerID = ?");
+            $stmt_get_cartID = $conn->prepare("SELECT CartID FROM 11_cart WHERE CustomerID = ?");
             $stmt_get_cartID->bind_param("i", $customerID);
             $stmt_get_cartID->execute();
             $result_cartID = $stmt_get_cartID->get_result();
             if ($row_cartID = $result_cartID->fetch_assoc()) 
             {
                 $cartID_to_clear = $row_cartID['CartID'];
-                $clear_cart_items_query = "DELETE FROM 13_cart_item WHERE CartID = ?";
+                $clear_cart_items_query = "DELETE FROM 12_cart_item WHERE CartID = ?";
                 $stmt_clear_items = $conn->prepare($clear_cart_items_query);
                 $stmt_clear_items->bind_param("i", $cartID_to_clear);
                 $stmt_clear_items->execute();

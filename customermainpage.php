@@ -76,7 +76,7 @@ if ($customer_id) {
          LIMIT 1) AS Product_Image
     FROM (
         SELECT ProductID, MAX(ViewTime) AS LastViewed
-        FROM 15_view_history
+        FROM 13_view_history
         WHERE CustomerID = $customer_id
         GROUP BY ProductID
     ) AS vh

@@ -26,7 +26,7 @@ $review_status = $order_info['Customer_Review_Status'];
 $admin_payment_confirmed = ($order_info['Admin_Payment_Confirmation'] === 'Confirmed');
 
 $existing_review = null;
-$stmt_review_exist = $conn->prepare("SELECT * FROM `16_reviews` WHERE orderID = ? AND CustomerID = ?");
+$stmt_review_exist = $conn->prepare("SELECT * FROM `15_reviews` WHERE orderID = ? AND CustomerID = ?");
 $stmt_review_exist->bind_param("ii", $order_id, $CustomerID);
 $stmt_review_exist->execute();
 $existing_review = $stmt_review_exist->get_result()->fetch_assoc();
@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
         if ($existing_review) 
         {
             // delete review
-            $stmt_delete = $conn->prepare("DELETE FROM `16_reviews` WHERE reviewid = ? AND CustomerID = ? AND OrderID = ?");
+            $stmt_delete = $conn->prepare("DELETE FROM `15_reviews` WHERE reviewid = ? AND CustomerID = ? AND OrderID = ?");
 $stmt_delete->bind_param("iii", $existing_review['reviewid'], $CustomerID, $order_id);
 
             $stmt_delete->execute();
@@ -69,7 +69,7 @@ $stmt_delete->bind_param("iii", $existing_review['reviewid'], $CustomerID, $orde
 
         if ($existing_review) 
         {
-            $stmt_update = $conn->prepare("UPDATE `16_reviews` SET Rating = ?, Comment = ?, ReviewDate = NOW() WHERE reviewid = ?");
+            $stmt_update = $conn->prepare("UPDATE `15_reviews` SET Rating = ?, Comment = ?, ReviewDate = NOW() WHERE reviewid = ?");
             $stmt_update->bind_param("isi", $rating, $comment, $existing_review['reviewid']);
             $stmt_update->execute();
             $stmt_update->close();
@@ -79,7 +79,7 @@ $stmt_delete->bind_param("iii", $existing_review['reviewid'], $CustomerID, $orde
         {
             if ($review_status === 'Eligible' && $admin_payment_confirmed) 
             {
-                $stmt_insert = $conn->prepare("INSERT INTO `16_reviews` (orderID, CustomerID, Rating, Comment, ReviewDate) VALUES (?, ?, ?, ?, NOW())");
+                $stmt_insert = $conn->prepare("INSERT INTO `15_reviews` (orderID, CustomerID, Rating, Comment, ReviewDate) VALUES (?, ?, ?, ?, NOW())");
                 $stmt_insert->bind_param("iiis", $order_id, $CustomerID, $rating, $comment); 
                 $stmt_insert->execute();
                 $stmt_insert->close();

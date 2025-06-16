@@ -11,7 +11,7 @@ $customerID = $_SESSION['customer_id'] ?? null;
 
 if ($customerID) 
 {
-    $sql_cart = "SELECT CartID FROM `12_cart` WHERE CustomerID = ?";
+    $sql_cart = "SELECT CartID FROM `11_cart` WHERE CustomerID = ?";
     $stmt_cart = $conn->prepare($sql_cart);
     $stmt_cart->bind_param("i", $customerID);
     $stmt_cart->execute();
@@ -30,7 +30,7 @@ SELECT
     (SELECT ImagePath FROM 06_product_images WHERE ProductID = p.ProductID AND IsPrimary = 1 LIMIT 1) AS Product_Image,
     p.Product_Stock_Quantity, 
     ci.Quantity 
-FROM `13_cart_item` ci
+FROM `12_cart_item` ci
 JOIN `05_product` p ON ci.ProductID = p.ProductID
 WHERE ci.CartID = ?
 ";
