@@ -1,4 +1,4 @@
-/* Reset Defaults */Add commentMore actions
+/* Reset Defaults */
 * {
     margin: 0;
     padding: 0;
@@ -111,3 +111,6 @@ body {
 .forgot-password-link:hover {
     text-decoration: underline;
 }
+
+
+
