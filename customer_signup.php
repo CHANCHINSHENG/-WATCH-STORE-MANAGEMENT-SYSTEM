@@ -126,60 +126,59 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <?php if ($success) echo "<p class='success'>$success</p>"; ?>
 
         <form method="POST" novalidate>
-            <?php
-            function input($name, $label, $type = "text") {
-                global $values, $errors;
-                echo "<div class='input-group'>";
-                echo "<label>$label</label>";
-                echo "<input type='$type' name='$name' value='" . htmlspecialchars($values[$name]) . "' required>";
-                if (isset($errors[$name])) echo "<div class='error-msg'>{$errors[$name]}</div>";
-                echo "</div>";
-            }
+    <div class="form-grid">
+        <?php
+        function input($name, $label, $type = "text") {
+            global $values, $errors;
+            echo "<div class='input-group'>";
+            echo "<label>$label</label>";
+            echo "<input type='$type' name='$name' value='" . htmlspecialchars($values[$name]) . "' required>";
+            if (isset($errors[$name])) echo "<div class='error-msg'>{$errors[$name]}</div>";
+            echo "</div>";
+        }
 
-            input("Cust_First_Name", "First Name");
-            input("Cust_Last_Name", "Last Name");
-            input("Cust_Email", "Email", "email");
-            input("Cust_Username", "Username");
-            input("Cust_PhoneNumber", "Phone Number");
-            input("Cust_Address", "Address");
-            input("Cust_City", "City");
-            input("Cust_Postcode", "Postcode");
-            ?>
-            <div class="input-group">
-                <label>State</label>
-                <select name="Cust_State" required>
-                    <option value="">-- Select State --</option>
-                    <?php foreach ($states as $state): ?>
-                        <option value="<?= $state ?>" <?= ($values['Cust_State'] === $state) ? 'selected' : '' ?>>
-                            <?= $state ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-                <?php if (isset($errors['Cust_State'])) echo "<div class='error-msg'>{$errors['Cust_State']}</div>"; ?>
+        input("Cust_First_Name", "First Name");
+        input("Cust_Last_Name", "Last Name");
+        input("Cust_Email", "Email", "email");
+        input("Cust_Username", "Username");
+        input("Cust_PhoneNumber", "Phone Number");
+        ?>
+
+        <div class="input-group">
+            <label>State</label>
+            <select name="Cust_State" required>
+                <option value="">-- Select State --</option>
+                <?php foreach ($states as $state): ?>
+                    <option value="<?= $state ?>" <?= ($values['Cust_State'] === $state) ? 'selected' : '' ?>>
+                        <?= $state ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+            <?php if (isset($errors['Cust_State'])) echo "<div class='error-msg'>{$errors['Cust_State']}</div>"; ?>
+        </div>
+
+        <div class="input-group full">
+            <label>Password</label>
+            <div class="password-container">
+                <input type="password" id="password" name="Cust_Password" required>
+                <span class="toggle-password" onclick="togglePassword()">👁️</span>
             </div>
+            <?php if (isset($errors['Cust_Password'])) echo "<div class='error-msg'>{$errors['Cust_Password']}</div>"; ?>
+        </div>
 
-
-            <div class="input-group">
-                <label>Password</label>
-                <div class="password-container">
-                    <input type="password" id="password" name="Cust_Password" required>
-                    <span class="toggle-password" onclick="togglePassword()">👁️</span>
-                </div>
-                <?php if (isset($errors['Cust_Password'])) echo "<div class='error-msg'>{$errors['Cust_Password']}</div>"; ?>
+        <div class="input-group full">
+            <label>Confirm Password</label>
+            <div class="password-container">
+                <input type="password" id="confirm_password" name="Confirm_Password" required>
+                <span class="toggle-password" onclick="togglePassword('confirm_password')">👁️</span>
             </div>
+            <?php if (isset($errors['Confirm_Password'])) echo "<div class='error-msg'>{$errors['Confirm_Password']}</div>"; ?>
+        </div>
+    </div>
 
-            <div class="input-group">
-                <label>Confirm Password</label>
-                <div class="password-container">
-                    <input type="password" id="confirm_password" name="Confirm_Password" required>
-                    <span class="toggle-password" onclick="togglePassword('confirm_password')">👁️</span>
-                </div>
-                <?php if (isset($errors['Confirm_Password'])) echo "<div class='error-msg'>{$errors['Confirm_Password']}</div>"; ?>
-            </div>
-
-            <button type="submit">Sign Up</button>
-            <p class="signin-link">Already have an account? <a href="customer_login.php">Sign in here</a></p>
-        </form>
+    <button type="submit">Sign Up</button>
+    <p class="signin-link">Already have an account? <a href="customer_login.php">Sign in here</a></p>
+</form>
     </div>
 </div>
 
