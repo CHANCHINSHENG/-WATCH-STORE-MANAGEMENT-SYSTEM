@@ -45,15 +45,13 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <tr>
                         <td><?= htmlspecialchars($category['CategoryName']) ?></td>
                         <td>
-                              <div class="action-buttons">
-                                <a href="#" class="btn delete-btn btn-delete"
-                                   data-id="<?= $category['CategoryID'] ?>"
-                                   data-name="<?= htmlspecialchars($category['CategoryName']) ?>"
-                                   data-type="category">
-                                   Delete
-                                </a>
-                            </div>
-                        </td>
+                        <div class="action-buttons">
+                            <a href="admin_layout.php?page=admin_edit_category&id=<?= $category['CategoryID'] ?>"
+                            class="btn edit-btn">
+                            Edit 
+                            </a>
+                        </div>
+                    </td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>

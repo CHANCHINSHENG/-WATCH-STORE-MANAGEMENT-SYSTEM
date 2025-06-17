@@ -64,7 +64,6 @@ $customers = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </td>
                         <td>
                             <div class="action-buttons">
-                                <a href="admin_layout.php?page=admin_edit_customer&id=<?= $customer['CustomerID'] ?>" class="btn edit-btn">Edit</a>
                                 <a href="admin_layout.php?page=admin_view_cusorder&id=<?= $customer['CustomerID'] ?>" class="btn edit-btn">View</a>
                                 <button class="btn delete-btn btn-delete" 
                                         data-id="<?= $customer['CustomerID'] ?>" 

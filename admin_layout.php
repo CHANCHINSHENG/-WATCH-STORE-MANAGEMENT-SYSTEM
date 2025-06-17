@@ -28,7 +28,7 @@
     $allowed_pages = [
         'admin_main_page', 'admin_add_product', 'admin_view_products', 'admin_view_customer',
         'admin_edit_product', 'admin_edit_customer', 'admin_view_cusorder', 'admin_viewbrand', 'admin_edit_profile','admin_add_brand','admin_view_category','admin_add_category','admin_view_allorder','admin_view_receipt','load_recent_orders','admin_view_staff',
-        'admin_add_newstaff','superadmin_editstaff','admin_reply_inquiry','admin_view_inquiries','admin_view_reviews'
+        'admin_add_newstaff','superadmin_editstaff','admin_reply_inquiry','admin_view_inquiries','admin_view_reviews','admin_edit_category','admin_edit_brand'
     ];
     if (!in_array($page, $allowed_pages)) {
         $page = 'admin_main_page';

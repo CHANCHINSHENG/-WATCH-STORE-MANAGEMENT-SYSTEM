@@ -4,8 +4,8 @@ body {
     background: linear-gradient(135deg, #1a1a1a, #4a148c, #311b92);
     display: flex;
     justify-content: center;
-    align-items: flex-start; /* 改成 flex-start 貼頂 */
-    padding: 0; /* 移除 padding */
+    align-items: flex-start; 
+    padding: 0; 
     font-family: 'Segoe UI', sans-serif;
 }
 

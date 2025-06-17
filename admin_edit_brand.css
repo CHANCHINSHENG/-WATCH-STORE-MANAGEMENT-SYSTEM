@@ -1,0 +1,126 @@
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(to right, #3f0d80, #4b0082);
+    color: #333;
+     overflow-y: hidden;
+    
+}
+
+.page-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 5rem 2rem 2rem;
+}
+
+.content-container {
+    background: #f7f5fb;
+    border-radius: 20px;
+    padding: 3rem 2.5rem;
+    max-width: 500px;
+    width: 100%;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+/* Title */
+h2 {
+    font-size: 1.8rem;
+    color: #4b0082;
+    margin-bottom: 2rem;
+}
+
+/* Form layout */
+.edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: left;
+}
+
+/* Labels */
+.edit-form label {
+    font-weight: 600;
+    color: #4b0082;
+    margin-bottom: 0.4rem;
+}
+
+/* Input fields */
+.edit-form input[type="text"],
+.edit-form input[type="file"] {
+    padding: 0.8rem 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    background: white;
+    color: #333;
+}
+
+/* Image preview */
+.edit-form img {
+    width: 120px;
+    height: auto;
+    margin-top: -0.8rem;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    display: block;
+}
+
+/* Flash message */
+.message {
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-weight: 500;
+    font-size: 1rem;
+}
+.success {
+    background: rgba(22, 163, 74, 0.1);
+    color: #16a34a;
+}
+.error {
+    background: rgba(220, 38, 38, 0.1);
+    color: #dc2626;
+}
+
+/* Buttons */
+.button-group {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.btn {
+    padding: 0.875rem 1.5rem;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    text-align: center;
+    flex: 1;
+}
+
+.primary-btn {
+    background: linear-gradient(135deg, #4a148c, #311b92);
+    color: white;
+}
+
+.secondary-btn {
+    background: rgba(74, 20, 140, 0.1);
+    color: #4a148c;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(74, 20, 140, 0.2);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
