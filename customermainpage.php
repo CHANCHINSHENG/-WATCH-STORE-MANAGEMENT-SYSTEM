@@ -96,7 +96,17 @@ if ($customer_id) {
 }
 
 if (empty($like_products)) {
-    $fallback_query = "SELECT * FROM `05_product` ORDER BY RAND() LIMIT 6";
+    $fallback_query = "
+        SELECT 
+            p.*, 
+            (SELECT ImagePath 
+             FROM 06_product_images i 
+             WHERE i.ProductID = p.ProductID AND i.IsPrimary = 1 
+             LIMIT 1) AS Product_Image
+        FROM 05_product p
+        ORDER BY RAND()
+        LIMIT 6
+    ";
     $fallback_result = mysqli_query($conn, $fallback_query);
     if ($fallback_result) {
         while ($row = mysqli_fetch_assoc($fallback_result)) {
@@ -173,7 +183,7 @@ if (empty($like_products)) {
                 <a class="nav-link fw-bold" href="#" id="categoriesDropdown">CATEGORIES</a>
                 <div class="brand-dropdown-content">
                   <a href="customer_products.php" class="brand-item">
-                    <span>All Watches</span>
+                    <span>All WATCHES</span>
                   </a>
                   <?php if (!empty($categories)): ?>
                     <?php foreach ($categories as $category): ?>
@@ -474,7 +484,7 @@ if (empty($like_products)) {
           <div class="row">
 
             <div class="col-6 col-sm-4 col-xl-3 mb-3">
-              <h5 class="lh-lg fw-bold text-light">MENU</h5>
+              <h5 class="lh-lg fw-bold text-light">Info</h5>
               <ul class="list-unstyled mb-md-4 mb-lg-0">
                 <li class="lh-lg"><a class="text-800 text-decoration-none text-uppercase fw-bold" href="Shipping_info.php">Shipping Info</a></li>
                 <li class="lh-lg"><a class="text-800 text-decoration-none text-uppercase fw-bold" href="Payment_info.html">Payment info</a></li>
@@ -482,41 +492,14 @@ if (empty($like_products)) {
             </div>
 
             <div class="col-6 col-sm-4 col-xl-3 mb-3">
-              <h4 class="lh-lg fw-bold text-light">WATCH</h4>
-            </div>
-
-            <div class="col-6 col-sm-4 col-xl-3 mb-3">
-              <h4 class="lh-lg fw-bold text-light">WATCH</h4>
-            </div>
-
-            <div class="col-6 col-sm-4 col-xl-3 mb-3">
-              <h5 class="mb-5"></h5>
+              <h5 class="lh-lg fw-bold text-light">Menu</h5>
               <ul class="list-unstyled mb-md-4 mb-lg-0">
                 <li class="lh-lg"><a class="text-800 text-decoration-none text-uppercase fw-bold" href="About_Us.html">About Us</a></li>
                 <li class="lh-lg"><a class="text-800 text-decoration-none text-uppercase fw-bold" href="Contact_Us.php">Contact Us</a></li>
-                <li class="lh-lg"><a class="text-800 text-decoration-none text-uppercase fw-bold" href="customer_profile.php">my account</a></li>
+                <li class="lh-lg"><a class="text-800 text-decoration-none text-uppercase fw-bold" href="customer_profile.php">My Account</a></li>
               </ul>
             </div>
 
-            <div class="col-12 col-xl-3">
-              <h5 class="lh-lg fw-bold text-light text-uppercase">Signup For our Latest News</h5>
-              <div class="row input-group-icon mb-5">
-                <div class="col-12">
-                  <form class="row row-cols-lg-auto g-0 align-items-center">
-                    <div class="col-8 col-lg-9">
-                      <label class="visually-hidden" for="colFormLabel">Username</label>
-                      <div class="input-group">
-                        <input class="rounded-end-0 form-control" id="colFormLabel" type="email" placeholder="email address" />
-                      </div>
-                    </div>
-                    <div class="col-4 col-lg-3">
-                      <button class="btn btn-primary rounded-start-0" type="submit">Submit</button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            </div>
-          </div>
           <div class="border-bottom border-700"></div>
           <div class="row flex-center my-3">
             <div class="col-md-6 order-1 order-md-0">
