@@ -1,4 +1,8 @@
 <?php
+
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+
 session_start();
 require_once 'db.php';
 
@@ -149,6 +153,64 @@ while ($row_img = $res_images->fetch_assoc()) {
     $product_images[] = $row_img['ImagePath'];
 }
 
+// Fetch recommended products
+$like_products = [];
+$customer_id = $_SESSION['customer_id'] ?? null;
+
+if ($customer_id) {
+    $customer_id = (int)$customer_id;
+
+    // 查询最近浏览的产品（最多6个）
+    $like_query = "
+        SELECT 
+            p.*, 
+            (SELECT ImagePath 
+            FROM `06_product_images` 
+            WHERE ProductID = p.ProductID 
+            ORDER BY ImageOrder ASC LIMIT 1) AS Product_Image
+        FROM (
+            SELECT ProductID, MAX(Viewed_At) AS LastViewed
+            FROM 13_view_history
+            WHERE CustomerID = $customer_id
+            GROUP BY ProductID
+        ) AS vh
+        JOIN 05_product p ON vh.ProductID = p.ProductID
+        ORDER BY vh.LastViewed DESC
+        LIMIT 6
+    ";
+
+    $like_result = mysqli_query($conn, $like_query);
+
+    if ($like_result && mysqli_num_rows($like_result) > 0) {
+        while ($row = mysqli_fetch_assoc($like_result)) {
+            $like_products[] = $row;
+        }
+    }
+}
+
+// 如果登录但没浏览记录，或查询失败，则随机推荐
+if (empty($like_products)) {
+    $fallback_query = "SELECT * FROM 05_product ORDER BY RAND() LIMIT 6";
+    $fallback_result = mysqli_query($conn, $fallback_query);
+    if ($fallback_result) {
+        while ($row = mysqli_fetch_assoc($fallback_result)) {
+            $like_products[] = $row;
+        }
+    }
+}
+
+foreach ($like_products as &$rec) {
+    $pid = $rec['ProductID'];
+
+    $stmt_img = $conn->prepare("SELECT ImagePath FROM `06_product_images` WHERE ProductID = ? ORDER BY ImageOrder ASC LIMIT 1");
+    $stmt_img->bind_param("i", $pid);
+    $stmt_img->execute();
+    $res_img = $stmt_img->get_result();
+    $img = $res_img->fetch_assoc();
+
+    $rec['Product_Image'] = $img['ImagePath'] ?? 'default.jpg'; // 加上默认图路径防止图像空白
+}
+unset($rec);
 ?>
 
 <!DOCTYPE html>
