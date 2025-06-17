@@ -150,23 +150,23 @@ $queryParams = http_build_query([
                     <td><?= htmlspecialchars($order['OrderDate']) ?></td>
                     <td><?= htmlspecialchars($order['Cust_Username']) ?></td>
                     <?php
-                     $orderStatus = $order['OrderStatus'] ?? 'Unknown';
-                    $status_class = 'status-badge';
+                    $orderStatus = $order['OrderStatus'] ?? 'Unknown';
+$status_class = 'status-badge';
 
+switch (strtolower(trim($orderStatus))) {  
+    case 'done processing':
+        $status_class .= ' done-processing';
+        break;
+    case 'processing':
+        $status_class .= ' processing';
+        break;
+    case 'cancelled':
+        $status_class .= ' cancelled';
+        break;
+    default:
+        $status_class .= ' unknown';
+}
 
-                        switch (strtolower($status)) {
-                            case 'done processing':
-                                $status_class .= ' done-processing';
-                                break;
-                            case 'processing':
-                                $status_class .= ' processing';
-                                break;
-                            case 'cancelled':
-                                $status_class .= ' cancelled';
-                                break;
-                            default:
-                                $status_class .= ' unknown';
-                        }
                         ?>
 <td><span class="<?= $status_class ?>"><?= htmlspecialchars($orderStatus) ?></span></td>
                     <td>

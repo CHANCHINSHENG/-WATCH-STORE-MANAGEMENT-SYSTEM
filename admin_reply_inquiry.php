@@ -24,7 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['submit_reply'])) {
     }
 
     if (empty($page_errors)) {
-        $stmt = $pdo->prepare("UPDATE 16_customer_inquiries SET admin_reply_content = ?, replied_at = NOW() WHERE id = ?");
+        $stmt = $pdo->prepare("UPDATE 14_customer_inquiries SET admin_reply_content = ?, replied_at = NOW() WHERE id = ?");
         if ($stmt->execute([$admin_reply, $inquiry_id_post])) {
             $page_success = "✅ Reply successfully saved. The customer can now see it.";
         } else {
@@ -34,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['submit_reply'])) {
 }
 
 if ($inquiry_id && filter_var($inquiry_id, FILTER_VALIDATE_INT)) {
-    $stmt = $pdo->prepare("SELECT * FROM 17_customer_inquiries WHERE id = ?");
+    $stmt = $pdo->prepare("SELECT * FROM 14_customer_inquiries WHERE id = ?");
     $stmt->execute([$inquiry_id]);
     $inquiry = $stmt->fetch(PDO::FETCH_ASSOC);
 
