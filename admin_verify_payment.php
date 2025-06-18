@@ -14,10 +14,10 @@ if (!isset($_GET['order_id'])) {
 
 $orderID = $_GET['order_id'];
 
-// Fetch  order details
+// Fetch order details
 $orderStmt = $pdo->prepare("
     SELECT 
-        o.OrderID, o.OrderDate, o.Total_Price, o.Shipping_State,
+        o.OrderID, o.OrderDate, o.Total_Price, o.Shipping_State, o.OrderStatus,
         c.Cust_Username, c.Cust_First_Name, c.Cust_Last_Name,
         p.Payment_Type
     FROM 08_order o
@@ -36,27 +36,15 @@ if (!$order) {
 
 $paymentData = [];
 $method = $order['Payment_Type']; 
-
 $foundMatch = false;
-$customerFullName = strtolower(trim($order['Cust_First_Name'] . ' ' . $order['Cust_Last_Name']));
 
-if ($method === 'Visa') {
-    $stmt = $pdo->prepare("SELECT * FROM 10_payment WHERE OrderID = ?");
-    $stmt->execute([$orderID]);
-    $paymentData = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if ($paymentData && strtolower($paymentData['Payment_Status']) === 'success') {
-        $foundMatch = true;
-    }
-
-} elseif ($method === 'Bank Payment') {
 $stmt = $pdo->prepare("SELECT * FROM 10_payment WHERE OrderID = ?");
-    $stmt->execute([$orderID]);
-    $paymentData = $stmt->fetch(PDO::FETCH_ASSOC);
+$stmt->execute([$orderID]);
+$paymentData = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($paymentData && strtolower($paymentData['Payment_Status']) === 'success') {
-        $foundMatch = true;
-    }
+// Check if payment was successful
+if ($paymentData && strtolower($paymentData['Payment_Status']) === 'success') {
+    $foundMatch = true;
 }
 ?>
 
@@ -95,15 +83,17 @@ $stmt = $pdo->prepare("SELECT * FROM 10_payment WHERE OrderID = ?");
             <p><strong>Payment Amount:</strong> RM<?= number_format($paymentData['Amount'], 2) ?></p>
             <p><strong>Payment Time:</strong> <?= htmlspecialchars($paymentData['Payment_Date']) ?></p>
             <p><strong>Payment Status:</strong> <?= htmlspecialchars($paymentData['Payment_Status']) ?></p>
-        <?php elseif ($method === 'Bank'): ?>
-            <p><strong>Bank Name:</strong> <?= htmlspecialchars($paymentData['bank_name']) ?></p>
-            <p><strong>Payment Amount:</strong> RM<?= number_format($order['Total_Price'], 2) ?> (from order)</p>
-            <p><strong>Payment Time:</strong> <?= htmlspecialchars($paymentData['payment_time']) ?></p>
-            <p><strong>Payment Status:</strong> <?= htmlspecialchars($paymentData['payment_status']) ?></p>
+        <?php elseif ($method === 'Bank Payment'): ?>
+            <p><strong>Payment Amount:</strong> RM<?= number_format($order['Total_Price'], 2) ?> </p>
+            <p><strong>Payment Time:</strong> <?= htmlspecialchars($paymentData['Payment_Date']) ?></p>
+            <p><strong>Payment Status:</strong> <?= htmlspecialchars($paymentData['Payment_Status']) ?></p>
         <?php endif; ?>
 
-        <?php if ($foundMatch): ?>
-            <p class="status-success">✅ Payment successfully. You may confirm the payment.</p>
+        <?php if ($order['OrderStatus'] === 'Cancelled'): ?>
+            <p class="status-warning">⚠️ This order has been cancelled. Confirmation is not allowed.</p>
+
+        <?php elseif ($foundMatch): ?>
+            <p class="status-success">✅ Payment successful. You may confirm the payment.</p>
             <form method="POST" action="admin_confirm_payment.php" onsubmit="return confirm('Confirm this payment?');">
                 <input type="hidden" name="order_id" value="<?= htmlspecialchars($order['OrderID']) ?>">
                 <button type="submit" class="btn green">Confirm Payment</button>

@@ -1,11 +1,14 @@
 <?php
 session_start();
+header('Content-Type: application/json');
+
 if (!isset($_SESSION['customer_id'])) {
     echo json_encode(['status' => 'error', 'message' => 'Not logged in']);
     exit();
 }
 
 require_once 'db.php';
+
 $CustomerID = $_SESSION['customer_id'];
 $order_id = isset($_GET['order_id']) ? intval($_GET['order_id']) : 0;
 
@@ -14,6 +17,7 @@ if ($order_id <= 0) {
     exit();
 }
 
+// Get the order
 $order_query = "SELECT * FROM `08_order` WHERE OrderID = ? AND CustomerID = ?";
 $stmt = $conn->prepare($order_query);
 $stmt->bind_param("ii", $order_id, $CustomerID);
@@ -25,12 +29,16 @@ if (!$order) {
     exit();
 }
 
-$restricted = ['Done Processing', 'Delivered', 'Cancelled'];
-if (in_array($order['OrderStatus'], $restricted)) {
+// Reject if already processed
+if ($order['OrderStatus'] === 'Cancelled') {
+    echo json_encode(['status' => 'error', 'message' => '❌ This order is already cancelled.']);
+    exit();
+} elseif ($order['OrderStatus'] === 'Done Processing' || $order['OrderStatus'] === 'Delivered') {
     echo json_encode(['status' => 'error', 'message' => '❌ This order already delivered.']);
     exit();
 }
 
+// Proceed to cancel
 $cancel_query = "UPDATE `08_order` SET OrderStatus = 'Cancelled' WHERE OrderID = ? AND CustomerID = ?";
 $cancel_stmt = $conn->prepare($cancel_query);
 $cancel_stmt->bind_param("ii", $order_id, $CustomerID);
@@ -40,4 +48,3 @@ if ($cancel_stmt->execute()) {
 } else {
     echo json_encode(['status' => 'error', 'message' => '❌ Failed to cancel order.']);
 }
-?>
