@@ -319,49 +319,64 @@ let show = true;
   }
 
   function setupDeleteButtons() {
-    const deleteButtons = document.querySelectorAll('.btn-delete');
-    deleteButtons.forEach(button => {
-      button.addEventListener('click', function (e) {
-        e.preventDefault();
-        const itemId = this.dataset.id;
-        const itemName = this.dataset.name;
-        const itemType = this.dataset.type;
+  const deleteButtons = document.querySelectorAll('.btn-delete');
 
+  deleteButtons.forEach(button => {
+    button.addEventListener('click', function (e) {
+      e.preventDefault();
+
+      const itemId = this.dataset.id;
+      const itemName = this.dataset.name;
+      const itemType = this.dataset.type;
+      const itemStatus = this.dataset.status;
+
+      // 🔒 特別處理：如果 customer 已經被刪除（inactive）
+      if (itemType === 'customer' && itemStatus === 'inactive') {
         Swal.fire({
-          title: '🗑️ Are you sure?',
-          html: `Delete <strong style="color:#dc3545;">${itemName}</strong>?<br>`,
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonText: 'Yes, delete it!',
-          cancelButtonText: 'No, cancel',
-          confirmButtonColor: '#d33',
-          cancelButtonColor: '#6c757d',
-          reverseButtons: true
-        }).then((result) => {
-          if (result.isConfirmed) {
-            let deleteUrl = '';
-            if (itemType === 'brand') {
-              deleteUrl = `admin_delete_brand.php?id=${itemId}`;
-            } else if (itemType === 'product') {
-              deleteUrl = `admin_delete_product.php?id=${itemId}`;
-            } else if (itemType === 'category') {
-              deleteUrl = `admin_delete_category.php?id=${itemId}`;
-            } else if (itemType === 'orders') {
-              deleteUrl = `admin_delete_orders.php?id=${itemId}`;
-            }else if (itemType === 'customer') {
-  deleteUrl = `admin_delete_customer.php?id=${itemId}`;
-}else if (itemType === 'staff') {
-  deleteUrl = `admin_delete_staff.php?id=${itemId}`;
-}
-
-            if (deleteUrl) {
-              window.location.href = deleteUrl;
-            }
-          }
+          icon: 'info',
+          title: 'Already Deleted',
+          text: `❗ This customer has already been deleted.`,
+          confirmButtonColor: '#3085d6'
         });
+        return;
+      }
+
+      Swal.fire({
+        title: '🗑️ Are you sure?',
+        html: `Delete <strong style="color:#dc3545;">${itemName}</strong>?<br>`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'No, cancel',
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#6c757d',
+        reverseButtons: true
+      }).then((result) => {
+        if (result.isConfirmed) {
+          let deleteUrl = '';
+
+          if (itemType === 'brand') {
+            deleteUrl = `admin_delete_brand.php?id=${itemId}`;
+          } else if (itemType === 'product') {
+            deleteUrl = `admin_delete_product.php?id=${itemId}`;
+          } else if (itemType === 'category') {
+            deleteUrl = `admin_delete_category.php?id=${itemId}`;
+          } else if (itemType === 'orders') {
+            deleteUrl = `admin_delete_orders.php?id=${itemId}`;
+          } else if (itemType === 'customer') {
+            deleteUrl = `admin_delete_customer.php?id=${itemId}`;
+          } else if (itemType === 'staff') {
+            deleteUrl = `admin_delete_staff.php?id=${itemId}`;
+          }
+
+          if (deleteUrl) {
+            window.location.href = deleteUrl;
+          }
+        }
       });
     });
-  }
+  });
+}
 
   const userProfile = document.getElementById('userProfile');
   if (userProfile) {
@@ -441,29 +456,9 @@ if (deleteResult) {
   window.history.replaceState({}, document.title, cleanUrl);
 }
 
-// Show delete result feedback for product
-const deleteproduct = new URLSearchParams(window.location.search).get('deleteproduct');
-if (deleteproduct === 'success') {
-  Swal.fire({
-    toast: true,
-    icon: 'success',
-    title: '✅ Product deleted successfully!',
-    position: 'top',
-    timer: 2000,
-    showConfirmButton: false,
-    customClass: {
-      popup: 'swal2-toast-custom'
-    }
-  });
-} else if (deleteproduct === 'fail') {
-  Swal.fire({
-    icon: 'error',
-    title: 'Oops!',
-    text: '❌ Failed to delete the product. Please try again.',
-  });
-}
 
 const deleteCustomer = new URLSearchParams(window.location.search).get('deletecustomer');
+
 if (deleteCustomer === 'success') {
   Swal.fire({
     toast: true,
@@ -480,7 +475,17 @@ if (deleteCustomer === 'success') {
     title: 'Oops!',
     text: '❌ Failed to delete the customer. Please try again.',
   });
+} else if (deleteCustomer === 'hasprocessing') {
+  Swal.fire({
+    icon: 'warning',
+    title: 'Cannot Delete Customer',
+    text: '❌ This customer still has one or more orders being processed. Please complete or cancel them before deletion.',
+  });
 }
+
+// 移除 deletecustomer URL 參數
+const cleanUrl = window.location.pathname + window.location.search.replace(/([?&])deletecustomer=([^&]*)/, '');
+window.history.replaceState({}, document.title, cleanUrl);
 
 
   const urlParams = new URLSearchParams(window.location.search);

@@ -65,12 +65,15 @@ $customers = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <td>
                             <div class="action-buttons">
                                 <a href="admin_layout.php?page=admin_view_cusorder&id=<?= $customer['CustomerID'] ?>" class="btn edit-btn">View</a>
-                                <button class="btn delete-btn btn-delete" 
-                                        data-id="<?= $customer['CustomerID'] ?>" 
-                                        data-name="<?= htmlspecialchars($customer['Cust_Username']) ?>"
-                                        data-type="customer">
+                                <button 
+                                    class="btn btn-danger btn-delete" 
+                                    data-id="<?= $customer['CustomerID'] ?>" 
+                                    data-name="<?= $customer['Cust_Username'] ?>" 
+                                    data-type="customer" 
+                                    data-status="<?= $customer['Is_Deleted'] ? 'inactive' : 'active' ?>">
                                     Delete
-                                </button>
+                                    </button>
+
                             </div>
                         </td>
                     </tr>
