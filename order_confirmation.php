@@ -39,10 +39,12 @@ if (!$order_row = $result_order->fetch_assoc())
 $products = [];
 $stmt_products = $conn->prepare
 ("
-    SELECT p.ProductName, pi.ImagePath, od.Order_Quantity
+    SELECT 
+        p.ProductName, 
+        od.Order_Quantity,
+        (SELECT ImagePath FROM `06_product_images` WHERE ProductID = p.ProductID AND IsPrimary = 1 LIMIT 1) AS ImagePath
     FROM `09_order_details` od
     JOIN `05_product` p ON od.ProductID = p.ProductID
-    JOIN `06_product_images` pi ON p.ProductID = pi.ProductID
     WHERE od.OrderID = ?
 ");
 
