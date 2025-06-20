@@ -11,7 +11,7 @@ if (!isset($_SESSION['customer_id'])) {
 
 $customerId = $_SESSION['customer_id'];
 
-// Cancel 'Processing' orders
+// Cancel Processing orders
 $cancel_query = "UPDATE 08_order SET OrderStatus = 'Cancelled' WHERE CustomerID = ? AND OrderStatus = 'Processing'";
 $cancel_stmt = $conn->prepare($cancel_query);
 $cancel_stmt->bind_param("i", $customerId);
