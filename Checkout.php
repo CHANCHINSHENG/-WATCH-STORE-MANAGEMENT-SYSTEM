@@ -151,6 +151,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']))
         }
     }
 
+     if (empty($error) && !preg_match('/^\d{5}$/', $postcode)) 
+    {
+        $error = "Invalid Postcode. Please enter 5 digits."; // "邮编格式不正确，请输入5位数"
+    }
+
     $order_shipping_fee = 0; 
     if (!empty($postcode) && empty($error)) 
     { 
@@ -704,11 +709,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']))
         cityInput.addEventListener('input', () => forceLettersOnly(cityInput, cityError));
         stateInput.addEventListener('input', () => forceLettersOnly(stateInput, stateError));
         
-        postcodeInput.addEventListener('input', () => 
+        function validatePostcode() 
         {
-            forceNumericOnly(postcodeInput, postcodeError);
-            updateShippingAndTotalDisplay(postcodeInput.value);
-        });
+            const value = forceNumericOnly(postcodeInput, postcodeError);
+            updateShippingAndTotalDisplay(value);
+
+            // 如果输入的数字长度不是5，就显示错误信息
+            if (value.length > 0 && value.length !== 5) 
+            {
+                postcodeError.textContent = 'Postcode must be 5 digits.'; // "邮编必须是5位数"
+                postcodeError.style.display = 'block';
+            } 
+            // 如果用户改对了，就把错误信息藏起来
+            else if (postcodeError.textContent === 'Postcode must be 5 digits.') 
+            {
+                postcodeError.style.display = 'none';
+            }
+        }
+
+        // 把新的验证功能绑定到输入框上
+        postcodeInput.addEventListener('input', validatePostcode);
         
         phoneInput.addEventListener('input', validatePhone);
         

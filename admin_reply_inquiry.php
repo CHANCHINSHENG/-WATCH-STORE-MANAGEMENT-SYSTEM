@@ -34,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['submit_reply'])) {
 }
 
 if ($inquiry_id && filter_var($inquiry_id, FILTER_VALIDATE_INT)) {
-    $stmt = $pdo->prepare("SELECT * FROM 17_customer_inquiries WHERE id = ?");
+    $stmt = $pdo->prepare("SELECT * FROM 14_customer_inquiries WHERE id = ?");
     $stmt->execute([$inquiry_id]);
     $inquiry = $stmt->fetch(PDO::FETCH_ASSOC);
 
