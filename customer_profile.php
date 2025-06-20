@@ -185,30 +185,39 @@ function cancelOrder(orderId) {
         }
     });
 }
+
 function confirmDeleteAccount() {
-    Swal.fire({
-        title: 'Are you sure?',
-        text: 'Your account will be deactivated and you will be logged out.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#aaa',
-        confirmButtonText: 'Yes, delete it'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            fetch('delete_account.php')
-            .then(response => response.json())
-            .then(data => {
-                Swal.fire({
-                    icon: data.status === 'success' ? 'success' : 'error',
-                    title: data.message
-                }).then(() => {
-                    if (data.status === 'success') {
-                        window.location.href = 'customer_login.php';
-                    }
+    fetch('check_delete_account.php')
+    .then(response => response.json())
+    .then(data => {
+        let warningText = data.hasProcessing
+            ? 'You have one or more orders still processing. Deleting your account will cancel those orders and you will not be eligible for a refund.'
+            : 'Your account will be deactivated and you will be logged out.';
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: warningText,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#aaa',
+            confirmButtonText: 'Yes, delete it'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch('delete_account.php')
+                .then(response => response.json())
+                .then(data => {
+                    Swal.fire({
+                        icon: data.status === 'success' ? 'success' : 'error',
+                        title: data.message
+                    }).then(() => {
+                        if (data.status === 'success') {
+                            window.location.href = 'customer_login.php';
+                        }
+                    });
                 });
-            });
-        }
+            }
+        });
     });
 }
 </script>

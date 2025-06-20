@@ -87,34 +87,30 @@ $img1 = handleImageUpdate('product_image');
 $img2 = handleImageUpdate('product_image2');
 $img3 = handleImageUpdate('product_image3');
 
-// 取得現有圖片（optional，但可以保留刪除）
 $existingImages = getProductImages($pdo, $product_id);
 
-// 主圖 image 1
 if (!empty($img1)) {
     if (isset($existingImages[0])) {
         $pdo->prepare("DELETE FROM 06_product_images WHERE ProductID = ? AND ImagePath = ?")
             ->execute([$product_id, $existingImages[0]]);
     }
-    insertProductImage($pdo, $product_id, $img1, true, 1); // ✅ 主圖
+    insertProductImage($pdo, $product_id, $img1, true, 1); 
 }
 
-// 圖片 2
 if (!empty($img2)) {
     if (isset($existingImages[1])) {
         $pdo->prepare("DELETE FROM 06_product_images WHERE ProductID = ? AND ImagePath = ?")
             ->execute([$product_id, $existingImages[1]]);
     }
-    insertProductImage($pdo, $product_id, $img2, false, 2); // ✅ 非主圖，排序2
+    insertProductImage($pdo, $product_id, $img2, false, 2); 
 }
 
-// 圖片 3
 if (!empty($img3)) {
     if (isset($existingImages[2])) {
         $pdo->prepare("DELETE FROM 06_product_images WHERE ProductID = ? AND ImagePath = ?")
             ->execute([$product_id, $existingImages[2]]);
     }
-    insertProductImage($pdo, $product_id, $img3, false, 3); // ✅ 非主圖，排序3
+    insertProductImage($pdo, $product_id, $img3, false, 3); 
 }
 
 

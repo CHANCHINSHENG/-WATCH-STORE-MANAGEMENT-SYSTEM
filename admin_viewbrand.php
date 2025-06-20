@@ -52,14 +52,10 @@ $brands = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <?php endif; ?>
                         </td>
                         <td>
-                            <div class="action-buttons">
-                                <a href="#" class="btn delete-btn btn-delete"
-                                   data-id="<?= $brand['BrandID'] ?>"
-                                   data-name="<?= htmlspecialchars($brand['BrandName']) ?>"
-                                   data-type="brand">
-                                   Delete
-                                </a>
-                            </div>
+                          <div class="action-buttons">
+                        <a href="admin_layout.php?page=admin_edit_brand&id=<?= $brand['BrandID'] ?>" 
+                             class="btn edit-btn">Edit</a>
+</div>
                         </td>
                     </tr>
                 <?php endforeach; ?>

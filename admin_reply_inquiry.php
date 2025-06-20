@@ -24,7 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['submit_reply'])) {
     }
 
     if (empty($page_errors)) {
-        $stmt = $pdo->prepare("UPDATE 16_customer_inquiries SET admin_reply_content = ?, replied_at = NOW() WHERE id = ?");
+        $stmt = $pdo->prepare("UPDATE 14_customer_inquiries SET admin_reply_content = ?, replied_at = NOW() WHERE id = ?");
         if ($stmt->execute([$admin_reply, $inquiry_id_post])) {
             $page_success = "✅ Reply successfully saved. The customer can now see it.";
         } else {

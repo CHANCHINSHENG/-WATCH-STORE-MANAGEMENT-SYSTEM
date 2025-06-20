@@ -11,6 +11,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id']) && is_numeric($_G
     $customerId = intval($_GET['id']);
 
     try {
+        $checkStmt = $pdo->prepare("SELECT COUNT(*) FROM 08_order WHERE CustomerID = ? AND OrderStatus = 'Processing'");
+        $checkStmt->execute([$customerId]);
+        $hasProcessing = $checkStmt->fetchColumn();
+
+        if ($hasProcessing > 0) {
+            header("Location: admin_layout.php?page=admin_view_customer&deletecustomer=hasprocessing");
+            exit();
+        }
+
         $stmt = $pdo->prepare("UPDATE 02_customer SET Is_Deleted = 1 WHERE CustomerID = ?");
         $stmt->execute([$customerId]);
 
@@ -26,4 +35,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id']) && is_numeric($_G
     header("Location: admin_layout.php?page=admin_view_customer&deletecustomer=fail");
     exit();
 }
-

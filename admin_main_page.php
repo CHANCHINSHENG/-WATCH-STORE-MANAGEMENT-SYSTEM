@@ -12,7 +12,11 @@ $stmt = $pdo->query("SELECT SUM(Total_Price) AS AllTimeSales FROM 08_order WHERE
 $allTimeSales = $stmt->fetch(PDO::FETCH_ASSOC)['AllTimeSales'] ?? 0;
 
 // Order Stats
-$totalOrders = $pdo->query("SELECT COUNT(*) FROM 08_order WHERE OrderStatus != 'Cancelled'")->fetchColumn();
+$totalOrders = $pdo->query("
+    SELECT COUNT(*) FROM 08_order 
+    WHERE LOWER(TRIM(OrderStatus)) != 'cancelled'
+")->fetchColumn();
+
 $ordersProcessing = $pdo->query("SELECT COUNT(*) FROM 08_order WHERE OrderStatus = 'Processing'")->fetchColumn();
 $ordersDelivered = $pdo->query("SELECT COUNT(*) FROM 08_order o JOIN 07_tracking t ON o.TrackingID = t.TrackingID WHERE t.Delivery_Status = 'Delivered'")->fetchColumn();
 
