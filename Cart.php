@@ -136,14 +136,58 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <div class="order-summary">
                 <h2>Order Summary</h2>
                 <p>Items Total: RM <span id="total-amount"><?= number_format($total_amount, 2) ?></span></p>
+                
+                <div id="cart-validation-error" style="color: #ff5252; text-align: center; margin-bottom: 15px; font-weight: bold; display: none;"></div>
+
                 <form action="Checkout.php" method="post"><button type="submit" class="checkout-btn" id="checkout-btn">Proceed to Checkout</button></form>
             </div>
         <?php endif; ?>
     </div>
 
 <script>
-$(document).ready(function() 
+$(document).ready(function()
 {
+    
+    function validateCart()
+    {
+        let isCartValid = true;
+        let errorMessage = "";
+
+        $('.quantity-input').each(function() 
+        {
+            const quantityInput = $(this);
+            const parentItem = quantityInput.closest('.cart-item');
+            const stock = parseInt(parentItem.data('stock'));
+            let quantity = parseInt(quantityInput.val());
+
+            if (isNaN(quantity) || quantity < 1) 
+            {
+                isCartValid = false;
+                errorMessage = "Oops! Quantity must be a positive number (1 or more).";
+                quantityInput.css('border', '2px solid #ff5252'); 
+            } 
+            else if (quantity > Math.min(stock, 10)) 
+            {
+                isCartValid = false;
+                errorMessage = "Quantity exceeds limit or stock for one or more items.";
+                quantityInput.css('border', '2px solid #ff5252'); 
+            }
+            else {
+                quantityInput.css('border', ''); 
+            }
+        });
+
+        if (!isCartValid) {
+            $('#cart-validation-error').text(errorMessage).show();
+            $('#checkout-btn').prop('disabled', true);
+        } else {
+            $('#cart-validation-error').hide();
+            $('#checkout-btn').prop('disabled', false);
+        }
+        
+        return isCartValid; 
+    }
+
     function updateQuantity(parent, newQuantity, action) 
     {
         var productId = parent.data('product-id');
@@ -153,23 +197,21 @@ $(document).ready(function()
             url: 'update_cart.php',
             method: 'POST',
             data: { product_id: productId, quantity: newQuantity, action: action },
-            success: function(response) {
+            success: function(response) 
+            {
                 try 
                 {
                     var data = JSON.parse(response);
-                    currentQuantityInput.val(data.new_quantity); 
-
-                    if (data.success) 
+                    if(data.new_quantity !== undefined) 
                     {
+                        currentQuantityInput.val(data.new_quantity);
+                    }
+
+                    if (data.success) {
                         $('#total-amount').text(data.total_amount.toFixed(2));
                         $('#cart-item-count').text(data.total_items);
                         
-                        if (data.message) 
-                        {
-                            console.log("Server message:", data.message); 
-                        }
-
-                        if (data.new_quantity === 0) 
+                        if (data.new_quantity === 0 && action === 'remove') 
                         {
                             parent.fadeOut(300, function() 
                             {
@@ -178,20 +220,22 @@ $(document).ready(function()
                                 {
                                     $('.cart-container').html('<div class="empty-cart"><h2>Your cart is empty.</h2><a href="customer_products.php" class="continue-shopping-btn">Continue Shopping</a></div>');
                                 }
+                                validateCart(); 
                             });
+                        } 
+                        else 
+                        {
+                             validateCart();
                         }
                     } 
                     else 
                     {
                         alert(data.message || 'Could not update cart.');
-                        if(data.new_quantity !== undefined) 
-                        {
-                           currentQuantityInput.val(data.new_quantity); 
-                        }
+                        validateCart(); 
                     }
-                } 
-                catch (e) 
-                {
+                }
+                 catch (e) 
+                 {
                     console.error("Failed to parse JSON response:", response, e);
                 }
             },
@@ -203,53 +247,13 @@ $(document).ready(function()
     }
 
 
-     $('.increase-btn').click(function() 
-     {
-        var parent = $(this).closest('.cart-item');
-        var quantityInput = parent.find('.quantity-input');
-        var newQuantity = parseInt(quantityInput.val()) + 1;
-
-        var stock = parseInt(parent.data('stock'));
-        var limit = 10;
-        var effectiveLimit = Math.min(stock, limit); 
-
-        if (newQuantity > effectiveLimit) 
-        {
-            if (stock < limit) 
-            {
-                alert("Stock is running low! 🚨 We only have " + stock + " of this watch left. You can't add any more!");
-            } 
-            else 
-            {
-                 alert("Oops! 🖐️ This watch is limited to 10 pieces per customer.");
-            }
-            return; 
-        }
-        
-        updateQuantity(parent, newQuantity, 'increase');
-    });
-
-    $('.decrease-btn').click(function() 
+    $('.increase-btn').on('click', function() 
     {
         var parent = $(this).closest('.cart-item');
         var quantityInput = parent.find('.quantity-input');
-        var quantity = parseInt(quantityInput.val()) - 1;
-
-        if (quantity >= 1) 
-        {
-            updateQuantity(parent, quantity, 'decrease');
-        }
-    });
-
-    $('.quantity-input').on('change', function() 
-    {
-        var parent = $(this).closest('.cart-item');
-        var newQuantity = parseInt($(this).val()); 
-
-        if (isNaN(newQuantity) || newQuantity < 1) 
-        {
-            newQuantity = 1; 
-        }
+        var currentQuantity = parseInt(quantityInput.val());
+        if (isNaN(currentQuantity)) currentQuantity = 0;
+        var newQuantity = currentQuantity + 1;
 
         var stock = parseInt(parent.data('stock'));
         var limit = 10;
@@ -263,64 +267,60 @@ $(document).ready(function()
             } 
             else 
             {
-                alert("Oops! 🖐️ This watch is limited to 10 pieces per customer.");
+                 alert("Oops! 🖐️ This watch is limited to 10 pieces per customer.");
             }
-            newQuantity = effectiveLimit; 
+            return;
         }
         
-        $(this).val(newQuantity); 
-        updateQuantity(parent, newQuantity, 'update'); 
+        quantityInput.val(newQuantity);
+        if (validateCart()) 
+        {
+             updateQuantity(parent, newQuantity, 'update');
+        }
     });
 
-
-    $('.remove-btn').click(function() 
+    $('.decrease-btn').on('click', function() 
     {
         var parent = $(this).closest('.cart-item');
-        var productId = parent.data('product-id');
+        var quantityInput = parent.find('.quantity-input');
+        var currentQuantity = parseInt(quantityInput.val());
 
-        $.ajax({
-            url: 'update_cart.php',
-            method: 'POST',
-            data: { product_id: productId, quantity: 0, action: 'remove' },
-            success: function(response) 
-            {
-                try 
-                {
-                    var data = JSON.parse(response);
-                    if (data.success) 
-                    {
-                        parent.fadeOut(300, function() 
-                        {
-                            $(this).remove(); 
-                            if ($('.cart-item').length === 0) 
-                            {
-                                $('.cart-container').html('<div class="empty-cart"><h2>Your cart is empty.</h2><a href="customer_products.php" class="continue-shopping-btn">Continue Shopping</a></div>');
-                            }
-                        });
-                        $('#total-amount').text(data.total_amount.toFixed(2));
-                        $('#cart-item-count').text(data.total_items);
-                        
-                        if (data.message) 
-                        { 
-                            console.log("Server message for removal:", data.message); 
-                        }
-                    } 
-                    else 
-                    {
-                        console.error('Error removing item:', data.message || 'An unknown error occurred during removal.');
-                    }
-                } 
-                catch (e) 
-                {
-                    console.error("Failed to parse JSON response during removal:", response, e);
-                }
-            },
-            error: function(xhr, status, error) 
-            {
-                console.error("AJAX removal request failed:", status, error, xhr.responseText);
-            }
-        });
+        if (currentQuantity <= 1) 
+        {
+            return; 
+        }
+
+        var newQuantity = currentQuantity - 1;
+
+        quantityInput.val(newQuantity);
+
+        if (validateCart()) 
+        {
+            updateQuantity(parent, newQuantity, 'update');
+        }
     });
+
+    $('.quantity-input').on('input', function() 
+    {
+        var parent = $(this).closest('.cart-item');
+        var newQuantity = parseInt($(this).val());
+
+        if (validateCart()) 
+        { 
+            if (!isNaN(newQuantity) && newQuantity > 0) 
+            {
+                 updateQuantity(parent, newQuantity, 'update');
+            }
+        }
+    });
+
+    $('.remove-btn').on('click', function() 
+    {
+        var parent = $(this).closest('.cart-item');
+        updateQuantity(parent, 0, 'remove');
+    });
+
+    validateCart();
 });
 </script>
 
