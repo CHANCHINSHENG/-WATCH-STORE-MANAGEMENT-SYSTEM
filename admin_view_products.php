@@ -29,7 +29,7 @@ $countStmt = $pdo->prepare("SELECT COUNT(*) $baseQuery $whereClause");
 $countStmt->execute($params);
 $total_products = $countStmt->fetchColumn();
 
-$query = "SELECT p.ProductID, p.ProductName, p.Product_Price, p.Product_Status, 
+$query = "SELECT p.ProductID, p.ProductName, p.Product_Price, p.Product_Status, p.Product_Stock_Quantity,
        (SELECT ImagePath 
         FROM 06_product_images i 
         WHERE i.ProductID = p.ProductID 
@@ -40,7 +40,6 @@ $baseQuery $whereClause
 LIMIT :limit OFFSET :offset";
 
 $stmt = $pdo->prepare($query);
-
 foreach ($params as $key => $value) {
     $stmt->bindValue($key, $value, PDO::PARAM_STR); 
 }
@@ -97,8 +96,9 @@ $baseUrl = 'admin_layout.php?' . http_build_query($queryParams);
                             <td><?= htmlspecialchars($row['CategoryName'] ?? 'No Category') ?></td>
                             <td><?= htmlspecialchars($row['BrandName'] ?? 'No Brand') ?></td>
                             <td>
-                                <span class="status-badge <?= strtolower($row['Product_Status']) === 'available' ? 'status-available' : 'status-outofstock' ?>">
-                                    <?= htmlspecialchars($row['Product_Status']) ?>
+                                <?php $stock = (int)$row['Product_Stock_Quantity']; ?>
+                                <span class="status-badge <?= $stock > 0 ? 'status-available' : 'status-outofstock' ?>">
+                                    <?= $stock > 0 ? 'Available' : 'Out of Stock' ?>
                                 </span>
                             </td>
                             <td>
