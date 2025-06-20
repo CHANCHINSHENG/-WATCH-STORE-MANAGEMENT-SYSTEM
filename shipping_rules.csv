@@ -1,9 +1,9 @@
 ﻿Start_Postcode,End_Postcode,State,Shipping_Fee (RM)
-50000,60000,Kuala Lumpur,0
+50000,60000,Kuala Lumpur,8
 62000,62999,Putrajaya,5
 40000,48999,Selangor,5
 80000,86999,Johor,10
-75000,78000,Melaka (Malacca),8
+75000,78000,Melaka (Malacca),0
 70000,73500,Negeri Sembilan ,8
 30000,36800,Perak,10
 10000,14120,Puala Pinang ,8
