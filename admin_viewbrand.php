@@ -45,7 +45,7 @@ $brands = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <td><?= htmlspecialchars($brand['BrandName']) ?></td>
                         <td>
                             <?php if (!empty($brand['BrandImage'])): ?>
-                                <img src="/fyp/uploads/<?= $brand['BrandImage'] ?>" alt="<?= $brand['BrandName'] ?>" width="80">
+                                <img src="uploads/<?= $brand['BrandImage'] ?>" alt="<?= $brand['BrandName'] ?>" width="80">
 
                             <?php else: ?>
                                 <span class="no-image">No image</span>
