@@ -3,9 +3,9 @@ require_once 'admin_login_include/config_session.php';
 require_once 'admin_addcategory_include/admin_addcategory_view.php'; 
 ?>
 
-<link rel="stylesheet" href="admin_edit_customer.css">
-
-<div class="dashboard-container">
+<link rel="stylesheet" href="admin_add_category.css">
+<div class="page-wrapper">
+  <div class="form-container">
     <h2>Add New Category</h2>
 
     <?php displayFormMessages(); ?>
@@ -21,4 +21,5 @@ require_once 'admin_addcategory_include/admin_addcategory_view.php';
             <button type="submit" class="btn primary-btn">Add Category</button>
         </div>
     </form>
+  </div>
 </div>

@@ -1,16 +1,17 @@
 <?php
-function insertCategory(object $pdo, string $categoryName): string {
-    try {
-        $query = "INSERT INTO 04_category (CategoryName) VALUES (?)";
-        $stmt = $pdo->prepare($query);
+function insertCategory($pdo, $categoryName) {
+    $checkStmt = $pdo->prepare("SELECT COUNT(*) FROM 04_category WHERE LOWER(CategoryName) = LOWER(?)");
+    $checkStmt->execute([$categoryName]);
+    $count = $checkStmt->fetchColumn();
 
-        if (!$stmt) {
-            return "❌ Failed to prepare statement.";
-        }
+    if ($count > 0) {
+        return "❌ Category already exists.";
+    }
 
-        $stmt->execute([$categoryName]);
+    $stmt = $pdo->prepare("INSERT INTO 04_category (CategoryName) VALUES (?)");
+    if ($stmt->execute([$categoryName])) {
         return "✅ Category added successfully!";
-    } catch (PDOException $e) {
-        return "❌ Database error: " . $e->getMessage();
+    } else {
+        return "❌ Failed to add category.";
     }
 }

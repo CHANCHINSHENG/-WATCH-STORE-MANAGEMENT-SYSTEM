@@ -1,6 +1,14 @@
 <?php
 function insertdetail(object $pdo, string $brandName, string $imagePath) {
     try {
+        $checkStmt = $pdo->prepare("SELECT COUNT(*) FROM 03_brand WHERE LOWER(BrandName) = LOWER(?)");
+        $checkStmt->execute([$brandName]);
+        $count = $checkStmt->fetchColumn();
+
+        if ($count > 0) {
+            return "❌ Brand '$brandName' already exists.";
+        }
+
         $query = "INSERT INTO 03_brand (BrandName, BrandImage) VALUES (?, ?)";
         $stmt = $pdo->prepare($query);
 
@@ -14,6 +22,7 @@ function insertdetail(object $pdo, string $brandName, string $imagePath) {
         return "❌ Database error: " . $e->getMessage();
     }
 }
+
 
 function uploadBrandImage($file) {
     if ($file && $file['error'] === UPLOAD_ERR_OK) {
