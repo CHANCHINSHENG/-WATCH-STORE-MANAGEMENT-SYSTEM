@@ -139,7 +139,8 @@ $queryParams = http_build_query([
         <table class="order-table">
             <thead>
                 <tr>
-                    <th>Date</th><th>Name</th><th>Order Status</th><th>Change Order</th>
+                    <th>Date</th><th>Name</th>
+                    <th>Order Status</th>
                     <th>Tracking Number</th><th>Delivery Status</th><th>Change Delivery</th>
                     <th>Payment Method</th><th>Total</th><th>ACTION</th>
                 </tr>
@@ -169,13 +170,7 @@ switch (strtolower(trim($orderStatus))) {
 
                         ?>
 <td><span class="<?= $status_class ?>"><?= htmlspecialchars($orderStatus) ?></span></td>
-                    <td>
-                        <select class="status-dropdown order-dropdown" data-order-id="<?= $order['OrderID'] ?>">
-                            <?php foreach (["Processing", "Done Processing", "Cancelled"] as $s): ?>
-                            <option value="<?= $s ?>" <?= $order['OrderStatus'] === $s ? 'selected' : '' ?>><?= $s ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </td>
+                 
                     <td><?= $order['Tracking_Number'] ?: '<span style="color:#888;">N/A</span>' ?></td>
                     <?php
                     $delivery = $order['Delivery_Status'] ?? 'Unknown';

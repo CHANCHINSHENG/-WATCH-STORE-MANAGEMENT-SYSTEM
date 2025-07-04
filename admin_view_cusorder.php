@@ -48,10 +48,8 @@ $orders = $stmt_orders->fetchAll(PDO::FETCH_ASSOC);
                 <tr>
                     <th>Date</th>
                     <th>Order Status</th>
-                    <th>Change Order</th>
                     <th>Tracking Number</th>
                     <th>Delivery Status</th>
-                    <th>Change Delivery</th>
                     <th>Total</th>
                 </tr>
             </thead>
@@ -64,26 +62,14 @@ $orders = $stmt_orders->fetchAll(PDO::FETCH_ASSOC);
         <?= htmlspecialchars($order['OrderStatus']) ?>
     </span>
 </td>
-                        <td>
-                                <select class="status-dropdown order-dropdown" data-order-id="<?= $order['OrderID'] ?>">
-                                    <?php foreach (["Processing", "Done Processing"] as $status): ?>
-                                        <option value="<?= $status ?>" <?= $order['OrderStatus'] === $status ? 'selected' : '' ?>><?= $status ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                        </td>
+                        
                         <td><?= $order['Tracking_Number'] ? htmlspecialchars($order['Tracking_Number']) : '<span style="color: #aaa;">Not Assigned</span>' ?></td>
                         <td>
     <span class="status-badge <?= strtolower(str_replace(' ', '-', $order['Delivery_Status'])) ?>">
         <?= htmlspecialchars($order['Delivery_Status']) ?>
     </span>
 </td>
-                        <td>
-                                <select class="status-dropdown delivery-dropdown" data-order-id="<?= $order['OrderID'] ?>">
-                                    <?php foreach (["Pending", "Delivered"] as $status): ?>
-                                        <option value="<?= $status ?>" <?= $order['Delivery_Status'] === $status ? 'selected' : '' ?>><?= $status ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                        </td>
+                       
                         <td>$<?= number_format($order['Total_Price'], 2) ?></td>
                     </tr>
                 <?php endforeach; ?>
