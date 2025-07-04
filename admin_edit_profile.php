@@ -27,12 +27,20 @@ if (!$admin) {
             <h2>Edit Profile</h2>
         </div>
 
-        <?php if (isset($_SESSION['update_success'])): ?>
-            <div class="message success">
-                <?= $_SESSION['update_success']; ?>
-            </div>
-            <?php unset($_SESSION['update_success']); ?>
-        <?php endif; ?>
+       <?php if (isset($_SESSION['update_success'])): ?>
+    <div class="message success">
+        <?= $_SESSION['update_success']; ?>
+    </div>
+    <?php unset($_SESSION['update_success']); ?>
+<?php endif; ?>
+
+<?php if (isset($_SESSION['update_error'])): ?>
+    <div class="message error">
+        <?= $_SESSION['update_error']; ?>
+    </div>
+    <?php unset($_SESSION['update_error']); ?>
+<?php endif; ?>
+
 
         <form action="admin_update_profile.php" method="POST" enctype="multipart/form-data">
             <div class="upload-section">
@@ -55,10 +63,16 @@ if (!$admin) {
             <input type="text" name="Admin_Username" value="<?= htmlspecialchars($admin['Admin_Username']) ?>" required>
 
             <label>Email</label>
-            <input type="email" name="Admin_Email" value="<?= htmlspecialchars($admin['Admin_Email']) ?>" required>
+            <input type="email" name="Admin_Email" 
+            value="<?= htmlspecialchars($admin['Admin_Email']) ?>" 
+            required 
+            pattern="[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
+            title="Please enter a valid email like example@example.com">
 
             <label>Admin Role</label>
-            <input type="email" name="Admin_Role" value="<?= htmlspecialchars($admin['Admin_Role']) ?>" readonly>
+            <input type="text" name="Admin_Role" value="<?= htmlspecialchars($admin['Admin_Role']) ?>" readonly>
+
+           
             <div class="button-group">
                 <a href="admin_layout.php?page=admin_main_page" class="btn secondary-btn">Back</a>
                 <button type="submit" class="btn primary-btn">Update Profile</button>

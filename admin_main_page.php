@@ -94,7 +94,7 @@ for ($i = 6; $i >= 0; $i--) {
     <div class="grid">
         <div class="box" style="flex:1;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h3>Weekly Sales</h3>
+                <h3>Weekly </h3>
                 <button onclick="printWeeklyReport()" style="background: orange; color: white; border: none; padding: 5px 10px; border-radius: 4px;">Print</button>
             </div>
             <div class="tab-btns">
