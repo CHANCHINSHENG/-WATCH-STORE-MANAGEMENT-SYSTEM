@@ -30,12 +30,13 @@ if (!$brand) {
     <h2>Edit Brand</h2>
     <div class="content-container">
 
-        <?php if (isset($_SESSION['success_message'])): ?>
-            <div class="message success">
-                <span>✅ <?= $_SESSION['success_message']; ?></span>
-            </div>
-            <?php unset($_SESSION['success_message']); ?>
-        <?php endif; ?>
+    <?php if (isset($_SESSION['error_message'])): ?>
+    <div class="message error">
+        <span><?= $_SESSION['error_message']; ?></span>
+    </div>
+    <?php unset($_SESSION['error_message']); ?>
+<?php endif; ?>
+
 
         <form action="admin_update_brand.php" method="POST" enctype="multipart/form-data" class="edit-form">
             <input type="hidden" name="BrandID" value="<?= $brand['BrandID'] ?>">
