@@ -112,7 +112,7 @@ if ($result) {
 <div class="page-wrapper">
     <div class="content-container">
         <div class="header">
-            <h2>🌟 Customer Reviews</h2>
+            <h2>Delivery Reviews</h2>
         </div>
 
         <?php if (!empty($error_message)): ?>

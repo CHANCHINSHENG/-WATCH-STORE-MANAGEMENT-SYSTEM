@@ -68,7 +68,7 @@ $items = $itemStmt->fetchAll(PDO::FETCH_ASSOC);
         <thead>
             <tr>
                 <th>SR.</th>
-                <th>PRODUCT TITLE</th>
+                <th>PRODUCT NAME</th>
                 <th>QUANTITY</th>
                 <th>ITEM PRICE</th>
                 <th>AMOUNT</th>

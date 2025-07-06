@@ -15,7 +15,7 @@ require_once 'admin_addbrand_include/admin_addbrand_view.php';
 <div class="page-wrapper">
     <div class="content-container">
         <div class="header">
-            <h2><span class="watch-icon">⌚</span> Add Brand</h2>
+            <h2><span class="watch-icon">⌚</span> Add New Brand</h2>
         </div>
 
         <?php displayFormMessages(); ?> 

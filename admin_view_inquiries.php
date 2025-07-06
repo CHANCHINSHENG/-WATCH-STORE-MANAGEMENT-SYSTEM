@@ -137,7 +137,7 @@ if ($result) {
 <div class="page-wrapper">
     <div class="content-container">
         <div class="header">
-            <h2>📨 Customer Inquiries</h2>
+            <h2>Customer Inquiries</h2>
         </div>
 
         <?php if (!empty($error_message)): ?>

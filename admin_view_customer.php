@@ -30,7 +30,7 @@ $customers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <div class="page-wrapper">
     <div class="content-container">
         <div class="header">
-            <h2>All Customers</h2>
+            <h2>Customers</h2>
         </div>
 
         <div class="search-container">
