@@ -20,10 +20,8 @@
 
     $_SESSION['admin_role'] = $admin['Admin_Role'];
 
-    // Get profile image or fallback
     $profileImg = !empty($admin['ProfileImage']) ? htmlspecialchars($admin['ProfileImage']) : 'assets/default_avatar.png';
 
-    // Detect which page to load
     $page = $_GET['page'] ?? 'admin_main_page';
     $allowed_pages = [
         'admin_main_page', 'admin_add_product', 'admin_view_products', 'admin_view_customer',
