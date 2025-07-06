@@ -330,7 +330,6 @@ let show = true;
       const itemType = this.dataset.type;
       const itemStatus = this.dataset.status;
 
-      // 🔒 特別處理：如果 customer 已經被刪除（inactive）
       if (itemType === 'customer' && itemStatus === 'inactive') {
         Swal.fire({
           icon: 'info',
@@ -451,7 +450,6 @@ if (deleteResult) {
     });
   }
 
-  // Remove ?delete=xxx from URL after showing message
   const cleanUrl = window.location.pathname + window.location.search.replace(/([?&])delete=([^&]*)/, '');
   window.history.replaceState({}, document.title, cleanUrl);
 }
@@ -483,7 +481,6 @@ if (deleteCustomer === 'success') {
   });
 }
 
-// 移除 deletecustomer URL 參數
 const cleanUrl = window.location.pathname + window.location.search.replace(/([?&])deletecustomer=([^&]*)/, '');
 window.history.replaceState({}, document.title, cleanUrl);
 

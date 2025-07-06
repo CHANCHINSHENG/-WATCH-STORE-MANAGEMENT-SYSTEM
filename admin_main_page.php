@@ -158,6 +158,7 @@ for ($i = 6; $i >= 0; $i--) {
         }
     }
 ?>
+
 </pre>
 </div>
 
@@ -200,6 +201,7 @@ const weeklyChart = new Chart(weeklyCtx, {
         scales: { x: { ticks: { color: 'white' } }, y: { ticks: { color: 'white' }, beginAtZero: true } }
     }
 });
+
 
 document.getElementById('salesTab').onclick = () => {
     weeklyChart.data.datasets[0].label = 'Sales';
