@@ -39,7 +39,10 @@ if (!$order_row = $result_order->fetch_assoc())
 $products = [];
 $stmt_products = $conn->prepare
 ("
-    SELECT p.ProductName, p.Product_Image, od.Order_Quantity
+    SELECT 
+        p.ProductName, 
+        od.Order_Quantity,
+        (SELECT ImagePath FROM `06_product_images` WHERE ProductID = p.ProductID AND IsPrimary = 1 LIMIT 1) AS ImagePath
     FROM `09_order_details` od
     JOIN `05_product` p ON od.ProductID = p.ProductID
     WHERE od.OrderID = ?
@@ -148,7 +151,7 @@ if ($trackingID > 0)
                     <h2>Items Purchased:</h2>
                     <?php foreach ($products as $product): ?>
                         <div class="product-item">
-                            <img src="admin_addproduct_include/<?php echo htmlspecialchars($product['Product_Image']); ?>" alt="<?php echo htmlspecialchars($product['ProductName']); ?>" class="product-image-confirm"> <div class="product-item-details">
+                            <img src="admin_addproduct_include/<?php echo htmlspecialchars($product['ImagePath']); ?>" alt="<?php echo htmlspecialchars($product['ProductName']); ?>" class="product-image-confirm"> <div class="product-item-details">
                                 <h4><?php echo htmlspecialchars($product['ProductName']); ?></h4>
                                 <p>Quantity: <?php echo htmlspecialchars($product['Order_Quantity']); ?></p>
                             </div>

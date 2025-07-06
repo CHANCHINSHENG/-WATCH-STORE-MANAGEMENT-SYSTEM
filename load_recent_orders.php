@@ -103,6 +103,10 @@ $totalPages = ceil($totalRecent / $limit);
     background: rgba(251, 191, 36, 0.15);
     color: #f59e0b;
 }
+.status-badge.cancelled {
+    background: rgba(230, 36, 117, 0.15);
+    color:red;
+}
 
 .status-badge.done-processing {
     background: rgba(74, 20, 140, 0.1);
@@ -118,7 +122,6 @@ $totalPages = ceil($totalRecent / $limit);
             <th>Customer</th>
             <th>Amount (RM)</th>
             <th>Status</th>
-            <th>Change Status</th>
         </tr>
     </thead>
     <tbody>
@@ -134,13 +137,7 @@ $totalPages = ceil($totalRecent / $limit);
                 <?= htmlspecialchars($order['OrderStatus']) ?>
             </span>
         </td>
-        <td>
-            <select class="status-dropdown order-dropdown" data-order-id="<?= $order['OrderID'] ?>">
-                <?php foreach (["Processing", "Done Processing","Cancelled"] as $status): ?>
-                    <option value="<?= $status ?>" <?= $order['OrderStatus'] === $status ? 'selected' : '' ?>><?= $status ?></option>
-                <?php endforeach; ?>
-            </select>
-        </td>
+     
     </tr>
 <?php endforeach; ?>
     </tbody>

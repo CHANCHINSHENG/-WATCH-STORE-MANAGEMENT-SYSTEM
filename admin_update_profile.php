@@ -10,9 +10,14 @@ if (!isset($_SESSION['admin_id'])) {
 $admin_id = $_SESSION['admin_id'];
 $name = $_POST['Admin_Username'];
 $email = $_POST['Admin_Email'];
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $_SESSION['update_error'] = "Invalid email format. Please use a proper email like example@example.com";
+    header("Location: admin_layout.php?page=admin_edit_profile");
+    exit();
+}
+
 $profileImagePath = null;
 
-// Handle image upload if exists
 if (isset($_FILES['profileImage']) && $_FILES['profileImage']['error'] === UPLOAD_ERR_OK) {
     $uploadDir = 'uploads/admin_picture/';
     if (!is_dir($uploadDir)) {
@@ -30,7 +35,6 @@ if (isset($_FILES['profileImage']) && $_FILES['profileImage']['error'] === UPLOA
     }
 }
 
-// Prepare SQL update using AdminID
 if ($profileImagePath) {
     $stmt = $pdo->prepare("UPDATE 01_admin SET Admin_Username = ?, Admin_Email = ?, ProfileImage = ? WHERE AdminID = ?");
     $stmt->execute([$name, $email, $profileImagePath, $admin_id]);
@@ -39,10 +43,8 @@ if ($profileImagePath) {
     $stmt->execute([$name, $email, $admin_id]);
 }
 
-// Correct: Only update display name if needed
 $_SESSION['admin_name'] = $name;
 
-// Success message
 $_SESSION['update_success'] = "Profile updated successfully.";
 
 header("Location: admin_layout.php?page=admin_edit_profile");

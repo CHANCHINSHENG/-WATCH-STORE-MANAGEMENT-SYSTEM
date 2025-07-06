@@ -94,7 +94,7 @@ for ($i = 6; $i >= 0; $i--) {
     <div class="grid">
         <div class="box" style="flex:1;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h3>Weekly Sales</h3>
+                <h3>Weekly </h3>
                 <button onclick="printWeeklyReport()" style="background: orange; color: white; border: none; padding: 5px 10px; border-radius: 4px;">Print</button>
             </div>
             <div class="tab-btns">
@@ -135,16 +135,30 @@ for ($i = 6; $i >= 0; $i--) {
     }
 ?>
     </pre>
-    <pre id="printable-top5">
+<pre id="printable-top5">
 <?php
-    echo "Top 5 Best-Selling Products\n\n";
-    $stmt = $pdo->query("SELECT p.ProductName, SUM(od.Order_Quantity) AS TotalSold FROM 09_order_details od JOIN 05_product p ON od.ProductID = p.ProductID JOIN 08_order o ON o.OrderID = od.OrderID WHERE o.OrderStatus != 'Cancelled' AND o.OrderDate >= CURDATE() - INTERVAL 6 DAY GROUP BY p.ProductID ORDER BY TotalSold DESC LIMIT 5");
+    $stmt = $pdo->query("
+        SELECT p.ProductName, SUM(od.Order_Quantity) AS TotalSold
+        FROM 09_order_details od
+        JOIN 05_product p ON od.ProductID = p.ProductID
+        JOIN 08_order o ON o.OrderID = od.OrderID
+        WHERE o.OrderStatus != 'Cancelled'
+        GROUP BY p.ProductID
+        ORDER BY TotalSold DESC
+        LIMIT 5
+    ");
+
     $topProducts = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    foreach ($topProducts as $index => $row) {
-        echo ($index + 1) . ". " . $row['ProductName'] . " — " . $row['TotalSold'] . " units\n";
+
+    if (empty($topProducts)) {
+        echo "No data available.\n";
+    } else {
+        foreach ($topProducts as $index => $row) {
+            echo ($index + 1) . ". " . $row['ProductName'] . " — " . $row['TotalSold'] . " units\n";
+        }
     }
 ?>
-    </pre>
+</pre>
 </div>
 
 <script>

@@ -29,12 +29,16 @@ if (!$category) {
 <div class="page-wrapper">
         <h2>Edit Category</h2>
             <div class="content-container">
-        <?php if (isset($_SESSION['success_message'])): ?>
-    <div class="message success">
-        <span>✅ <?= $_SESSION['success_message']; ?></span>
-    </div>
+<?php if (isset($_SESSION['error_message'])): ?>
+    <div class="message error"><?= $_SESSION['error_message']; ?></div>
+    <?php unset($_SESSION['error_message']); ?>
+<?php endif; ?>
+
+<?php if (isset($_SESSION['success_message'])): ?>
+    <div class="message success"><?= $_SESSION['success_message']; ?></div>
     <?php unset($_SESSION['success_message']); ?>
 <?php endif; ?>
+
         <form action="admin_update_category.php" method="POST" class="edit-form">
             <input type="hidden" name="CategoryID" value="<?= $category['CategoryID'] ?>">
             

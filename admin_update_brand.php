@@ -8,8 +8,18 @@ if (!isset($_SESSION['admin_id'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $brand_id = $_POST['BrandID'];
-    $brand_name = $_POST['BrandName'];
+    $brand_id   = $_POST['BrandID'];
+    $brand_name = trim($_POST['BrandName']);
+
+    $checkStmt = $pdo->prepare("SELECT COUNT(*) FROM 03_brand WHERE LOWER(BrandName) = LOWER(?) AND BrandID != ?");
+    $checkStmt->execute([$brand_name, $brand_id]);
+    $existing = $checkStmt->fetchColumn();
+
+    if ($existing > 0) {
+        $_SESSION['error_message'] = "❌ Brand name '$brand_name' already exists.";
+        header("Location: admin_layout.php?page=admin_edit_brand&id=$brand_id");
+        exit();
+    }
 
     $stmt = $pdo->prepare("SELECT BrandImage FROM 03_brand WHERE BrandID = ?");
     $stmt->execute([$brand_id]);
@@ -36,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $update = $pdo->prepare("UPDATE 03_brand SET BrandName = ?, BrandImage = ? WHERE BrandID = ?");
     $update->execute([$brand_name, $image_name, $brand_id]);
 
-    $_SESSION['success_message'] = "Brand updated successfully.";
+    $_SESSION['success_message'] = "✅ Brand updated successfully.";
     header("Location: admin_layout.php?page=admin_edit_brand&id=$brand_id");
     exit();
 }

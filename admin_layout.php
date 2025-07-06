@@ -20,10 +20,8 @@
 
     $_SESSION['admin_role'] = $admin['Admin_Role'];
 
-    // Get profile image or fallback
     $profileImg = !empty($admin['ProfileImage']) ? htmlspecialchars($admin['ProfileImage']) : 'assets/default_avatar.png';
 
-    // Detect which page to load
     $page = $_GET['page'] ?? 'admin_main_page';
     $allowed_pages = [
         'admin_main_page', 'admin_add_product', 'admin_view_products', 'admin_view_customer',
@@ -80,7 +78,6 @@
                 <a href="admin_layout.php?page=admin_view_staff" class="nav-item"><i data-lucide="users"></i><span>Staff</span></a>
                 <a href="admin_layout.php?page=admin_view_inquiries" class="nav-item"><i data-lucide="star"></i><span>Product Review</span></a>
                 <a href="admin_layout.php?page=admin_view_reviews" class="nav-item"><i data-lucide="truck"></i><span>DeliveryReview</span></a>
-                <a href="admin_layout.php?page=admin_online_store" class="nav-item"><i data-lucide="store"></i><span>Online Store</span></a>
             </nav>
 
             <div class="sidebar-footer">

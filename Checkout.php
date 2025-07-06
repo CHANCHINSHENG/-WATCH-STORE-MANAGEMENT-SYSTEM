@@ -16,6 +16,195 @@ $shipping_fee = 0;
 $total = 0;
 $error = "";
 
+$malaysian_locations = 
+[
+
+    'Johor' => 
+    [
+        'Batu Pahat',
+        'Johor Bahru',
+        'Kluang',
+        'Kota Tinggi',
+        'Kulai',
+        'Mersing',
+        'Muar',
+        'Pasir Gudang',
+        'Pontian',
+        'Segamat',
+        'Skudai',
+        'Tangkak'
+    ],
+
+    'Kedah' => 
+    [
+        'Alor Setar',
+        'Baling',
+        'Jitra',
+        'Kulim',
+        'Kuala Nerang',
+        'Langkawi',
+        'Pendang',
+        'Sungai Petani'
+    ],
+
+    'Kelantan' => 
+    [
+        'Bachok',
+        'Gua Musang',
+        'Jeli',
+        'Kota Bharu',
+        'Kuala Krai',
+        'Machang',
+        'Pasir Mas',
+        'Pasir Puteh',
+        'Tanah Merah',
+        'Tumpat'
+    ],
+
+    'Kuala Lumpur' => 
+    [
+        'Kuala Lumpur'
+    ],
+
+    'Labuan' => 
+    [
+        'Labuan'
+    ],
+
+    'Melaka' => 
+    [
+        'Alor Gajah',
+        'Jasin',
+        'Melaka City'
+    ],
+
+    'Negeri Sembilan' => 
+    [
+        'Jelebu',
+        'Jempol',
+        'Kuala Pilah',
+        'Nilai',
+        'Port Dickson',
+        'Rembau',
+        'Seremban',
+        'Tampin'
+    ],
+
+    'Pahang' => 
+    [
+        'Bentong',
+        'Bera',
+        'Cameron Highlands',
+        'Genting Highlands',
+        'Jerantut',
+        'Kuantan',
+        'Kuala Lipis',
+        'Maran',
+        'Pekan',
+        'Raub',
+        'Rompin',
+        'Temerloh'
+    ],
+
+    'Penang' => 
+    [
+        'Bayan Lepas',
+        'Bukit Mertajam',
+        'Butterworth',
+        'George Town',
+        'Seberang Perai'
+    ],
+
+    'Perak' => 
+    [
+        'Bagan Serai',
+        'Batu Gajah',
+        'Ipoh',
+        'Kampar',
+        'Kuala Kangsar',
+        'Lumut',
+        'Sitiawan',
+        'Taiping',
+        'Tanjung Malim',
+        'Teluk Intan'
+    ],
+
+    'Perlis' =>
+    [
+        'Arau',
+        'Kangar',
+        'Kuala Perlis',
+        'Padang Besar'
+    ],
+
+    'Putrajaya' =>
+    [
+        'Putrajaya'
+    ],
+
+    'Sabah' => 
+    [
+        'Beaufort',
+        'Keningau',
+        'Kota Belud',
+        'Kota Kinabalu',
+        'Kudat',
+        'Lahad Datu',
+        'Papar',
+        'Penampang',
+        'Ranau',
+        'Sandakan',
+        'Semporna',
+        'Tawau',
+        'Tenom'
+    ],
+
+    'Sarawak' => 
+    [
+        'Betong',
+        'Bintulu',
+        'Kapit',
+        'Kuching',
+        'Limbang',
+        'Miri',
+        'Mukah',
+        'Samarahan',
+        'Serian',
+        'Sibu',
+        'Sri Aman'
+    ],
+
+    'Selangor' => 
+    [
+        'Ampang Jaya',
+        'Bangi',
+        'Banting',
+        'Cyberjaya',
+        'Kajang',
+        'Klang',
+        'Kuala Selangor',
+        'Petaling Jaya',
+        'Puchong',
+        'Rawang',
+        'Sabak Bernam',
+        'Sekinchan',
+        'Selayang',
+        'Sepang',
+        'Shah Alam',
+        'Subang Jaya'
+    ],
+
+    'Terengganu' => 
+    [
+        'Dungun',
+        'Hulu Terengganu',
+        'Kemaman',
+        'Kuala Besut',
+        'Kuala Terengganu',
+        'Marang'
+    ]
+];
+
 $registered_address = null;
 $stmt_customer_details = $conn->prepare("SELECT Cust_First_Name, Cust_Last_Name, Cust_Address, Cust_City, Cust_Postcode, Cust_State, Cust_PhoneNumber FROM `02_customer` WHERE CustomerID = ?");
 $stmt_customer_details->bind_param("i", $customerID);
@@ -148,6 +337,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']))
         if (empty($name) || empty($address) || empty($city) || empty($postcode) || empty($State) || empty($phone) || empty($payment_method)) 
         {
             $error = "Please fill in all required shipping and payment information.";
+        }
+    }
+
+    if (empty($error) && !preg_match('/^\d{5}$/', $postcode)) 
+    {
+        $error = "Invalid Postcode. Please enter 5 digits."; 
+    }
+
+    if (empty($error)) 
+    {
+        $selected_state = $_POST['state'];
+        $selected_city = $_POST['city'];
+
+        if (!array_key_exists($selected_state, $malaysian_locations) || !in_array($selected_city, $malaysian_locations[$selected_state])) 
+        {
+            $error = "Invalid state or city selected. Please refresh and try again.";
         }
     }
 
@@ -363,14 +568,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']))
 
                     <input type="text" id="shipping_address" name="address" placeholder="Address" value="<?= htmlspecialchars($address) ?>" required>
                     
-                    <input type="text" id="shipping_city" name="city" placeholder="City" value="<?= htmlspecialchars($city) ?>" required>
+                    <select id="shipping_state" name="state" required>
+                        <option value="">-- Select a State --</option>
+                        <?php 
+                            $selected_state = htmlspecialchars($State);
+                            foreach (array_keys($malaysian_locations) as $state_option) 
+                            {
+                                $selected = ($state_option === $selected_state) ? 'selected' : '';
+                                echo "<option value=\"$state_option\" $selected>$state_option</option>";
+                            }
+                        ?>
+                    </select>
+                    <div id="state_error" class="error-message"></div>
+
+                    <select id="shipping_city" name="city" required>
+                        <option value="">-- Select a City --</option>
+                        <?php
+                            if (!empty($selected_state) && isset($malaysian_locations[$selected_state])) 
+                            {
+                                $selected_city = htmlspecialchars($city);
+                                foreach ($malaysian_locations[$selected_state] as $city_option) 
+                                {
+                                    $selected = ($city_option === $selected_city) ? 'selected' : '';
+                                    echo "<option value=\"$city_option\" $selected>$city_option</option>";
+                                }
+                            }
+                        ?>
+                    </select>
                     <div id="city_error" class="error-message"></div>
 
                     <input type="text" id="postcode_input" name="postcode" placeholder="Postcode" value="<?= htmlspecialchars($postcode) ?>" required>
                     <div id="postcode_error" class="error-message"></div>
-
-                    <input type="text" id="shipping_state" name="state" placeholder="State" value="<?= htmlspecialchars($State) ?>" required>
-                    <div id="state_error" class="error-message"></div>
 
                     <input type="text" id="shipping_phone" name="phone" placeholder="Phone Number (10-12 digits)" value="<?= htmlspecialchars($phone) ?>" required>
                     <div id="phone_error" class="error-message"></div>
@@ -445,6 +673,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']))
     </div>
 
     <script>
+        const malaysianLocations = <?php echo json_encode($malaysian_locations); ?>;
         const registeredAddress = <?php echo json_encode($registered_address); ?>;
         const shippingRules = <?php echo json_encode($shipping_rules); ?>;
 
@@ -453,46 +682,81 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']))
         
         const nameInput = document.getElementById('shipping_name');
         const addressInput = document.getElementById('shipping_address');
-        const cityInput = document.getElementById('shipping_city');
+        const stateSelect = document.getElementById('shipping_state'); 
+        const citySelect = document.getElementById('shipping_city');   
         const postcodeInput = document.getElementById('postcode_input');
-        const stateInput = document.getElementById('shipping_state');
         const phoneInput = document.getElementById('shipping_phone');
 
         const nameError = document.getElementById('name_error');
-        const cityError = document.getElementById('city_error');
         const postcodeError = document.getElementById('postcode_error');
-        const stateError = document.getElementById('state_error');
         const phoneError = document.getElementById('phone_error');
         
         const paymentMethodSelect = document.getElementById('payment_method_select');
         const creditCardFields = document.getElementById('credit_card_fields');
         const bankPaymentFields = document.getElementById('bank_payment_fields');
 
+        function updateCityDropdown() {
+            const selectedState = stateSelect.value;
+            citySelect.innerHTML = '<option value="">-- Select a City --</option>'; 
+
+            if (selectedState && malaysianLocations[selectedState]) 
+            {
+                citySelect.disabled = false;
+                const cities = malaysianLocations[selectedState];
+
+                cities.forEach(city => 
+                {
+                    const option = document.createElement('option');
+                    option.value = city;
+                    option.textContent = city;
+                    citySelect.appendChild(option);
+                });
+            } 
+            else 
+            {
+                citySelect.disabled = true; 
+            }
+        }
+
+        stateSelect.addEventListener('change', updateCityDropdown);
+
         function handleAddressChoice() 
         {
-            const allAddressInputs = [nameInput, addressInput, cityInput, postcodeInput, stateInput, phoneInput];
+            const allAddressInputs = [nameInput, addressInput, citySelect, stateSelect, postcodeInput, phoneInput];
             if (registeredAddressRadio && registeredAddressRadio.checked) 
             {
                 if (registeredAddress) 
                 {
                     nameInput.value = (registeredAddress.Cust_First_Name + ' ' + registeredAddress.Cust_Last_Name).trim();
                     addressInput.value = registeredAddress.Cust_Address;
-                    cityInput.value = registeredAddress.Cust_City;
+                    stateSelect.value = registeredAddress.Cust_State;
+
+                    updateCityDropdown();
+                    citySelect.value = registeredAddress.Cust_City;
+
                     postcodeInput.value = registeredAddress.Cust_Postcode;
-                    stateInput.value = registeredAddress.Cust_State;
                     phoneInput.value = registeredAddress.Cust_PhoneNumber;
+
                     allAddressInputs.forEach(input => input.readOnly = true);
+                    stateSelect.disabled = true;
+                    citySelect.disabled  = true;
                     updateShippingAndTotalDisplay(postcodeInput.value);
                 }
             } 
             else 
             {
-                allAddressInputs.forEach(input => input.readOnly = false);
+                allAddressInputs.forEach(input => 
+                {
+                    input.readOnly = false;
+                    input.disabled = false; 
+                });
+
                 nameInput.value = "<?= htmlspecialchars($saved_data['shipping_name'] ?? '') ?>";
                 addressInput.value = "<?= htmlspecialchars($saved_data['shipping_address'] ?? '') ?>";
-                cityInput.value = "<?= htmlspecialchars($saved_data['shipping_city'] ?? '') ?>";
+                stateSelect.value = "<?= htmlspecialchars($saved_data['shipping_state'] ?? '') ?>"; 
+                updateCityDropdown(); 
+                citySelect.value = "<?= htmlspecialchars($saved_data['shipping_city'] ?? '') ?>";  
                 postcodeInput.value = "<?= htmlspecialchars($saved_data['shipping_postcode'] ?? '') ?>";
-                stateInput.value = "<?= htmlspecialchars($saved_data['shipping_state'] ?? '') ?>";
                 phoneInput.value = "<?= htmlspecialchars($saved_data['shipping_phone'] ?? '') ?>";
                 updateShippingAndTotalDisplay(postcodeInput.value);
             }
@@ -701,14 +965,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']))
         paymentMethodSelect.addEventListener('change', togglePaymentFields);
 
         nameInput.addEventListener('input', () => forceLettersOnly(nameInput, nameError));
-        cityInput.addEventListener('input', () => forceLettersOnly(cityInput, cityError));
-        stateInput.addEventListener('input', () => forceLettersOnly(stateInput, stateError));
         
-        postcodeInput.addEventListener('input', () => 
+        function validatePostcode() 
         {
-            forceNumericOnly(postcodeInput, postcodeError);
-            updateShippingAndTotalDisplay(postcodeInput.value);
-        });
+            const value = forceNumericOnly(postcodeInput, postcodeError);
+            updateShippingAndTotalDisplay(value);
+
+            if (value.length > 0 && value.length !== 5) 
+            {
+                postcodeError.textContent = 'Postcode must be 5 digits.'; 
+                postcodeError.style.display = 'block';
+            } 
+            else if (postcodeError.textContent === 'Postcode must be 5 digits.') 
+            {
+                postcodeError.style.display = 'none';
+            }
+        }
+
+        postcodeInput.addEventListener('input', validatePostcode);
         
         phoneInput.addEventListener('input', validatePhone);
         

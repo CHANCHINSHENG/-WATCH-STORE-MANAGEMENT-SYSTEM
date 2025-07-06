@@ -1,6 +1,14 @@
 <?php
 function insertdetail(object $pdo, string $brandName, string $imagePath) {
     try {
+        $checkStmt = $pdo->prepare("SELECT COUNT(*) FROM 03_brand WHERE LOWER(BrandName) = LOWER(?)");
+        $checkStmt->execute([$brandName]);
+        $count = $checkStmt->fetchColumn();
+
+        if ($count > 0) {
+            return "❌ Brand '$brandName' already exists.";
+        }
+
         $query = "INSERT INTO 03_brand (BrandName, BrandImage) VALUES (?, ?)";
         $stmt = $pdo->prepare($query);
 
@@ -15,20 +23,22 @@ function insertdetail(object $pdo, string $brandName, string $imagePath) {
     }
 }
 
-function uploadBrandImage(?array $file): string {
+
+function uploadBrandImage($file) {
     if ($file && $file['error'] === UPLOAD_ERR_OK) {
-        $allowed = ['jpg', 'jpeg', 'png', 'webp'];
-        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        $uploadDir = 'brand_picture/';
+        $filename = basename($file['name']);
+        $targetPath = $uploadDir . $filename;
 
-        if (!in_array($ext, $allowed)) return '';
+        if (!file_exists($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
 
-        $uploadDir = '../uploads/brand_picture/';
-        if (!file_exists($uploadDir)) mkdir($uploadDir, 0777, true);
-
-        $newName = uniqid('brand_', true) . '.' . $ext;
-        $path = $uploadDir . $newName;
-
-        return move_uploaded_file($file['tmp_name'], $path) ? $path : '';
+        if (move_uploaded_file($file['tmp_name'], $targetPath)) {
+            return $targetPath; 
+        }
     }
-    return '';
+
+    return null;
 }
+
