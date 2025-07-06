@@ -153,14 +153,13 @@ while ($row_img = $res_images->fetch_assoc()) {
     $product_images[] = $row_img['ImagePath'];
 }
 
-// Fetch recommended products
+// recommended products
 $like_products = [];
 $customer_id = $_SESSION['customer_id'] ?? null;
 
 if ($customer_id) {
     $customer_id = (int)$customer_id;
 
-    // 查询最近浏览的产品（最多6个）
     $like_query = "
         SELECT 
             p.*, 
@@ -188,7 +187,7 @@ if ($customer_id) {
     }
 }
 
-// 如果登录但没浏览记录，或查询失败，则随机推荐
+// random
 if (empty($like_products)) {
     $fallback_query = "SELECT * FROM 05_product ORDER BY RAND() LIMIT 6";
     $fallback_result = mysqli_query($conn, $fallback_query);
@@ -368,7 +367,7 @@ unset($rec);
         <div class="recommended-products">
             <?php foreach ($like_products as $rec): ?>
                 <div class="recommended-card">
-                    <a href="customer_product.php?id=<?= $rec['ProductID']; ?>">
+                    <a href="product_details.php?id=<?= $rec['ProductID']; ?>">
                         <img src="admin_addproduct_include/<?= htmlspecialchars($rec['Product_Image']); ?>" alt="<?= htmlspecialchars($rec['ProductName']); ?>">
                         <h3><?= htmlspecialchars($rec['ProductName']); ?></h3>
                         <p>RM <?= number_format($rec['Product_Price'], 2); ?></p>

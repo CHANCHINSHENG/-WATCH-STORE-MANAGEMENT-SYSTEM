@@ -2,7 +2,7 @@
 session_start();
 require_once 'db.php';
 
-// Fetch brands for dropdown
+// brands for dropdown
 $brands = [];
 $sql = "SELECT BrandName, BrandImage FROM `03_brand` ORDER BY BrandName ASC";
 $result = $conn->query($sql);
@@ -12,7 +12,7 @@ if ($result && $result->num_rows > 0) {
     }
 }
 
-// Fetch categories for dropdown
+// categories for dropdown
 $categories = [];
 $categoryQuery = "SELECT CategoryName FROM `04_category` ORDER BY CategoryName ASC";
 $categoryResult = $conn->query($categoryQuery);
@@ -22,7 +22,6 @@ if ($categoryResult && $categoryResult->num_rows > 0) {
     }
 }
 
-// Get customer information
 $customerName = 'Guest';
 $profileLink = 'customer_login.php';
 if (isset($_SESSION['customer_id'])) {
@@ -285,6 +284,7 @@ if (empty($like_products)) {
               </div>
             </nav>
             <div class="tab-content" id="nav-tabContent">
+
               <!-- Popular Products -->
               <div class="tab-pane fade show active" id="nav-popular" role="tabpanel">
                 <div class="row">
@@ -554,7 +554,7 @@ if (empty($like_products)) {
       brandContent.style.display = 'none';
     });
 
-    // CATEGORY dropdown (you can give it a separate class if you want)
+    // CATEGORY dropdown
     const categoryDropdown = document.querySelector('#categoriesDropdown').parentElement;
     const categoryContent = categoryDropdown.querySelector('.brand-dropdown-content');
 
@@ -582,15 +582,15 @@ if (empty($like_products)) {
   border-radius: 10px;
   padding: 15px;
   z-index: 999;
-  flex-wrap: wrap;         /* 允许多行 */
-  gap: 20px;               /* 品牌之间间距 */
+  flex-wrap: wrap;        
+  gap: 20px;             
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-  min-width: 400px;        /* ✅ 设置一个合适的宽度，让它横向显示 */
-  max-width: 800px;        /* ✅ 可选：最大宽度 */
+  min-width: 400px;     
+  max-width: 800px;   
 }
 
 .brands-dropdown:hover .brand-dropdown-content {
-  display: flex !important; /* ✅ 鼠标悬停时才显示 加 !important 防止被内联覆盖 */
+  display: flex !important;
 }
 
 .brand-item {
@@ -599,7 +599,7 @@ if (empty($like_products)) {
   align-items: center;
   color: #fff;
   text-decoration: none;
-  width: 100px;             /* ✅ 每个品牌项宽度相同，便于横向排布 */
+  width: 100px;           
 }
 
 .brand-item img {

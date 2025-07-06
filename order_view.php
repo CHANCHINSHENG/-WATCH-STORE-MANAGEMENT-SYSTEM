@@ -15,7 +15,6 @@ if ($order_id <= 0) {
     exit();
 }
 
-// 查詢訂單主資料
 $order = null;
 $stmt = $conn->prepare("SELECT * FROM `08_order` WHERE OrderID = ? AND CustomerID = ?");
 if ($stmt) {
@@ -31,7 +30,6 @@ if (!$order) {
     exit();
 }
 
-// 查詢訂單商品
 $order_items = [];
 $stmt_items = $conn->prepare("
     SELECT p.ProductID, p.ProductName, 

@@ -50,7 +50,6 @@
     color: inherit;
 }
 
-/* 产品卡片样式 */
 .product-card {
     background: #2a2a2a;
     backdrop-filter: blur(10px);
@@ -94,7 +93,6 @@
     background-color: #388e3c;
 }
 
-/* 加入购物车按钮 */
 .add-to-cart-btn {
     margin-top: 1rem;
     background: linear-gradient(135deg, #ff69b4, #9c27b0);
@@ -113,7 +111,6 @@
     box-shadow: 0 4px 10px rgba(255, 105, 180, 0.4);
 }
 
-/* 顶部导航栏样式 */
 .Title.main.page {
     background-color: #1a1a1a;
     padding: 20px 40px;
@@ -147,7 +144,6 @@
     transform: scale(1.05);
 }
 
-/* 图标 hover */
 .Title.main.page img {
     vertical-align: middle;
     transition: transform 0.3s ease;
@@ -157,21 +153,18 @@
     transform: scale(1.1);
 }
 
-/* 产品图像控制 */
 .product-info img {
     width: 100%;
     max-height: 250px;
     object-fit: cover;
     border-radius: 10px;
     display: block;
-    margin: 0 auto; /* Centering image if its width is less than container */
-    /* Removed hover effect from here as it's specific to modal or product card context */
+    margin: 0 auto;
 }
 
-/* --- MODIFICATION START: Corrected .product-info p --- */
 .product-info p {
     font-size: 1rem;
     margin: 5px 0;
-    color: #ddd; /* Added semicolon */
+    color: #ddd; 
 }
 

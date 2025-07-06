@@ -2,7 +2,6 @@
 session_start();
 require_once 'db.php';
 
-// 验证用户是否已登录
 if (!isset($_SESSION['customer_id'])) {
     header("Location: customer_login.php");
     exit();
@@ -10,7 +9,6 @@ if (!isset($_SESSION['customer_id'])) {
 
 $CustomerID = $_SESSION['customer_id'];
 
-// 获取浏览记录
 $sql = "SELECT 
             vh.ViewTime, 
             p.ProductID, 

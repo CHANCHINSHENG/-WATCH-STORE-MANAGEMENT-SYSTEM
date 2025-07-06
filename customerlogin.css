@@ -1,4 +1,3 @@
-/* Reset Defaults */
 * {
     margin: 0;
     padding: 0;
@@ -6,7 +5,6 @@
     font-family: 'Segoe UI', sans-serif;
 }
 
-/* Page Background */
 body {
     display: flex;
     justify-content: center;
@@ -16,7 +14,6 @@ body {
     color: #fff;
 }
 
-/* Login Container */
 .login-container {
     background: #1E1E1E;
     padding: 30px;
@@ -26,7 +23,6 @@ body {
     box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
 }
 
-/* Title */
 .login-title {
     font-size: 22px;
     font-weight: bold;
@@ -34,7 +30,6 @@ body {
     color: #d4a373;
 }
 
-/* Input Group */
 .input-group {
     text-align: left;
     margin-bottom: 15px;
@@ -55,7 +50,6 @@ body {
     border-radius: 6px;
 }
 
-/* Password Wrapper */
 .password-wrapper {
     position: relative;
 }
@@ -69,7 +63,6 @@ body {
     color: #aaa;
 }
 
-/* Login Button */
 .login-btn {
     width: 100%;
     padding: 12px;
@@ -86,7 +79,6 @@ body {
     background: #A32CC4;
 }
 
-/* Register Link */
 .register-link {
     margin-top: 15px;
     font-size: 14px;
