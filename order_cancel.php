@@ -17,7 +17,7 @@ if ($order_id <= 0) {
     exit();
 }
 
-// Get the order
+// get order
 $order_query = "SELECT * FROM `08_order` WHERE OrderID = ? AND CustomerID = ?";
 $stmt = $conn->prepare($order_query);
 $stmt->bind_param("ii", $order_id, $CustomerID);
@@ -29,7 +29,7 @@ if (!$order) {
     exit();
 }
 
-// Reject if already processed
+// reject if processed
 if ($order['OrderStatus'] === 'Cancelled') {
     echo json_encode(['status' => 'error', 'message' => '❌ This order is already cancelled.']);
     exit();
@@ -38,7 +38,7 @@ if ($order['OrderStatus'] === 'Cancelled') {
     exit();
 }
 
-// Proceed to cancel
+// to cancel
 $cancel_query = "UPDATE `08_order` SET OrderStatus = 'Cancelled' WHERE OrderID = ? AND CustomerID = ?";
 $cancel_stmt = $conn->prepare($cancel_query);
 $cancel_stmt->bind_param("ii", $order_id, $CustomerID);

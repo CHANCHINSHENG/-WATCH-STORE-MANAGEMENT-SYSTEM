@@ -89,7 +89,6 @@ $totalPages = ceil($totalRecent / $limit);
   border-color: #4a0072;
   box-shadow: 0 0 0 3px rgba(74, 0, 114, 0.2);
 }
-/* Badge Styles */
 .status-badge {
   padding: 0.45rem 1rem;
   border-radius: 999px;

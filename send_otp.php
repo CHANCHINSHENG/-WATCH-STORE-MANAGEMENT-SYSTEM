@@ -5,9 +5,9 @@ header('Content-Type: application/json');
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-require 'vendor/autoload.php'; // 你的 PHPMailer 路径
+require 'vendor/autoload.php'; // PHPMailer
 
-include 'db.php'; // 连接数据库
+include 'db.php';
 
 $response = ['status' => 'error', 'message' => 'Unknown error'];
 

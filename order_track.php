@@ -9,7 +9,6 @@ require_once 'db.php';
 
 $CustomerID = $_SESSION['customer_id'];
 
-// 检查是否有传入订单 ID
 if (!isset($_GET['order_id'])) {
     echo "Invalid request.";
     exit();
@@ -32,7 +31,6 @@ $order = $result->fetch_assoc();
 $tracking_id = $order['TrackingID'];
 $order_date = $order['OrderDate']; 
 
-// 获取追踪信息
 $track_query = "SELECT * FROM `07_tracking` WHERE TrackingID = ?";
 $track_stmt = $conn->prepare($track_query);
 $track_stmt->bind_param("i", $tracking_id);

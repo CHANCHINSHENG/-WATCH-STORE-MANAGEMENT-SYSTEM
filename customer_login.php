@@ -57,7 +57,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
                 $_SESSION['cart_items'] = [];
             }
 
-            // Redirect to main page
             header("Location: customermainpage.php");
             exit();
         } 
@@ -109,7 +108,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
         </div>
     </div>
 
-    <!-- Forgot password link -->
     <div class="text-right" style="text-align:right; margin-bottom: 10px;">
         <a href="forgot_password.php" class="forgot-password-link">Forgot Password?</a>
     </div>
