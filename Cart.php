@@ -23,17 +23,17 @@ if ($customerID)
         $cartID = $cart_row['CartID'];
 
     $sql_items = "
-SELECT 
-    p.ProductID, 
-    p.ProductName, 
-    p.Product_Price, 
-    (SELECT ImagePath FROM 06_product_images WHERE ProductID = p.ProductID AND IsPrimary = 1 LIMIT 1) AS Product_Image,
-    p.Product_Stock_Quantity, 
-    ci.Quantity 
-FROM `12_cart_item` ci
-JOIN `05_product` p ON ci.ProductID = p.ProductID
-WHERE ci.CartID = ?
-";
+        SELECT 
+            p.ProductID, 
+            p.ProductName, 
+            p.Product_Price, 
+            (SELECT ImagePath FROM 06_product_images WHERE ProductID = p.ProductID AND IsPrimary = 1 LIMIT 1) AS Product_Image,
+            p.Product_Stock_Quantity, 
+            ci.Quantity 
+        FROM `12_cart_item` ci
+        JOIN `05_product` p ON ci.ProductID = p.ProductID
+        WHERE ci.CartID = ?
+    ";
 
 
         $stmt_items = $conn->prepare($sql_items);
@@ -259,16 +259,24 @@ $(document).ready(function()
         var limit = 10;
         var effectiveLimit = Math.min(stock, limit);
 
-        if (newQuantity > effectiveLimit) 
+        if (newQuantity > effectiveLimit)             
         {
+            let errorMessage = "";
+
             if (stock < limit) 
             {
-                alert("Stock is running low! 🚨 We only have " + stock + " of this watch left.");
+                errorMessage = "Stock is running low! 🚨 Only " + stock + " left.";
             } 
             else 
             {
-                 alert("Oops! 🖐️ This watch is limited to 10 pieces per customer.");
+                errorMessage = "Oops! 🖐️ Limited to " + limit + " pieces per customer.";
             }
+
+            $('#cart-validation-error').text(errorMessage).show();
+            $('#checkout-btn').prop('disabled', true);
+            
+            quantityInput.css('border', '2px solid #ff5252'); 
+
             return;
         }
         
