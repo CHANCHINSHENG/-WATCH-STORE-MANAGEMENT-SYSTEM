@@ -147,6 +147,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         input("Cust_Email", "Email", "email");
         input("Cust_Username", "Username");
         input("Cust_PhoneNumber", "Phone Number");
+        input("Cust_Address", "Address", "text");
+        input("Cust_City", "City");
+        input("Cust_Postcode", "Postcode");
         ?>
 
         <div class="input-group">

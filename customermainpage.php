@@ -245,23 +245,23 @@ if (empty($like_products)) {
                     <div class="row h-100">
                       <div class="col-12">
                         <h5 class="fs-3 fs-lg-5 lh-sm text-uppercase">Our store</h5>
-                        <p class="my-4 pe-xl-5">Memphis clinched a spot in the play-in tournament with the victory, but the fight for seeding continues. The race for the No. 8 spot in the West -- and the safety net of having to win just one of two games to make the playoffs -- could come down to the regular seasons final day, when Memphis and Golden State meet. The good thing for the Grizzlies is they dont have to leave home until that matchup as they have games against Dallas and two against Sacramento before the finale.</p>
+                        <p class="my-4 pe-xl-5">Our Fashion E-commerce Platform names as TIGO. TIGO is a top watch website platform that aims to bring sophistication and style straight to your doorstep. This platform only available in Malaysia. With TIGO, customers can explore a wide array of watches and brands. We cooperate with several brands and customers can review some of the top brands on our platform. Our intuitive and user-friendly interface ensures a seamless shopping experience, while our commitment to secure transactions and reliable delivery builds user trust and confidence.</p>
                       </div>
                     </div>
                   </div>
                   <div class="carousel-item">
                     <div class="row h-100">
                       <div class="col-12">
-                        <h5 class="fs-3 fs-lg-5 lh-sm text-uppercase">Our store</h5>
-                        <p class="my-4 pe-xl-5">Memphis clinched a spot in the play-in tournament with the victory, but the fight for seeding continues. The race for the No. 8 spot in the West -- and the safety net of having to win just one of two games to make the playoffs -- could come down to the regular seasons final day, when Memphis and Golden State meet. The good thing for the Grizzlies is they dont have to leave home until that matchup as they have games against Dallas and two against Sacramento before the finale.</p>
+                        <h5 class="fs-3 fs-lg-5 lh-sm text-uppercase">About TIGO</h5>
+                        <p class="my-4 pe-xl-5">TIGO is Malaysia’s premier fashion e-commerce platform dedicated to premium and stylish timepieces. Our mission is to bring sophistication and elegance straight to your doorstep through a curated selection of watches from trusted brands. With an exclusive focus on the Malaysian market, TIGO offers a seamless shopping experience through a modern, user-friendly interface that makes it easy for you to browse, choose, and purchase. Whether you're looking for classic luxury or modern minimalism, TIGO is your go-to destination for watches.</p>
                       </div>
                     </div>
                   </div>
                   <div class="carousel-item">
                     <div class="row h-100">
                       <div class="col-12">
-                        <h5 class="fs-3 fs-lg-5 lh-sm text-uppercase">Our store</h5>
-                        <p class="my-4 pe-xl-5">Memphis clinched a spot in the play-in tournament with the victory, but the fight for seeding continues. The race for the No. 8 spot in the West -- and the safety net of having to win just one of two games to make the playoffs -- could come down to the regular seasons final day, when Memphis and Golden State meet. The good thing for the Grizzlies is they dont have to leave home until that matchup as they have games against Dallas and two against Sacramento before the finale.</p>
+                        <h5 class="fs-3 fs-lg-5 lh-sm text-uppercase">Why Shop With Us?</h5>
+                        <p class="my-4 pe-xl-5">At TIGO, customer trust is our top priority. We partner with reputable watch brands and ensure that every transaction is secure and protected. Our fast and reliable delivery system ensures your selected timepiece arrives on time and in perfect condition. Discover top watch brands, read honest customer reviews, and experience a platform where style meets convenience — only at TIGO.</p>
                       </div>
                     </div>
                   </div>
