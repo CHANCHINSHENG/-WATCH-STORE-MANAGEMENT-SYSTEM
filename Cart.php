@@ -166,11 +166,19 @@ $(document).ready(function()
                 errorMessage = "Oops! Quantity must be a positive number (1 or more).";
                 quantityInput.css('border', '2px solid #ff5252'); 
             } 
-            else if (quantity > Math.min(stock, 10)) 
+            else if (quantity > 10 || quantity > stock) 
             {
                 isCartValid = false;
-                errorMessage = "Quantity exceeds limit or stock for one or more items.";
-                quantityInput.css('border', '2px solid #ff5252'); 
+                quantityInput.css('border', '2px solid #ff5252');
+
+                if (quantity > 10)
+                 { 
+                    errorMessage = "Oops! 🖐️ Limited to 10 pieces per customer.";
+                } 
+                else if (quantity > stock)
+                {
+                    errorMessage = "Stock is running low! 🚨 Only " + stock + " left.";
+                }
             }
             else {
                 quantityInput.css('border', ''); 

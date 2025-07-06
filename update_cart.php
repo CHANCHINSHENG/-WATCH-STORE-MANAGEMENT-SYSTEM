@@ -48,24 +48,18 @@ if ($customerID) {
 
                 if ($stock_change_needed > 0 && $current_stock < $stock_change_needed) {
                     $response['message'] = "Not enough stock available for this increase.";
-                    $response['new_quantity'] = $current_cart_quantity; 
-                    calculateCartTotal($cartID, $response);
+                    $response['new_quantity'] = $current_cart_quantity;
+                    calculateCartTotal($cartID, $response); 
                     echo json_encode($response);
                     exit;
                 }
 
                 if ($new_quantity == 0) {
-                    $deleted_quantity = $current_cart_quantity; 
-
+                    $deleted_quantity = $current_cart_quantity;
                     $sql_delete = "DELETE FROM `12_cart_item` WHERE CartID = ? AND ProductID = ?";
                     $stmt_delete = $conn->prepare($sql_delete);
                     $stmt_delete->bind_param("ii", $cartID, $product_id);
                     $stmt_delete->execute();
-
-                    $update_stock_sql = "UPDATE `05_product` SET Product_Stock_Quantity = Product_Stock_Quantity + ? WHERE ProductID = ?";
-                    $stmt_update_stock = $conn->prepare($update_stock_sql);
-                    $stmt_update_stock->bind_param("ii", $deleted_quantity, $product_id);
-                    $stmt_update_stock->execute();
 
                     $response['success'] = true;
                     $response['new_quantity'] = 0;
@@ -77,10 +71,9 @@ if ($customerID) {
                     $stmt_update->bind_param("iii", $new_quantity, $cartID, $product_id);
                     $stmt_update->execute();
 
-                    $update_stock_sql = "UPDATE `05_product` SET Product_Stock_Quantity = Product_Stock_Quantity - ? WHERE ProductID = ?";
-                    $stmt_update_stock = $conn->prepare($update_stock_sql);
-                    $stmt_update_stock->bind_param("ii", $stock_change_needed, $product_id);
-                    $stmt_update_stock->execute();
+                    if ($stock_change_needed > 0) { 
+                    } elseif ($stock_change_needed < 0) { 
+                    }
 
                     $response['success'] = true;
                     $response['new_quantity'] = $new_quantity;
