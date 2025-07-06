@@ -23,7 +23,6 @@ if ($customerID) {
             $cart_row = $result_cart->fetch_assoc();
             $cartID = $cart_row['CartID'];
 
-            // === 增加的逻辑：获取商品在购物车中的当前数量 ===
             $sql_get_current_cart_quantity = "SELECT Quantity FROM `12_cart_item` WHERE CartID = ? AND ProductID = ?";
             $stmt_get_current_cart_quantity = $conn->prepare($sql_get_current_cart_quantity);
             $stmt_get_current_cart_quantity->bind_param("ii", $cartID, $product_id);
@@ -45,43 +44,43 @@ if ($customerID) {
                 $product = $result_product->fetch_assoc();
                 $current_stock = $product['Product_Stock_Quantity'];
 
-                // 计算实际需要的库存增减量，基于新的购物车数量和当前的购物车数量
                 $stock_change_needed = $new_quantity - $current_cart_quantity;
 
-                // 在这里进行库存检查：是否能满足新的购物车数量
-                // 如果 stock_change_neded > 0，意味着购物车数量增加了，那么需要检查库存是否足够减少
                 if ($stock_change_needed > 0 && $current_stock < $stock_change_needed) {
                     $response['message'] = "Not enough stock available for this increase.";
-                    $response['new_quantity'] = $current_cart_quantity; // 保持原数量，因为库存不足以增加
-                    calculateCartTotal($cartID, $response); // 重新计算，因为数量可能没变
+                    $response['new_quantity'] = $current_cart_quantity; 
+                    calculateCartTotal($cartID, $response);
                     echo json_encode($response);
                     exit;
                 }
 
                 if ($new_quantity == 0) {
-                    $deleted_quantity = $current_cart_quantity; // 使用我们刚刚获取到的当前购物车数量
+                    $deleted_quantity = $current_cart_quantity; 
 
                     $sql_delete = "DELETE FROM `12_cart_item` WHERE CartID = ? AND ProductID = ?";
                     $stmt_delete = $conn->prepare($sql_delete);
                     $stmt_delete->bind_param("ii", $cartID, $product_id);
                     $stmt_delete->execute();
 
+                    $update_stock_sql = "UPDATE `05_product` SET Product_Stock_Quantity = Product_Stock_Quantity + ? WHERE ProductID = ?";
+                    $stmt_update_stock = $conn->prepare($update_stock_sql);
+                    $stmt_update_stock->bind_param("ii", $deleted_quantity, $product_id);
+                    $stmt_update_stock->execute();
+
                     $response['success'] = true;
                     $response['new_quantity'] = 0;
                     calculateCartTotal($cartID, $response);
 
                 } elseif ($new_quantity > 0) { 
-                    // 更新商品数量（通过输入框）
                     $sql_update = "UPDATE `12_cart_item` SET Quantity = ? WHERE CartID = ? AND ProductID = ?";
                     $stmt_update = $conn->prepare($sql_update);
                     $stmt_update->bind_param("iii", $new_quantity, $cartID, $product_id);
                     $stmt_update->execute();
 
-                    // === 新的库存调整逻辑 ===
-                    if ($stock_change_needed > 0) { // 购物车数量增加了，库存需要减少
-                    } elseif ($stock_change_needed < 0) { // 购物车数量减少了，库存需要增加
-                    }
-                    // 如果 stock_change_needed == 0，表示数量没变，不需要更新库存
+                    $update_stock_sql = "UPDATE `05_product` SET Product_Stock_Quantity = Product_Stock_Quantity - ? WHERE ProductID = ?";
+                    $stmt_update_stock = $conn->prepare($update_stock_sql);
+                    $stmt_update_stock->bind_param("ii", $stock_change_needed, $product_id);
+                    $stmt_update_stock->execute();
 
                     $response['success'] = true;
                     $response['new_quantity'] = $new_quantity;

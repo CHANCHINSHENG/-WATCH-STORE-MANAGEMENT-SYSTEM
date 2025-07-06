@@ -140,10 +140,14 @@ $customer = $customer_stmt->get_result()->fetch_assoc();
                     Phone: <?= htmlspecialchars($row['Shipping_Phone']) ?>
                 </td>
                 <td>
-                    <a href="order_view.php?order_id=<?= $row['OrderID'] ?>" class="btn btn-sm btn-info mb-1">View</a><br>
-                    <a href="order_edit_address.php?order_id=<?= $row['OrderID'] ?>" class="btn btn-sm btn-warning mb-1">Edit Address</a><br>
-                    <button class="btn btn-sm btn-danger mb-1" onclick="cancelOrder(<?= $row['OrderID'] ?>)">Cancel</button><br>
-                    <a href="order_track.php?order_id=<?= $row['OrderID'] ?>" class="btn btn-sm btn-secondary">Track</a>
+                    <a href="order_view.php?order_id=<?= $row['OrderID'] ?>" class="btn btn-sm btn-info mb-1">View</a>
+                    <a href="order_track.php?order_id=<?= $row['OrderID'] ?>" class="btn btn-sm btn-secondary mb-1">Track</a>
+                    <?php 
+                    if ($display_order_status !== 'Shipped' && $display_order_status !== 'Delivered'): 
+                    ?>
+                        <br> <a href="order_edit_address.php?order_id=<?= $row['OrderID'] ?>" class="btn btn-sm btn-warning mb-1">Edit Address</a>
+                        <button class="btn btn-sm btn-danger mb-1" onclick="cancelOrder(<?= $row['OrderID'] ?>)">Cancel</button>
+                    <?php endif; ?>
                 </td>
             </tr>
         <?php endwhile; ?>

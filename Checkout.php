@@ -738,8 +738,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order']))
                     phoneInput.value = registeredAddress.Cust_PhoneNumber;
 
                     allAddressInputs.forEach(input => input.readOnly = true);
-                    stateSelect.disabled = true;
-                    citySelect.disabled  = true;
                     updateShippingAndTotalDisplay(postcodeInput.value);
                 }
             } 
