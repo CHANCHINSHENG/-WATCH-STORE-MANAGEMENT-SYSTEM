@@ -115,7 +115,7 @@ $queryParams = http_build_query([
             <select name="method">
                 <option value="">Payment Method</option>
                 <option value="Visa" <?= $method == 'Visa' ? 'selected' : '' ?>>Visa</option>
-                <option value="Bank" <?= $method == 'Bank' ? 'selected' : '' ?>>Bank</option>
+                <option value="Bank Payment" <?= $method == 'Bank Payment' ? 'selected' : '' ?>>Bank</option>
             </select>
             <select name="payment_status">
                 <option value="">Payment Status</option>
